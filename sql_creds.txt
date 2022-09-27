@@ -1,0 +1,6 @@
+WORKPC:
+    Data Source=localhost\SQLEXPRESS02;Initial Catalog=Flask_DataEntry_DB;User ID=johnny;Password=pass123456
+    ODBC Driver 17 for SQL Server
+HOMEPC:
+
+AZUREVM:
