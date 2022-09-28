@@ -33,7 +33,7 @@ def insert_into_table(query):
     con.commit()
 
 #insert_into_table("insert into LoginUsers values ('user2','password321','user')")
-#select_from_table("select * from LoginUsers")
+select_from_table("select * from LoginUsers")
 
 
 
