@@ -1,0 +1,8 @@
+{
+    "driver":"ODBC Driver 17 for SQL Server",
+    "server":"localhost\\SQLEXPRESS02",
+    "instance":"SQLEXPRESS02",
+    "DB":"Flask_DataEntry_DB",
+    "user":"johnny",
+    "pass":"pass123456"
+}
