@@ -3,7 +3,7 @@ from flask import Flask, render_template, url_for,redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField
+from wtforms import StringField,PasswordField,SubmitField,Label
 from wtforms.validators import InputRequired,Length,ValidationError
 from flask_bcrypt import Bcrypt
 
@@ -16,8 +16,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -33,6 +33,23 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50),nullable=False, unique=True)
     password = db.Column(db.String(80),nullable=False)
     role = db.Column(db.String(50),nullable=False)
+
+
+class Doctor(db.Model):
+    doctorid=db.Column(db.Integer,primary_key=True)
+    doctorname=db.Column(db.String(80),nullable=False,unique=True)
+    doctorspeciality=db.Column(db.String(80),nullable=False)
+    isActive = db.Column(db.Boolean,nullable=False)
+    percentageShare = db.Column(db.Float,nullable=False)
+
+class AddDoctorForm(FlaskForm):    
+    doctorname=StringField(label="Doctor Name: ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
+    doctorspeciality=StringField(label="Doctor Speciality: ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
+    isActive=StringField(label="Is Active: ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
+    percentageShare=StringField(label="Percentage Share: ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+
+    submit =SubmitField("Add")
+
 
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
@@ -78,6 +95,20 @@ def login():
 def dashboard(usr=""):
     return render_template('dashboard.html',value=usr)
 
+
+@app.route('/doctors',methods=['GET','POST'])
+@login_required
+def doctor():
+    form=AddDoctorForm()
+    if form.validate_on_submit():
+        boolean = False
+        if form.isActive.data=='True':
+            boolean = True
+        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=boolean,percentageShare=form.percentageShare.data)
+        db.session.add(new_doctor)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
+    return render_template('doctorregisterform.html',form=form)
 
 @app.route('/register',methods=['GET','POST'])
 def register():
