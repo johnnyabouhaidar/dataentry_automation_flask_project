@@ -1,4 +1,4 @@
-
+from DB_layer import *
 from flask import Flask, render_template, url_for,redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user
@@ -6,6 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SubmitField,Label
 from wtforms.validators import InputRequired,Length,ValidationError
 from flask_bcrypt import Bcrypt
+#from pandas import pd
 
 #from UserClass import *
 
@@ -43,10 +44,10 @@ class Doctor(db.Model):
     percentageShare = db.Column(db.Float,nullable=False)
 
 class AddDoctorForm(FlaskForm):    
-    doctorname=StringField(label="Doctor Name: ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
-    doctorspeciality=StringField(label="Doctor Speciality: ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
-    isActive=StringField(label="Is Active: ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
-    percentageShare=StringField(label="Percentage Share: ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+    doctorname=StringField(label="Doctor Name ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
+    doctorspeciality=StringField(label="Doctor Speciality ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
+    isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
+    percentageShare=StringField(label="Percentage Share ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
 
     submit =SubmitField("Add")
 
@@ -100,6 +101,10 @@ def dashboard(usr=""):
 @login_required
 def doctor():
     form=AddDoctorForm()
+    doctors=db.engine.execute("select * from doctor")
+    doctoritems=doctors.fetchall()
+    headersdoctors=doctors.keys()
+    
     if form.validate_on_submit():
         boolean = False
         if form.isActive.data=='True':
@@ -107,8 +112,16 @@ def doctor():
         new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=boolean,percentageShare=form.percentageShare.data)
         db.session.add(new_doctor)
         db.session.commit()
-        return redirect(url_for('dashboard'))
-    return render_template('doctorregisterform.html',form=form)
+        return redirect(url_for('doctor'))
+    #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
+    return render_template('doctorregisterform.html',form=form,table=doctoritems,headers=headersdoctors,dbtable="doctor")
+
+@app.route('/delete_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
+@login_required
+def delete_entry(tbl,id):
+    db.engine.execute("delete from {0} where doctorid={1}".format(tbl,id))
+    db.session.commit()
+    return redirect(url_for(tbl))
 
 @app.route('/register',methods=['GET','POST'])
 def register():

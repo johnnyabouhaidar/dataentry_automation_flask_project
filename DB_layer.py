@@ -24,8 +24,9 @@ def close_connection(conn):
 def select_from_table(query):
     con,cur=initialize_connection()    
     df = pd.read_sql(query,con)
-    print(df)
+    #print(df)
     close_connection(con)
+    return df
 
 def insert_into_table(query):
     con,cur=initialize_connection()
@@ -33,7 +34,7 @@ def insert_into_table(query):
     con.commit()
 
 #insert_into_table("insert into LoginUsers values ('user2','password321','user')")
-select_from_table("select * from LoginUsers")
+#select_from_table("select * from doctor")
 
 
 
