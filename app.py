@@ -1,10 +1,10 @@
 from DB_layer import *
 from flask import Flask, render_template, url_for,redirect
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user
+from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField,Label
-from wtforms.validators import InputRequired,Length,ValidationError
+from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField
+from wtforms.validators import InputRequired,Length,ValidationError,DataRequired
 from flask_bcrypt import Bcrypt
 #from pandas import pd
 
@@ -17,8 +17,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -46,7 +46,8 @@ class Doctor(db.Model):
 class AddDoctorForm(FlaskForm):    
     doctorname=StringField(label="Doctor Name ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
     doctorspeciality=StringField(label="Doctor Speciality ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
-    isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
+    #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
+    isActive = BooleanField('Active?')
     percentageShare=StringField(label="Percentage Share ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
 
     submit =SubmitField("Add")
@@ -91,10 +92,10 @@ def login():
     return render_template("login.html",form=form)
 
 @app.route('/dashboard',methods=['GET','POST'])
-@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
+#@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
 @login_required
-def dashboard(usr=""):
-    return render_template('dashboard.html',value=usr)
+def dashboard():
+    return render_template('dashboard.html',username=current_user.username)
 
 
 @app.route('/doctors',methods=['GET','POST'])
@@ -106,15 +107,20 @@ def doctor():
     headersdoctors=doctors.keys()
     
     if form.validate_on_submit():
-        boolean = False
-        if form.isActive.data=='True':
-            boolean = True
-        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=boolean,percentageShare=form.percentageShare.data)
+        #boolean = False
+        #if form.isActive.data=='True':
+            #boolean = True
+        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=form.isActive.data,percentageShare=form.percentageShare.data)
         db.session.add(new_doctor)
         db.session.commit()
         return redirect(url_for('doctor'))
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
-    return render_template('doctorregisterform.html',form=form,table=doctoritems,headers=headersdoctors,dbtable="doctor")
+    return render_template('doctorregisterform.html',form=form,table=doctoritems,headers=headersdoctors,dbtable="doctor",user_role=current_user.role)
+
+@app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
+@login_required
+def edit_entry(tbl,id):
+    return render_template('edititem.html')
 
 @app.route('/delete_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
 @login_required
