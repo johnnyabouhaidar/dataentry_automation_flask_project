@@ -7,7 +7,16 @@
     <title>Edit Item</title>
 </head>
 <body>
-    <h1>Coming Soon!</h1>
+    <h1>Edit Item</h1>
+    <form method="POST" action="">
+        {% for field in form %}
+        <tr>
+            <th>{%if  field.label.text != 'Add' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+            <td>{{ field }}</td><br><br>
+        </tr>
+        {% endfor %}
+    </form>
+
     <a href="{{url_for('dashboard')}}">Go Back</a>
 </body>
 </html>
