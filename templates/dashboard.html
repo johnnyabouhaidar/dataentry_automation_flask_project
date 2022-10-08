@@ -5,19 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>
+    <div class="header"><h1>
         Welcome Back {{username}}!
     </h1>
+</div>
+<div class ="items">
     <h2>
         What would you like to do?
     </h2><br>
     <a href="{{url_for('doctor')}}">Add New Doctor</a><br>
     <a href="">Add New Payment</a><br><br>
+    {%if user_role == 'admin'%}
     <a href="{{url_for('register')}}">Create New Login User</a><br><br>
+    {%endif%}
+    <a href="{{url_for('returnfile')}}">Generate Report</a><br><br>
+
     <a href="{{url_for('logout')}}">Logout</a>
     
-
+</div>
 </body>
 </html>

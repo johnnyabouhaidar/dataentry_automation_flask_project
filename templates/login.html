@@ -5,15 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>Login</h1>
+    <h1 class="header">Login</h1>
+    <div class="items">
     <form method="POST" action="">
         {{form.hidden_tag()}}
         {{form.username}}
-        {{form.password}}
+        {{form.password}}<br>
         {{form.submit}}
     </form>
-    <a href="{{url_for('register')}}">New User? Sign Up!</a>
+    
+</div>
 </body>
 </html>

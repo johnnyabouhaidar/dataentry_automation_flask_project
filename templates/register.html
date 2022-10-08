@@ -5,9 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>Register</h1>
+    <h1 class="header">Register</h1>
+    <div class="items">
     <form method="POST" action="">
         {{form.hidden_tag()}}
         {{form.username}}
@@ -15,6 +17,7 @@
         {{form.submit}}
     </form>
 
-    <a href="{{url_for('login')}}">Already have an account? Log In!</a>
+    <a href="{{url_for('dashboard')}}">Go Back</a>
+</div>
 </body>
 </html>

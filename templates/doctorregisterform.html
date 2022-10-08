@@ -5,9 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add item: {{dbtable}}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>Add New {{dbtable}}</h1>
+    <div class="header"><h1>Add New {{dbtable}}</h1></div>
+    <div class="items">
     <form method="POST" action="">
         {% for field in form %}
         <tr>
@@ -17,12 +19,14 @@
         {% endfor %}
     </form>
     <div>
-        <table border="1">
-        <tr>
+        <table class="fl-table" border="1">
+      <thead>
+            <tr>
             {%for title in headers%}
             <th>{{title}}</th>
             {%endfor%}
         </tr>
+    </thead>
         {% for value in table %}
         <tr>
         {%for item in value%}
@@ -39,5 +43,6 @@
     </table>
     </div>
 <a href="{{url_for('dashboard')}}">Go Back</a>
+</div>
 </body>
 </html>
