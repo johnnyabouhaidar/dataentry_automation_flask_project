@@ -8,7 +8,7 @@ a:link, a:visited,input {
     display: inline-block;
   }
   
-  a:hover, a:active {
+  a:hover, a:active,input[type=submit]:hover {
     background-color: #1abc9c;
     color: white;
   }
