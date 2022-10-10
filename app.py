@@ -18,8 +18,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -46,10 +46,9 @@ class Doctor(db.Model):
     percentageShare = db.Column(db.Float,nullable=False)
 
 
-class Payment(db.Model):
-    paymentid=db.Column(db.Integer,primary_key=True)
-    paymenttype=db.Column(db.String(90),nullable=False)
-    paymentamount=db.Column(db.Float,nullable=False)
+class Paymenttype(db.Model):
+    paiementstypeid = db.Column(db.Integer,primary_key=True)
+    paiementsType = db.Column(db.String(80),nullable=False)  
 
 
 
@@ -151,11 +150,29 @@ def register():
 def returnfile():
     return send_file('sample.pdf')
 
+@app.route('/setup',methods=['GET','POST'])
+@login_required
+def setup():
+    form1 =Addpaymenttype()
+    paymenttypes=db.engine.execute("select * from paymenttype")
+    paymenttypesitems=paymenttypes.fetchall()
+    headerspaymenttypes=paymenttypes.keys()
+    
+    if form1.validate_on_submit():
+        new_payment_type =Paymenttype(paiementsType=form1.paymenttype.data)
+        db.session.add(new_payment_type)
+        db.session.commit()
+        return redirect(url_for('setup'))
+    return render_template('setup.html',forms=[form1],table=[paymenttypesitems],headers=[headerspaymenttypes],dbtable=["paymenttype"],user_role=current_user.role)
+
+
+
 @app.route('/logout',methods=['GET','POST'])
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 
 if __name__=='__main__':
     app.run(debug=True)

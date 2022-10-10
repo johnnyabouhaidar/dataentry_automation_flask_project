@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="header"><h1>
+        Setup
+    </h1>
+</div>
+
+{% for form in forms %}
+<form method="POST" action="">
+{% for field in form%}
+<tr>
+    <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+    <td>{{ field }}</td><br><br>
+</tr>
+
+{%endfor%}
+</form>
+{%endfor%}
+
+<a href="{{url_for('dashboard')}}">Go Back</a>
+</body>
+</html>

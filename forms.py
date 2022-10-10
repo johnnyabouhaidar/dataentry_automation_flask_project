@@ -39,6 +39,11 @@ class AddDoctorForm(FlaskForm):
 
     submit =SubmitField("Submit")
 
+class Addpaymenttype(FlaskForm):
+    paymenttype=StringField(label="Payment Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Charges Fixes...)"})
+
+    submit =SubmitField("Submit")
+
 
 
 

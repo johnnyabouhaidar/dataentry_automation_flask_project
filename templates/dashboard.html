@@ -18,6 +18,7 @@
         What would you like to do?
     </h2><br>
 
+    <a href="{{url_for('setup')}}">Setup</a><br><br>
     <a href="{{url_for('doctor')}}">Add New Doctor</a><br>
     <a href="">Add New Payment</a><br><br>
     {%if user_role == 'admin'%}
