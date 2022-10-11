@@ -18,8 +18,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -74,11 +74,15 @@ def login():
             flash("Incorrect credentials")
     return render_template("login.html",form=form)
 
+
+
 @app.route('/dashboard',methods=['GET','POST'])
 #@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
 @login_required
 def dashboard():
     return render_template('dashboard.html',username=current_user.username,user_role=current_user.role)
+
+
 
 
 @app.route('/doctors',methods=['GET','POST'])
@@ -100,6 +104,8 @@ def doctor():
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
     return render_template('doctorregisterform.html',form=form,table=doctoritems,headers=headersdoctors,dbtable="doctor",user_role=current_user.role)
 
+
+
 @app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
 @login_required
 def edit_entry(tbl,id):
@@ -120,6 +126,8 @@ def edit_entry(tbl,id):
             db.session.commit()
             return redirect(url_for('doctor'))
     return render_template('edititem.html',form=form)
+
+
 
 @app.route('/delete_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
 @login_required

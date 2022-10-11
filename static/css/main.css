@@ -142,6 +142,19 @@ a:link, a:visited,input {
         text-align: center;
     }
 }
+
+.grid-container {
+  display: inline-grid; 
+  grid-template-columns: 1fr 4fr;
+  
+
+row-gap:    20px;
+column-gap: 40rem;
+
+}
+.grid-item{
+  border:5px solid rgb(23, 192, 178);
+}
 /*
 aside {
     color: #fff;
