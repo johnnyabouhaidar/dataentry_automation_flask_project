@@ -51,6 +51,14 @@ class Paymenttype(db.Model):
     paiementsType = db.Column(db.String(80),nullable=False)  
 
 
+class Payment(db.Model):
+    paiementsId = db.Column(db.Integer,primary_key=True)
+    paiementsType = db.Column(db.String(80),nullable=False)
+    paiementsNom = db.Column(db.String(80),nullable=False)
+    somme = db.Column(db.Float,nullable=False)
+
+
+
 
 
 
@@ -90,6 +98,7 @@ def payment():
     form=AddPaymentForm()
     
     form.paiementsType.choices = [(paytype.paiementstypeid,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
+    form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='Charges Fixes').all()]
 
     return render_template('generalform.html',form=form)
 

@@ -47,6 +47,8 @@ class Addpaymenttype(FlaskForm):
 
 class AddPaymentForm(FlaskForm):
     paiementsType= SelectField('PaiementsType',choices=[])
+    paiementsNom = SelectField('PaiementsNom',choices=[])
+    somme = FloatField('Somme')
 
     submit = SubmitField("Submit")
 
