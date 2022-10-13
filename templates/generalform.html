@@ -63,7 +63,7 @@
                 for (let paymentname of data.paymentnames){
                     optionHTML+= '<option value="'+paymentname.id+'">'+paymentname.name+'</option>';
                 }
-                optionHTML+= '<option value="Ajouter nouveau ?">Ajouter nouveau ?</option>';
+                optionHTML+= "<option value='johnny'>Ajouter nouveau ?</option>";
                 paymentname_select.innerHTML=optionHTML;
             });
         });

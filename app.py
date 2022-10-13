@@ -1,5 +1,5 @@
 from DB_layer import *
-from flask import Flask, render_template, url_for,redirect, flash,send_file, jsonify
+from flask import Flask, render_template, url_for,redirect, flash,send_file, jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
@@ -7,6 +7,7 @@ from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField
 from wtforms.validators import InputRequired,Length,ValidationError,DataRequired
 from flask_bcrypt import Bcrypt
 from forms import *
+import datetime
 #from pandas import pd
 
 #from UserClass import *
@@ -18,8 +19,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -56,7 +57,7 @@ class Payment(db.Model):
     paiementsType = db.Column(db.String(80),nullable=False)
     paiementsNom = db.Column(db.String(80),nullable=False)
     somme = db.Column(db.Float,nullable=False)
-    date = db.Column(db.DateTime,nullable=False)
+    date = db.Column(db.Date,nullable=False)
 
 
 
@@ -103,9 +104,22 @@ def payment():
     #choices.append((paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall())
     
     form.paiementsType.choices = choices
-    #form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='Charges Fixes').all()]
+    form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
 
-    return render_template('generalform.html',form=form,hasDynamicSelector=True,table=doctoritems,headers=headersdoctors,dbtable="payment",user_role=current_user.role)
+    payments=db.engine.execute("select * from payment")
+    paymentitems=payments.fetchall()
+    headerspayments=payments.keys()
+    
+    if request.method=='POST':
+        
+        new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.Date.data)
+        db.session.add(new_payment)
+        db.session.commit()
+        return redirect(url_for('payment'))
+    else:
+        print(form.paiementsNom.data)
+
+    return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",user_role=current_user.role)
 
 @app.route('/paymentnames/<paymenttype>')
 def paymentnames(paymenttype):
