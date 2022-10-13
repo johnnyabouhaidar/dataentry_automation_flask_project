@@ -48,5 +48,28 @@
 
 </div>
 
+{%if hasDynamicSelector == True%}
+<script>
+    let paymenttype_select = document.getElementById('paiementsType');
+    let paymentname_select = document.getElementById('paiementsNom');
+
+    paymenttype_select.onchange = function(){
+        paymenttype = paymenttype_select.value;
+
+        fetch('/paymentnames/'+paymenttype).then(function(response){
+            response.json().then(function(data){
+                let optionHTML='';
+                
+                for (let paymentname of data.paymentnames){
+                    optionHTML+= '<option value="'+paymentname.id+'">'+paymentname.name+'</option>';
+                }
+                optionHTML+= '<option value="Ajouter nouveau ?">Ajouter nouveau ?</option>';
+                paymentname_select.innerHTML=optionHTML;
+            });
+        });
+    }
+</script>
+{%endif%}
+
 </body>
 </html>

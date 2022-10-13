@@ -3,7 +3,7 @@ from flask import Flask, render_template, url_for,redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField
+from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField,DateField
 from wtforms.validators import InputRequired,Length,ValidationError,DataRequired,NumberRange
 from flask_bcrypt import Bcrypt
 from app import *
@@ -48,7 +48,10 @@ class Addpaymenttype(FlaskForm):
 class AddPaymentForm(FlaskForm):
     paiementsType= SelectField('PaiementsType',choices=[])
     paiementsNom = SelectField('PaiementsNom',choices=[])
-    somme = FloatField('Somme')
+
+    paiementsNomALT = StringField(label="Nouveau paiement ?",render_kw={"placeholder":"paiementsNom"})
+    somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
+    Date = DateField(label="Paiement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
 
     submit = SubmitField("Submit")
 
