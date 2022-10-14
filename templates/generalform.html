@@ -39,7 +39,7 @@
         {%endfor%}
         {%if user_role == 'admin'%}
         <td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}">Edit</a></td>
-        <td><a href="{{url_for('delete_entry',tbl=dbtable,id=value[0])}}">Delete</a></td>
+        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}">Delete</a></td>
         {%endif%}
         </tr>
         {% endfor %}
@@ -61,9 +61,9 @@
                 let optionHTML='';
                 
                 for (let paymentname of data.paymentnames){
-                    optionHTML+= '<option value="'+paymentname.id+'">'+paymentname.name+'</option>';
+                    optionHTML+= '<option value="'+paymentname.name+'">'+paymentname.name+'</option>';
                 }
-                optionHTML+= "<option value='johnny'>Ajouter nouveau ?</option>";
+                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
                 paymentname_select.innerHTML=optionHTML;
             });
         });

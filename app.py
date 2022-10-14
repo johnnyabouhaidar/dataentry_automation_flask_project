@@ -19,8 +19,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -72,6 +72,7 @@ def home():
 @app.route('/login',methods=['GET','POST'])
 def login():
     form=LoginForm()
+    
     if form.validate_on_submit():
         user=User.query.filter_by(username=form.username.data).first()
         if user:
@@ -110,16 +111,17 @@ def payment():
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
     
-    if request.method=='POST':
-        
-        new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.Date.data)
+    if form.is_submitted() and request.method=='POST':
+        if form.paiementsNom.data!="addnew":
+            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.Date.data)
+        else:
+            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.Date.data)
         db.session.add(new_payment)
         db.session.commit()
         return redirect(url_for('payment'))
-    else:
-        print(form.paiementsNom.data)
+    
 
-    return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",user_role=current_user.role)
+    return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
 
 @app.route('/paymentnames/<paymenttype>')
 def paymentnames(paymenttype):
@@ -151,7 +153,7 @@ def doctor():
         db.session.commit()
         return redirect(url_for('doctor'))
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
-    return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",user_role=current_user.role)
+    return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
 
 
 
@@ -178,10 +180,10 @@ def edit_entry(tbl,id):
 
 
 
-@app.route('/delete_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
+@app.route('/delete_entry/tbl=<tbl>/tblid=<tblid>/id=<id>',methods=['GET','POST'])
 @login_required
-def delete_entry(tbl,id):
-    db.engine.execute("delete from {0} where doctorid={1}".format(tbl,id))
+def delete_entry(tbl,tblid,id):
+    db.engine.execute("delete from {0} where {1}={2}".format(tbl,tblid,id))
     db.session.commit()
     return redirect(url_for(tbl))
 
@@ -220,7 +222,7 @@ def setup():
         db.session.add(new_payment_type)
         db.session.commit()
         return redirect(url_for('setup'))
-    return render_template('setup.html',forms=[form1],table=[paymenttypesitems],headers=[headerspaymenttypes],dbtable=["paymenttype"],user_role=current_user.role)
+    return render_template('setup.html',forms=[form1],table=[paymenttypesitems],headers=[headerspaymenttypes],dbtable=["paymenttype"],dbtableid=["paiementstypeid"],user_role=current_user.role)
 
 
 
@@ -232,4 +234,4 @@ def logout():
 
 
 if __name__=='__main__':
-    app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0")
