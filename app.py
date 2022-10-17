@@ -19,8 +19,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -126,13 +126,17 @@ def payment():
 @app.route('/paymentnames/<paymenttype>')
 def paymentnames(paymenttype):
     paymentnames = Payment.query.filter_by(paiementsType=paymenttype).all()
-
+    
     paymentArry=[]
     for payment in paymentnames:
-        paymentObj={}
-        paymentObj['id']=payment.paiementsId
-        paymentObj['name']=payment.paiementsNom
-        paymentArry.append(paymentObj)
+        
+        if not any(obj['name'] == payment.paiementsNom for obj in paymentArry):
+            
+            paymentObj={}
+            paymentObj['id']=payment.paiementsId
+            paymentObj['name']=payment.paiementsNom
+            paymentArry.append(paymentObj)
+            
 
     return jsonify({'paymentnames':paymentArry})
 
@@ -176,6 +180,25 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('doctor'))
+    if tbl=='payment':
+        qry = Payment.query.filter(
+            Payment.paiementsId==id).first()
+        #doc = qry.first()
+        
+        form=AddPaymentForm(paiementsType="new")
+        
+        form.somme.data=230
+        
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            qry.doctorname=form.doctorname.data
+            qry.isActive = form.isActive.data
+            qry.doctorspeciality=form.doctorspeciality.data
+            qry.percentageShare=form.percentageShare.data
+            
+            #qry=form
+            db.session.commit()
+            return redirect(url_for('doctor'))        
     return render_template('edititem.html',form=form)
 
 
@@ -198,6 +221,7 @@ def register():
         #hashed_password= Bcrypt.generate_password_hash(password)
 
         new_user = User(username=form.username.data,password=form.password.data,role="user")
+        print(form.role.data)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))

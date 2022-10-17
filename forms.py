@@ -1,9 +1,10 @@
+from wsgiref.validate import validator
 from DB_layer import *
 from flask import Flask, render_template, url_for,redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField,DateField
+from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField,DateField,SelectMultipleField
 from wtforms.validators import InputRequired,Length,ValidationError,DataRequired,NumberRange
 from flask_bcrypt import Bcrypt
 from app import *
@@ -13,6 +14,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
+    role = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('doctors','Doctors'),('payments','Payments'),('reports','Reports Generation')])
 
     submit =SubmitField("Register")
 
