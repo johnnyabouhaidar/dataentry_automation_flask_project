@@ -53,7 +53,7 @@
     let paymenttype_select = document.getElementById('paiementsType');
     let paymentname_select = document.getElementById('paiementsNom');
 
-    paymenttype_select.onchange = function(){
+    paymenttype_select.onclick = function(){
         paymenttype = paymenttype_select.value;
 
         fetch('/paymentnames/'+paymenttype).then(function(response){

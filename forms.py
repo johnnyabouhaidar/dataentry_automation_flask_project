@@ -14,7 +14,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    role = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('doctors','Doctors'),('payments','Payments'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('doctors','Doctors'),('payments','Payments'),('reports','Reports Generation')])
 
     submit =SubmitField("Register")
 
@@ -53,7 +53,7 @@ class AddPaymentForm(FlaskForm):
 
     paiementsNomALT = StringField(label="Nouveau paiement ?",render_kw={"placeholder":"paiementsNom"})
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
-    Date = DateField(label="Paiement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
+    date = DateField(label="Paiement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
 
     submit = SubmitField("Submit")
 
