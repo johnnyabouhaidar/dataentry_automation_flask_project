@@ -60,6 +60,17 @@ class Payment(db.Model):
     somme = db.Column(db.Float,nullable=False)
     date = db.Column(db.Date,nullable=False)
 
+class Facturationtype(db.Model):
+    facturationtypeid = db.Column(db.Integer,primary_key=True)
+    facturationType = db.Column(db.String(80),nullable=False)
+
+class Facturation(db.Model):
+    facturationId = db.Column(db.Integer,primary_key=True)
+    facturationType = db.Column(db.String(80),nullable=False)
+    facturationNom = db.Column(db.String(80),nullable=False)
+    somme = db.Column(db.Float,nullable=False)
+    date = db.Column(db.Date,nullable=False)
+
 
 
 
@@ -249,7 +260,18 @@ def setup():
         db.session.add(new_payment_type)
         db.session.commit()
         return redirect(url_for('setup'))
-    return render_template('setup.html',forms=[form1],table=[paymenttypesitems],headers=[headerspaymenttypes],dbtable=["paymenttype"],dbtableid=["paiementstypeid"],user_role=current_user.role)
+
+    form2 =AddFacturationtype()
+    facturationtypes=db.engine.execute("select * from facturationtype")
+    facturationtypesitems=facturationtypes.fetchall()
+    headersfacturationtypes=facturationtypes.keys()
+    
+    if form2.validate_on_submit():
+        new_facturation_type =Facturationtype(facturationType=form2.facturationtype.data)
+        db.session.add(new_facturation_type)
+        db.session.commit()
+        return redirect(url_for('setup'))        
+    return render_template('setup.html',forms=[form1,form2],table=[paymenttypesitems,facturationtypesitems],headers=[headerspaymenttypes,headersfacturationtypes],dbtable=["paymenttype","facturationtype"],dbtableid=["paiementstypeid","facturationtypeid"],user_role=current_user.role)
 
 
 

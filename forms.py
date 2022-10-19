@@ -14,7 +14,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('doctors','Doctors'),('payments','Payments'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('reports','Reports Generation')])
 
     submit =SubmitField("Register")
 
@@ -56,6 +56,11 @@ class AddPaymentForm(FlaskForm):
     date = DateField(label="Paiement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
 
     submit = SubmitField("Submit")
+
+class AddFacturationtype(FlaskForm):
+    facturationtype=StringField(label="Facturation Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
+
+    submit =SubmitField("Submit")
 
 
 
