@@ -9,6 +9,7 @@
 </head>
 <body>
     <h1 class="header">Edit Item</h1>
+    <div class="items">
     <form method="POST" action="">
         {% for field in form %}
         <tr>
@@ -19,5 +20,6 @@
     </form>
 
     <a href="{{url_for('dashboard')}}">Go Back</a>
+</div>
 </body>
 </html>

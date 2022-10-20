@@ -19,8 +19,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -132,8 +132,10 @@ def payment():
         db.session.commit()
         return redirect(url_for('payment'))
     
-
-    return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
+    if "payments" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
 
 @app.route('/paymentnames/<paymenttype>')
 def paymentnames(paymenttype):
@@ -169,7 +171,10 @@ def doctor():
         db.session.commit()
         return redirect(url_for('doctor'))
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
-    return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
+    if "doctors" in current_user.access  or current_user.access=="all":
+        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
 
 
 
@@ -234,13 +239,18 @@ def register():
         password=form.password.data
         #hashed_password= Bcrypt.generate_password_hash(password)
         rolesstr=" "
-        new_user = User(username=form.username.data,password=form.password.data,role="user",access=rolesstr.join(form.access.data))
+        if form.isAdmin.data:
+            new_user = User(username=form.username.data,password=form.password.data,role="admin",access=rolesstr.join(form.access.data))
+        else:
+            new_user = User(username=form.username.data,password=form.password.data,role="user",access=rolesstr.join(form.access.data))
         
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('login'))
-
-    return render_template("register.html",form=form)
+    if current_user.role=="admin":
+        return render_template("register.html",form=form)
+    else:
+        return render_template("NOT_AUTHORIZED.html")
 
 @app.route('/returnfile',methods=['GET','POST'])
 @login_required
@@ -270,8 +280,11 @@ def setup():
         new_facturation_type =Facturationtype(facturationType=form2.facturationtype.data)
         db.session.add(new_facturation_type)
         db.session.commit()
-        return redirect(url_for('setup'))        
-    return render_template('setup.html',forms=[form1,form2],table=[paymenttypesitems,facturationtypesitems],headers=[headerspaymenttypes,headersfacturationtypes],dbtable=["paymenttype","facturationtype"],dbtableid=["paiementstypeid","facturationtypeid"],user_role=current_user.role)
+        return redirect(url_for('setup'))
+    if "setup" in current_user.access  or current_user.access=="all":        
+        return render_template('setup.html',forms=[form1,form2],table=[paymenttypesitems,facturationtypesitems],headers=[headerspaymenttypes,headersfacturationtypes],dbtable=["paymenttype","facturationtype"],dbtableid=["paiementstypeid","facturationtypeid"],user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
 
 
 
