@@ -106,6 +106,40 @@ def dashboard():
     return render_template('dashboard.html',username=current_user.username,user_role=current_user.role)
 
 
+@app.route('/facturation',methods=['GET','POST'])
+@login_required
+def facturation():
+    form = AddFacturationForm()
+    choices=[]
+    choices.append(("---","---"))
+    choices=choices+[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
+    form.facturationType.choices = choices
+    form.facturationNom.choices= [(factname.facturationId,factname.facturationNom) for factname in Facturation.query.filter_by(facturationType='---').all()]
+    facturations=db.engine.execute("select * from facturation")
+    facturationsitems=facturations.fetchall()
+    headersfacturations=facturations.keys()
+
+    if "facturation" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
+
+@app.route('/facturationnames/<facturationtype>')
+def facturationnames(facturationtype):
+    facturationnames = Facturation.query.filter_by(facturationType=facturationtype).all()
+    
+    facturationArry=[]
+    for facturation in facturationnames:
+        
+        if not any(obj['name'] == facturation.paiementsNom for obj in facturationArry):
+            
+            facturationObj={}
+            facturationObj['id']=facturation.facturationId
+            facturationObj['name']=facturation.facturationNom
+            facturationArry.append(facturationObj)
+            
+
+    return jsonify({'facturationnames':facturationArry})
 
 @app.route('/payments',methods=['GET','POST'])
 @login_required
@@ -234,8 +268,10 @@ def delete_entry(tbl,tblid,id):
 @app.route('/register',methods=['GET','POST'])
 def register():
     form=RegisterForm()
+    userlslist=db.engine.execute("select * from \"user\"")
+    userlslistitems=userlslist.fetchall()
+    headersuserlslist=userlslist.keys()
     if form.validate_on_submit():
-
         password=form.password.data
         #hashed_password= Bcrypt.generate_password_hash(password)
         rolesstr=" "
@@ -248,7 +284,7 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
     if current_user.role=="admin":
-        return render_template("register.html",form=form)
+        return render_template("register.html",form=form,table=userlslistitems,headers=headersuserlslist,user_role=current_user.role)
     else:
         return render_template("NOT_AUTHORIZED.html")
 

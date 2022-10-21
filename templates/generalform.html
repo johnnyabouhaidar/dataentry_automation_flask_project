@@ -48,7 +48,7 @@
 
 </div>
 
-{%if hasDynamicSelector == True%}
+{%if hasDynamicSelector == True and dbtable == 'payment'%}
 <script>
     let paymenttype_select = document.getElementById('paiementsType');
     let paymentname_select = document.getElementById('paiementsNom');
@@ -70,6 +70,27 @@
     }
 </script>
 {%endif%}
+{%if hasDynamicSelector == True and dbtable == 'facturation'%}
+<script>
+    let facturationtype_select = document.getElementById('facturationType');
+    let facturationname_select = document.getElementById('facturationNom');
 
+    facturationtype_select.onclick = function(){
+        facturationtype = facturationtype_select.value;
+
+        fetch('/facturationnames/'+facturationtype).then(function(response){
+            response.json().then(function(data){
+                let optionHTML='';
+                
+                for (let facturationname of data.facturationnames){
+                    optionHTML+= '<option value="'+facturationname.name+'">'+facturationname.name+'</option>';
+                }
+                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
+                facturationname_select.innerHTML=optionHTML;
+            });
+        });
+    }
+</script>
+{%endif%}
 </body>
 </html>

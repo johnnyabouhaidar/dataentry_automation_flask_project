@@ -15,7 +15,7 @@ class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
     access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('reports','Reports Generation')])
-    isAdmin = BooleanField('Edit/Delete Rights')
+    isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
 
@@ -62,6 +62,16 @@ class AddFacturationtype(FlaskForm):
     facturationtype=StringField(label="Facturation Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
 
     submit =SubmitField("Submit")
+
+class AddFacturationForm(FlaskForm):
+    facturationType= SelectField('FacturationType',choices=[])
+    facturationNom = SelectField('FacturationNom',choices=[])
+
+    facturationNomALT = StringField(label="Nouveau facturation ?",render_kw={"placeholder":"facturationNom"})
+    somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
+    date = DateField(label="Facturation Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
+
+    submit = SubmitField("Submit")
 
 
 
