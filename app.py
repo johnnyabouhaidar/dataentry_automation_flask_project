@@ -19,8 +19,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 login_manager=LoginManager()
@@ -118,6 +118,16 @@ def facturation():
     facturations=db.engine.execute("select * from facturation")
     facturationsitems=facturations.fetchall()
     headersfacturations=facturations.keys()
+
+    if form.is_submitted() and request.method=='POST':
+        if form.facturationNom.data!="addnew":
+            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,date=form.date.data)
+        else:
+            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNomALT.data,somme=form.somme.data,date=form.date.data)
+        db.session.add(new_facturation)
+        db.session.commit()
+        return redirect(url_for('facturation'))
+    
 
     if "facturation" in current_user.access or current_user.access=="all":
         return render_template('generalform.html',form=form,hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
@@ -261,7 +271,10 @@ def edit_entry(tbl,id):
 def delete_entry(tbl,tblid,id):
     db.engine.execute("delete from {0} where {1}={2}".format(tbl,tblid,id))
     db.session.commit()
-    return redirect(url_for(tbl))
+    if 'type' in tbl:
+        return redirect(url_for('setup'))
+    else:
+        return redirect(url_for(tbl))
 
 
 
