@@ -8,7 +8,8 @@ from wtforms.validators import InputRequired,Length,ValidationError,DataRequired
 from flask_bcrypt import Bcrypt
 from forms import *
 import datetime
-#from pandas import pd
+from report_test import *
+import pandas as pd
 
 #from UserClass import *
 
@@ -301,9 +302,15 @@ def register():
     else:
         return render_template("NOT_AUTHORIZED.html")
 
-@app.route('/returnfile',methods=['GET','POST'])
+@app.route('/reporting',methods=['GET','POST'])
 @login_required
-def returnfile():
+def reporting():
+    paymentslist=db.engine.execute("select * from payment")
+    paymentslistitems=paymentslist.fetchall()
+    headerspaymentslist=paymentslist.keys()
+    df = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
+    print(df)
+
     return send_file('sample.pdf')
 
 @app.route('/setup',methods=['GET','POST'])
