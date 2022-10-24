@@ -20,13 +20,15 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
+
 
 login_manager=LoginManager()
 login_manager.init_app(app)
 login_manager.login_view="login"
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -262,7 +264,15 @@ def edit_entry(tbl,id):
             
             #qry=form
             db.session.commit()
-            return redirect(url_for('payment'))        
+            return redirect(url_for('payment'))
+    if tbl=='user':
+        qry = User.query.filter(
+            User.id==id
+        ).first()
+        form=RegisterForm(obj=qry)
+        form.access.data = qry.access.split(" ")
+        
+
     return render_template('edititem.html',form=form)
 
 
@@ -298,7 +308,7 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
     if current_user.role=="admin":
-        return render_template("register.html",form=form,table=userlslistitems,headers=headersuserlslist,user_role=current_user.role)
+        return render_template("register.html",form=form,table=userlslistitems,headers=headersuserlslist,user_role=current_user.role,dbtable="user")
     else:
         return render_template("NOT_AUTHORIZED.html")
 
@@ -308,8 +318,9 @@ def reporting():
     paymentslist=db.engine.execute("select * from payment")
     paymentslistitems=paymentslist.fetchall()
     headerspaymentslist=paymentslist.keys()
-    df = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
-    print(df)
+    paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
+    generate_payment_report(paymentdf)
+    #print(df)
 
     return send_file('sample.pdf')
 
