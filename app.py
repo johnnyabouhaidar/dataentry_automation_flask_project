@@ -315,12 +315,12 @@ def register():
 @app.route('/reporting',methods=['GET','POST'])
 @login_required
 def reporting():
-    paymentslist=db.engine.execute("select * from payment")
+    paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
     paymentslistitems=paymentslist.fetchall()
     headerspaymentslist=paymentslist.keys()
     paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
     generate_payment_report(paymentdf)
-    #print(df)
+    print(paymentdf)
 
     return send_file('sample.pdf')
 
