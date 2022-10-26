@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 
@@ -320,7 +320,9 @@ def reporting():
     paymentslistitems=paymentslist.fetchall()
     headerspaymentslist=paymentslist.keys()
     paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
-    generate_payment_report(paymentdf)
+    #generate_payment_report(paymentdf)
+    paymentdf.set_index('paiementsNom',inplace=True)
+    dataframe_to_pdf(paymentdf,'sample.pdf')
     print(paymentdf)
 
     return send_file('sample.pdf')

@@ -3,7 +3,10 @@ import os
 
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 from matplotlib.backends.backend_pdf import PdfPages
 
 def _draw_as_table(df, pagesize):
@@ -27,8 +30,15 @@ def dataframe_to_pdf(df, filename, numpages=(1, 1), pagesize=(11, 8.5)):
     nh, nv = numpages
     rows_per_page = len(df) // nh
     cols_per_page = len(df.columns) // nv
+
+    plt.figure() 
+    plt.axis('off')
+    plt.text(0.5,0.5,"Consolidated Payment Report for 2022",ha='center',va='center',size=20)
+    pdf.savefig()
+    plt.close()
     for i in range(0, nh):
         for j in range(0, nv):
+            
             page = df.iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df)),
                            (j*cols_per_page):min((j+1)*cols_per_page, len(df.columns))]
             fig = _draw_as_table(page, pagesize)
@@ -39,30 +49,8 @@ def dataframe_to_pdf(df, filename, numpages=(1, 1), pagesize=(11, 8.5)):
                          ha='center', fontsize=8)
             pdf.savefig(fig, bbox_inches='tight')
             
+            df.plot(kind='bar')
+            plt.xticks(rotation=0)
+            pdf.savefig()
             plt.close()
 
-def generate_payment_report(data_list_df):
-    pdf=FPDF()
-    pdf.add_page()
-    pdf.set_font('arial','B',11)
-    pdf.cell(60)
-    pdf.cell(75,10,'Payment Data:',0,2,'C')
-    pdf.cell(90,10,' ',0,2,'C')
-    pdf.cell(-55)
-    columnNameList = list(data_list_df.columns)
-    for header in columnNameList[:-1]:
-        pdf.cell(35,10,header,1,0,'C')
-    pdf.cell(35,10,columnNameList[-1],1,2,'C')
-    pdf.cell(-140)
-    pdf.set_font('arial','',11)
-    for row in range(0,len(data_list_df)):
-        
-        for col_num,col_name in enumerate(columnNameList):
-            if col_num!= len(columnNameList)-1:                
-                pdf.cell(35,10,str(data_list_df['%s'%(col_name)].iloc[row]),1,0,'C')
-            else:                
-                pdf.cell(35,10,str(data_list_df['%s'%(col_name)].iloc[row]),1,2,'C')
-                pdf.cell(-140)
-            
-
-    pdf.output('sample.pdf')
