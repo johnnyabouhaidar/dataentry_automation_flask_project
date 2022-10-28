@@ -123,13 +123,17 @@ def facturation():
     headersfacturations=facturations.keys()
 
     if form.is_submitted() and request.method=='POST':
+
         if form.facturationNom.data!="addnew":
             new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,date=form.date.data)
         else:
             new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNomALT.data,somme=form.somme.data,date=form.date.data)
-        db.session.add(new_facturation)
-        db.session.commit()
-        return redirect(url_for('facturation'))
+        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+            db.session.add(new_facturation)
+            db.session.commit()
+            return redirect(url_for('facturation'))
+        else:
+            flash("Invalid Data. Please re-check and submit again")
     
 
     if "facturation" in current_user.access or current_user.access=="all":
@@ -175,9 +179,12 @@ def payment():
             new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data)
         else:
             new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.date.data)
-        db.session.add(new_payment)
-        db.session.commit()
-        return redirect(url_for('payment'))
+        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+            db.session.add(new_payment)
+            db.session.commit()
+            return redirect(url_for('payment'))
+        else:
+            flash("Invalid Data. Please re-check and submit again")
     
     if "payments" in current_user.access or current_user.access=="all":
         return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
@@ -265,12 +272,55 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('payment'))
+        else:
+            flash("Invalid Data. Please re-check and submit again")
+    if tbl=='facturation':
+        qry = Facturation.query.filter(
+            Facturation.facturationId==id).first()
+        #doc = qry.first()
+        
+        form=AddFacturationForm(obj=qry)
+        choices=[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
+        form.facturationType.choices = choices
+        
+        form.facturationNom.choices=[(qry.facturationNom,qry.facturationNom)]
+        
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            qry.facturationType=form.facturationType.data
+            qry.facturationNom = form.facturationNom.data
+            qry.somme=form.somme.data
+            qry.date=form.date.data
+            
+            #qry=form
+            db.session.commit()
+            return redirect(url_for('facturation'))
+
     if tbl=='user':
         qry = User.query.filter(
             User.id==id
         ).first()
-        form=RegisterForm(obj=qry)
+        form=EditRegisterForm(obj=qry)
         form.access.data = qry.access.split(" ")
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            form.access.data=None
+            rolesstr=" "
+            qry.username=form.username.data
+            qry.password = form.password.data
+            if form.isAdmin.data:
+                qry.role="admin"
+            else:
+                qry.role="user"
+
+            qry.access=rolesstr.join(request.form.getlist('access'))
+            
+            #new_user = User(username=form.username.data,password=form.password.data,role="user",access=rolesstr.join(form.access.data))
+            #qry=form
+            db.session.commit()
+            return redirect(url_for('user'))
+        else:
+            print(form.errors)
         
 
     return render_template('edititem.html',form=form)
@@ -280,7 +330,7 @@ def edit_entry(tbl,id):
 @app.route('/delete_entry/tbl=<tbl>/tblid=<tblid>/id=<id>',methods=['GET','POST'])
 @login_required
 def delete_entry(tbl,tblid,id):
-    db.engine.execute("delete from {0} where {1}={2}".format(tbl,tblid,id))
+    db.engine.execute("delete from \"{0}\" where {1}={2}".format(tbl,tblid,id))
     db.session.commit()
     if 'type' in tbl:
         return redirect(url_for('setup'))
@@ -289,8 +339,8 @@ def delete_entry(tbl,tblid,id):
 
 
 
-@app.route('/register',methods=['GET','POST'])
-def register():
+@app.route('/user',methods=['GET','POST'])
+def user():
     form=RegisterForm()
     userlslist=db.engine.execute("select * from \"user\"")
     userlslistitems=userlslist.fetchall()
@@ -308,7 +358,7 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
     if current_user.role=="admin":
-        return render_template("register.html",form=form,table=userlslistitems,headers=headersuserlslist,user_role=current_user.role,dbtable="user")
+        return render_template("user.html",form=form,table=userlslistitems,headers=headersuserlslist,user_role=current_user.role,dbtable="user",dbtableid="id")
     else:
         return render_template("NOT_AUTHORIZED.html")
 

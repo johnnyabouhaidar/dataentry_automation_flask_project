@@ -11,6 +11,13 @@
 <body>
     <h1 class="header">Edit Item</h1>
     <div class="items">
+        {%with messages = get_flashed_messages() %}
+        {%if messages %}
+        {%for message in messages %}
+         {{message}}
+        {%endfor%}
+        {%endif%}
+    {%endwith%} 
     <form method="POST" action="">
         {% for field in form %}
         <tr>

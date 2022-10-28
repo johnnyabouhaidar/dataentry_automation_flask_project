@@ -27,6 +27,15 @@ class RegisterForm(FlaskForm):
             raise ValidationError(
                 "That username already exists. Please choose a different one."
             )
+class EditRegisterForm(FlaskForm):
+    username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
+    password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('reports','Reports Generation')])
+    isAdmin = BooleanField('Admin?')
+
+    submit =SubmitField("Register")
+
+
 class LoginForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
