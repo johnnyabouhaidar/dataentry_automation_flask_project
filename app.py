@@ -75,6 +75,18 @@ class Facturation(db.Model):
     date = db.Column(db.Date,nullable=False)
 
 
+class Dentisterietype(db.Model):
+    dentisterietypeId=db.Column(db.Integer,primary_key=True)
+    dentisterietype = db.Column(db.String(80),nullable=False)
+
+class Dentisterie(db.Model):
+    dentisterieId = db.Column(db.Integer,primary_key=True)
+    dentisterieType = db.Column(db.String(80),nullable=False)
+    dentisterieNom = db.Column(db.String(80),nullable=False)
+    somme=db.Column(db.Float,nullable=False)
+    date=db.Column(db.Date,nullable=False)
+
+
 
 
 
@@ -107,6 +119,19 @@ def login():
 @login_required
 def dashboard():
     return render_template('dashboard.html',username=current_user.username,user_role=current_user.role)
+
+@app.route('/dentisterie',methods=['GET','POST'])
+@login_required
+def dentisterie():
+    form=AddDentistryInfoForm()
+    choices=[]
+    choices.append(("---","---"))   
+    form.dentisterieType.choices=choices
+    
+    if "dentisterie" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',form=form,hasDynamicSelector=True,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')    
 
 
 @app.route('/facturation',methods=['GET','POST'])
@@ -373,9 +398,12 @@ def reporting():
     #generate_payment_report(paymentdf)
     paymentdf.set_index('paiementsNom',inplace=True)
     dataframe_to_pdf(paymentdf,'sample.pdf')
-    print(paymentdf)
-
-    return send_file('sample.pdf')
+    #print(paymentdf)
+    if "reports" in current_user.access  or current_user.access=="all":
+        return send_file('sample.pdf')
+    else:
+        return render_template("NOT_AUTHORIZED.html")
+    
 
 @app.route('/setup',methods=['GET','POST'])
 @login_required
@@ -401,8 +429,21 @@ def setup():
         db.session.add(new_facturation_type)
         db.session.commit()
         return redirect(url_for('setup'))
+
+    form3 = AddDentistrytype()
+    dentisterietypes=db.engine.execute("select * from Dentisterietype")
+    dentisterietypesitems=dentisterietypes.fetchall()
+    headersdentisterietypes=dentisterietypes.keys()
+
+    if form3.validate_on_submit():
+        new_dentisterie_type=Dentisterietype(dentisterietype=form3.dentisterieType.data)
+        db.session.add(new_dentisterie_type)
+        db.session.commit()
+        return redirect(url_for('setup'))
+
+
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',forms=[form1,form2],table=[paymenttypesitems,facturationtypesitems],headers=[headerspaymenttypes,headersfacturationtypes],dbtable=["paymenttype","facturationtype"],dbtableid=["paiementstypeid","facturationtypeid"],user_role=current_user.role)
+        return render_template('setup.html',forms=[form1,form2,form3],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes],dbtable=["paymenttype","facturationtype","dentisterietype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
