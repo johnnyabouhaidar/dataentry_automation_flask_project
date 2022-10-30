@@ -29,7 +29,7 @@ class RegisterForm(FlaskForm):
             )
 class EditRegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
-    password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
+    password=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
     access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 

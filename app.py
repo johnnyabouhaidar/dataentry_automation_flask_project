@@ -125,13 +125,47 @@ def dashboard():
 def dentisterie():
     form=AddDentistryInfoForm()
     choices=[]
-    choices.append(("---","---"))   
+    choices.append(("---","---"))
+    choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
+    form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
+    dentisterie=db.engine.execute("select * from dentisterie")
+    dentisterieitems=dentisterie.fetchall()
+    headersdentisterie=dentisterie.keys()
+    if form.is_submitted() and request.method=='POST':
+
+        if form.dentisterieNom.data!="addnew":
+            new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNom.data,somme=form.somme.data,date=form.date.data)
+        else:
+            new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNomALT.data,somme=form.somme.data,date=form.date.data)
+        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+            db.session.add(new_dentisterie)
+            db.session.commit()
+            return redirect(url_for('dentisterie'))
+        else:
+            flash("Invalid Data. Please re-check and submit again")
     
     if "dentisterie" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=True,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role)
+        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=dentisterieitems,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')    
+
+@app.route('/dentisterienames/<dentisterietype>')
+def dentisterienames(dentisterietype):
+    dentisterienames = Dentisterie.query.filter_by(dentisterieType=dentisterietype).all()
+    
+    dentisterieArry=[]
+    for dentisterie in dentisterienames:
+        
+        if not any(obj['name'] == dentisterie.dentisterieNom for obj in dentisterieArry):
+            
+            dentisterieObj={}
+            dentisterieObj['id']=dentisterie.dentisterieId
+            dentisterieObj['name']=dentisterie.dentisterieNom
+            dentisterieArry.append(dentisterieObj)
+            
+
+    return jsonify({'dentisterienames':dentisterieArry})
 
 
 @app.route('/facturation',methods=['GET','POST'])
@@ -320,16 +354,45 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('facturation'))
+    if tbl=='dentisterie':
+        qry = Dentisterie.query.filter(
+            Dentisterie.dentisterieId==id).first()
+        #doc = qry.first()
+        
+        form=AddDentistryInfoForm(obj=qry)
+        choices=[(facttype.dentisterietype,facttype.dentisterietype)for facttype in db.engine.execute("select * from dentisterietype").fetchall()]
+        form.dentisterieType.choices = choices
+        
+        form.dentisterieNom.choices=[(qry.dentisterieNom,qry.dentisterieNom)]
+        
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            
+            qry.dentisterieType=form.dentisterieType.data
+            qry.dentisterieNom = form.dentisterieNom.data
+            qry.somme=form.somme.data
+            qry.date=form.date.data
+            
+            #qry=form
+            db.session.commit()
+            return redirect(url_for('dentisterie'))
 
     if tbl=='user':
         qry = User.query.filter(
             User.id==id
         ).first()
-        form=EditRegisterForm(obj=qry)
+
+
+        
+        if qry.role=="admin":
+            form=EditRegisterForm(obj=qry,isAdmin=True)
+        else:
+            form=EditRegisterForm(obj=qry,isAdmin=False)
         form.access.data = qry.access.split(" ")
         if form.validate_on_submit():
             #qry.doctorid = form.doctorid.data
             form.access.data=None
+            
             rolesstr=" "
             qry.username=form.username.data
             qry.password = form.password.data

@@ -100,5 +100,27 @@
     }
 </script>
 {%endif%}
+{%if hasDynamicSelector == True and dbtable == 'dentisterie'%}
+<script>
+    let dentisterietype_select = document.getElementById('dentisterieType');
+    let dentisteriename_select = document.getElementById('dentisterieNom');
+
+    dentisterietype_select.onclick = function(){
+        dentisterietype = dentisterietype_select.value;
+
+        fetch('/dentisterienames/'+dentisterietype).then(function(response){
+            response.json().then(function(data){
+                let optionHTML='';
+                
+                for (let dentisteriename of data.dentisterienames){
+                    optionHTML+= '<option value="'+dentisteriename.name+'">'+dentisteriename.name+'</option>';
+                }
+                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
+                dentisteriename_select.innerHTML=optionHTML;
+            });
+        });
+    }
+</script>
+{%endif%}
 </body>
 </html>
