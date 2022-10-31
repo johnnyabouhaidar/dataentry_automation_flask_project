@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 
@@ -324,7 +324,10 @@ def edit_entry(tbl,id):
         if form.validate_on_submit():
             #qry.doctorid = form.doctorid.data
             qry.paiementsType=form.paiementsType.data
-            qry.paiementsNom = form.paiementsNom.data
+            if form.paiementsNomALT.data=="":
+                qry.paiementsNom = form.paiementsNom.data
+            else:
+                qry.paiementsNom = form.paiementsNomALT.data
             qry.somme=form.somme.data
             qry.date=form.date.data
             
@@ -347,7 +350,10 @@ def edit_entry(tbl,id):
         if form.validate_on_submit():
             #qry.doctorid = form.doctorid.data
             qry.facturationType=form.facturationType.data
-            qry.facturationNom = form.facturationNom.data
+            if form.facturationNomALT.data=="":
+                qry.facturationNom = form.facturationNom.data
+            else:
+                qry.facturationNom = form.facturationNomALT.data
             qry.somme=form.somme.data
             qry.date=form.date.data
             
@@ -369,7 +375,10 @@ def edit_entry(tbl,id):
             #qry.doctorid = form.doctorid.data
             
             qry.dentisterieType=form.dentisterieType.data
-            qry.dentisterieNom = form.dentisterieNom.data
+            if form.dentisterieNomALT.data == "":
+                qry.dentisterieNom = form.dentisterieNom.data
+            else:
+                qry.dentisterieNom = form.dentisterieNomALT.data
             qry.somme=form.somme.data
             qry.date=form.date.data
             
@@ -453,13 +462,14 @@ def user():
 @app.route('/reporting',methods=['GET','POST'])
 @login_required
 def reporting():
-    paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
+    #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
+    paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)>2021 group by YEAR(date),MONTH(date) , paiementsType """)
     #paymentslist=db.engine.execute("SELECT *from payment")
     paymentslistitems=paymentslist.fetchall()
     headerspaymentslist=paymentslist.keys()
     paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
     #generate_payment_report(paymentdf)
-    paymentdf.set_index('paiementsNom',inplace=True)
+    paymentdf.set_index('paiementsType',inplace=True)
     dataframe_to_pdf(paymentdf,'sample.pdf')
     #print(paymentdf)
     if "reports" in current_user.access  or current_user.access=="all":
