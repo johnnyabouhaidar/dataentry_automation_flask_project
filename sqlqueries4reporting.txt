@@ -1,0 +1,3 @@
+-query for getting payments (type summary):
+    select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)>2021 group by YEAR(date),MONTH(date) , paiementsType
+-

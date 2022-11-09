@@ -8,7 +8,7 @@ from wtforms.validators import InputRequired,Length,ValidationError,DataRequired
 from flask_bcrypt import Bcrypt
 from forms import *
 import datetime
-from report_test import *
+from report import *
 import pandas as pd
 
 #from UserClass import *
@@ -153,19 +153,26 @@ def dentisterie():
 @app.route('/dentisterienames/<dentisterietype>')
 def dentisterienames(dentisterietype):
     dentisterienames = Dentisterie.query.filter_by(dentisterieType=dentisterietype).all()
+    doctornames=Doctor.query.all()
     
-    dentisterieArry=[]
+    Arry=[]
     for dentisterie in dentisterienames:
         
-        if not any(obj['name'] == dentisterie.dentisterieNom for obj in dentisterieArry):
+        if not any(obj['name'] == dentisterie.dentisterieNom for obj in Arry):
             
             dentisterieObj={}
             dentisterieObj['id']=dentisterie.dentisterieId
             dentisterieObj['name']=dentisterie.dentisterieNom
-            dentisterieArry.append(dentisterieObj)
+            Arry.append(dentisterieObj)
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
             
 
-    return jsonify({'dentisterienames':dentisterieArry})
+    return jsonify({'dentisterienames':Arry})
 
 
 @app.route('/facturation',methods=['GET','POST'])
@@ -203,19 +210,26 @@ def facturation():
 @app.route('/facturationnames/<facturationtype>')
 def facturationnames(facturationtype):
     facturationnames = Facturation.query.filter_by(facturationType=facturationtype).all()
+    doctornames=Doctor.query.all()
     
-    facturationArry=[]
+    Arry=[]
     for facturation in facturationnames:
         
-        if not any(obj['name'] == facturation.paiementsNom for obj in facturationArry):
+        if not any(obj['name'] == facturation.paiementsNom for obj in Arry):
             
             facturationObj={}
             facturationObj['id']=facturation.facturationId
             facturationObj['name']=facturation.facturationNom
-            facturationArry.append(facturationObj)
+            Arry.append(facturationObj)
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
             
 
-    return jsonify({'facturationnames':facturationArry})
+    return jsonify({'facturationnames':Arry})
 
 @app.route('/payments',methods=['GET','POST'])
 @login_required
@@ -253,19 +267,27 @@ def payment():
 @app.route('/paymentnames/<paymenttype>')
 def paymentnames(paymenttype):
     paymentnames = Payment.query.filter_by(paiementsType=paymenttype).all()
+    doctornames = Doctor.query.all()
     
-    paymentArry=[]
+    Arry=[]
     for payment in paymentnames:
         
-        if not any(obj['name'] == payment.paiementsNom for obj in paymentArry):
+        if not any(obj['name'] == payment.paiementsNom for obj in Arry):
             
             paymentObj={}
             paymentObj['id']=payment.paiementsId
             paymentObj['name']=payment.paiementsNom
-            paymentArry.append(paymentObj)
+            Arry.append(paymentObj)
+    
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
             
 
-    return jsonify({'paymentnames':paymentArry})
+    return jsonify({'paymentnames':Arry})
 
 @app.route('/doctors',methods=['GET','POST'])
 @login_required
