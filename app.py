@@ -86,6 +86,13 @@ class Dentisterie(db.Model):
     somme=db.Column(db.Float,nullable=False)
     date=db.Column(db.Date,nullable=False)
 
+class Encaissements(db.Model):
+    encaissementId=db.Column(db.Integer,primary_key=True)
+    encaissementNom=db.Column(db.String(80),nullable=False)
+    encaissementDate=db.Column(db.Date,nullable=False)
+    montant=db.Column(db.Float,nullable=False)
+    banque=db.Column(db.String(80),nullable=False)
+
 
 
 
@@ -119,6 +126,22 @@ def login():
 @login_required
 def dashboard():
     return render_template('dashboard.html',username=current_user.username,user_role=current_user.role)
+
+
+@app.route('/encaissement',methods=['GET','POST'])
+@login_required
+def encaissement():
+    form = AddEncaissementForm()
+    #encaissementnames = []
+    encaissements=db.engine.execute("select * from encaissements")
+    encaissementitems=encaissements.fetchall()
+    headersencaissement=encaissements.keys()
+    
+    if "encaissement" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissements",dbtableid="encaissementId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
+
 
 @app.route('/dentisterie',methods=['GET','POST'])
 @login_required
@@ -492,6 +515,8 @@ def reporting():
     paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
     #generate_payment_report(paymentdf)
     paymentdf.set_index('paiementsType',inplace=True)
+    facturationlist=db.engine
+
     dataframe_to_pdf(paymentdf,'sample.pdf')
     #print(paymentdf)
     if "reports" in current_user.access  or current_user.access=="all":

@@ -14,7 +14,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -30,7 +30,7 @@ class RegisterForm(FlaskForm):
 class EditRegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -96,6 +96,13 @@ class AddFacturationForm(FlaskForm):
     date = DateField(label="Facturation Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
 
     submit = SubmitField("Submit")
+
+class AddEncaissementForm(FlaskForm):
+    encaissementNom=SelectField('Encaissement Nom',choices=[])
+    encaissementNomALT = StringField(label="Nouveau encaissement ?",render_kw={"placeholder":"encaissementNom"})
+    encaissementDate=DateField(label="Encaissement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
+    montant=FloatField(label="montant",validators=[InputRequired()],render_kw={"placeholder":"Montant"})
+    banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance','Postfinance')])
 
 
 

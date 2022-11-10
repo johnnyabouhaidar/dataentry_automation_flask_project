@@ -1,3 +1,12 @@
 -query for getting payments (type summary):
-    select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)>2021 group by YEAR(date),MONTH(date) , paiementsType
--
+    select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)>0 group by YEAR(date),MONTH(date) , paiementsType
+
+-query for getting facturation (type summary):
+    select facturationType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From facturation where YEAR(date)>0 group by YEAR(date),MONTH(date) , facturationType    
+
+-query for getting dentaire info (type summary):
+    select dentisterieType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From dentisterie where YEAR(date)>0 group by YEAR(date),MONTH(date) , dentisterieType
+
+
+
+-query for 
