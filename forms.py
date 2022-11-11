@@ -104,5 +104,7 @@ class AddEncaissementForm(FlaskForm):
     montant=FloatField(label="montant",validators=[InputRequired()],render_kw={"placeholder":"Montant"})
     banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance','Postfinance')])
 
+    submit =SubmitField("Submit")
+
 
 

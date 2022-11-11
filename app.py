@@ -86,7 +86,7 @@ class Dentisterie(db.Model):
     somme=db.Column(db.Float,nullable=False)
     date=db.Column(db.Date,nullable=False)
 
-class Encaissements(db.Model):
+class Encaissement(db.Model):
     encaissementId=db.Column(db.Integer,primary_key=True)
     encaissementNom=db.Column(db.String(80),nullable=False)
     encaissementDate=db.Column(db.Date,nullable=False)
@@ -132,13 +132,30 @@ def dashboard():
 @login_required
 def encaissement():
     form = AddEncaissementForm()
-    #encaissementnames = []
-    encaissements=db.engine.execute("select * from encaissements")
+    encaissementnameschoices = []
+    encaissementnameschoices.append(("addnew","Ajouter Nouveau ?"))
+    for encname in db.engine.execute("select * from encaissement").fetchall():
+        if not any(obj[0] == encname.encaissementNom for obj in encaissementnameschoices):
+            encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
+
+    form.encaissementNom.choices = encaissementnameschoices
+    encaissements=db.engine.execute("select * from encaissement")
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
-    
+    if form.is_submitted() and request.method=='POST':
+        if form.encaissementNom.data!="addnew":
+            new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data) 
+        else:
+            new_encaissement = Encaissement(encaissementNom=form.encaissementNomALT.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data) 
+        if isinstance(form.montant.data,int) or isinstance(form.montant.data,float):
+            db.session.add(new_encaissement)
+            db.session.commit()
+            return redirect(url_for('encaissement'))
+        else:
+            flash("Invalid Data. Please re-check and submit again")
+
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissements",dbtableid="encaissementId",user_role=current_user.role)
+        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -430,6 +447,16 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('dentisterie'))
+    if tbl=="encaissement":
+        qry=Encaissement.query.filter(Encaissement.encaissementId==id).first()
+        form=AddEncaissementForm(obj=qry)
+        encaissementnameschoices = []
+        encaissementnameschoices.append(("addnew","Ajouter Nouveau ?"))
+        for encname in db.engine.execute("select * from encaissement").fetchall():
+            if not any(obj[0] == encname.encaissementNom for obj in encaissementnameschoices):
+                encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
+
+        form.encaissementNom.choices = encaissementnameschoices
 
     if tbl=='user':
         qry = User.query.filter(
@@ -515,9 +542,17 @@ def reporting():
     paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
     #generate_payment_report(paymentdf)
     paymentdf.set_index('paiementsType',inplace=True)
-    facturationlist=db.engine
+    
+    encaissementlist=db.engine.execute("""select * from encaissement""")
+    encaissementlistitems=encaissementlist.fetchall()
+    headersencaissementlist=encaissementlist.keys()
+    encaissementdf = pd.DataFrame(encaissementlistitems,columns=headersencaissementlist)
+    print(encaissementdf)
+    print(encaissementdf.sum())
 
-    dataframe_to_pdf(paymentdf,'sample.pdf')
+
+
+    #dataframe_to_pdf(paymentdf,'sample.pdf')
     #print(paymentdf)
     if "reports" in current_user.access  or current_user.access=="all":
         return send_file('sample.pdf')
