@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 
@@ -547,12 +547,18 @@ def reporting():
     encaissementlistitems=encaissementlist.fetchall()
     headersencaissementlist=encaissementlist.keys()
     encaissementdf = pd.DataFrame(encaissementlistitems,columns=headersencaissementlist)
-    print(encaissementdf)
-    print(encaissementdf.sum())
+    #print(encaissementdf)
+    print(encaissementdf.sum()["montant"])
+    enctotal=encaissementdf.sum()["montant"]
+    print(paymentdf.sum()["somme"])
+    paymenttotal=paymentdf.sum()["somme"]
+
+    print(enctotal-paymenttotal)
+    pnl=enctotal-paymenttotal
 
 
 
-    #dataframe_to_pdf(paymentdf,'sample.pdf')
+    dataframe_to_pdf(paymentdf,pnl,'sample.pdf')
     #print(paymentdf)
     if "reports" in current_user.access  or current_user.access=="all":
         return send_file('sample.pdf')
