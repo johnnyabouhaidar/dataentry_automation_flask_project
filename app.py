@@ -457,6 +457,17 @@ def edit_entry(tbl,id):
                 encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
 
         form.encaissementNom.choices = encaissementnameschoices
+        if form.validate_on_submit():
+            qry.encaissementDate=form.encaissementDate.data
+            
+            if form.encaissementNom.data!="addnew":
+                qry.encaissementNom=form.encaissementNom.data
+            else:   
+                qry.encaissementNom=form.encaissementNomALT.data 
+            qry.montant=form.montant.data
+            qry.banque=form.banque.data
+            db.session.commit()
+            return redirect(url_for('encaissement'))
 
     if tbl=='user':
         qry = User.query.filter(

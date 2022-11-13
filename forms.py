@@ -4,7 +4,7 @@ from flask import Flask, render_template, url_for,redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField,DateField,SelectMultipleField
+from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField,DateField,SelectMultipleField,IntegerField 
 from wtforms.validators import InputRequired,Length,ValidationError,DataRequired,NumberRange
 from flask_bcrypt import Bcrypt
 from app import *
@@ -105,6 +105,11 @@ class AddEncaissementForm(FlaskForm):
     banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance','Postfinance')])
 
     submit =SubmitField("Submit")
+
+class MainReportForm(FlaskForm):
+    year = IntegerField(label="Year",validators=[InputRequired()],render_kw={"placeholder":"Year"})
+    submit =SubmitField("Submit")
+    
 
 
 
