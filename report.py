@@ -25,7 +25,7 @@ def _draw_as_table(df, pagesize):
     return fig
   
 
-def dataframe_to_pdf(df,pnl, filename, numpages=(1, 1), pagesize=(11, 8.5)):
+def dataframe_to_pdf(df,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)):
   with PdfPages(filename) as pdf:
     nh, nv = numpages
     rows_per_page = len(df) // nh
@@ -33,7 +33,7 @@ def dataframe_to_pdf(df,pnl, filename, numpages=(1, 1), pagesize=(11, 8.5)):
 
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"Consolidated Payment Report for 2022",ha='center',va='center',size=20)
+    plt.text(0.5,0.5,"Consolidated payment report for: {0}\n Date: {1}".format(year),ha='center',va='center',size=20)
     pdf.savefig()
     plt.close()
     for i in range(0, nh):
@@ -41,21 +41,30 @@ def dataframe_to_pdf(df,pnl, filename, numpages=(1, 1), pagesize=(11, 8.5)):
             
             page = df.iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df)),
                            (j*cols_per_page):min((j+1)*cols_per_page, len(df.columns))]
-            fig = _draw_as_table(page, pagesize)
-            if True:
-                # Add a part/page number at bottom-center of page
-                fig.text(0.5, 0.5/pagesize[0],
-                         "Part-{}x{}: Page-{}".format(i+1, j+1, i*nv + j + 1),
-                         ha='center', fontsize=8)
-            pdf.savefig(fig, bbox_inches='tight')
+            try:
+                fig = _draw_as_table(page, pagesize)
+                if True:
+                    # Add a part/page number at bottom-center of page
+                    fig.text(0.5, 0.5/pagesize[0],
+                            "Part-{}x{}: Page-{}".format(i+1, j+1, i*nv + j + 1),
+                            ha='center', fontsize=8)
+                pdf.savefig(fig, bbox_inches='tight')
             
-            #df.plot()
-            #df["somme"].value_counts().plot.bar()
-            df.plot( y=["somme"], kind="bar")
-            
-            plt.xticks(rotation=30)
-            pdf.savefig()
-            plt.close()
+                #df.plot()
+                #df["somme"].value_counts().plot.bar()
+                df.plot(y=["somme"], kind="bar")
+                
+                plt.xticks(rotation=10)
+                pdf.savefig()
+                plt.close()
+            except:
+                plt.figure() 
+                plt.axis('off')
+                plt.text(0.5,0.5,"NO DATA AVAILABLE!",ha='center',va='center',size=20)
+                pdf.savefig()
+                plt.close()
+
+
     plt.figure() 
     plt.axis('off')
     plt.text(0.5,0.5,"Pnl: {0}".format(pnl),ha='center',va='center',size=20)
