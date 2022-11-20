@@ -1,6 +1,6 @@
 from fpdf import FPDF
 import os
-
+import datetime
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -25,44 +25,47 @@ def _draw_as_table(df, pagesize):
     return fig
   
 
-def dataframe_to_pdf(df,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)):
+def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)):
   with PdfPages(filename) as pdf:
     nh, nv = numpages
-    rows_per_page = len(df) // nh
-    cols_per_page = len(df.columns) // nv
+
 
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"Consolidated payment report for: {0}\n Date: {1}".format(year),ha='center',va='center',size=20)
+    plt.text(0.5,0.5,"Consolidated payment report for: {0}\n Date: {1}".format(year,datetime.datetime.now()),ha='center',va='center',size=20)
     pdf.savefig()
     plt.close()
     for i in range(0, nh):
         for j in range(0, nv):
-            
-            page = df.iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df)),
-                           (j*cols_per_page):min((j+1)*cols_per_page, len(df.columns))]
-            try:
-                fig = _draw_as_table(page, pagesize)
-                if True:
-                    # Add a part/page number at bottom-center of page
-                    fig.text(0.5, 0.5/pagesize[0],
-                            "Part-{}x{}: Page-{}".format(i+1, j+1, i*nv + j + 1),
-                            ha='center', fontsize=8)
-                pdf.savefig(fig, bbox_inches='tight')
-            
-                #df.plot()
-                #df["somme"].value_counts().plot.bar()
-                df.plot(y=["somme"], kind="bar")
+            for df in dfs:
+                rows_per_page = len(df) // nh
+                cols_per_page = len(df.columns) // nv
+                page = df.iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df)),
+                            (j*cols_per_page):min((j+1)*cols_per_page, len(df.columns))]
+                try:
+                    fig = _draw_as_table(page, pagesize)
+                    '''
+                    if True:
+                        # Add a part/page number at bottom-center of page
+                        fig.text(0.5, 0.5/pagesize[0],
+                                "Part-{}x{}: Page-{}".format(i+1, j+1, i*nv + j + 1),
+                                ha='center', fontsize=8)
+                    '''
+                    pdf.savefig(fig, bbox_inches='tight')
                 
-                plt.xticks(rotation=10)
-                pdf.savefig()
-                plt.close()
-            except:
-                plt.figure() 
-                plt.axis('off')
-                plt.text(0.5,0.5,"NO DATA AVAILABLE!",ha='center',va='center',size=20)
-                pdf.savefig()
-                plt.close()
+                    #df.plot()
+                    #df["somme"].value_counts().plot.bar()
+                    df.plot(y=["somme"], kind="bar")
+                    
+                    plt.xticks(rotation=10)
+                    pdf.savefig()
+                    plt.close()
+                except:
+                    plt.figure() 
+                    plt.axis('off')
+                    plt.text(0.5,0.5,"NO DATA AVAILABLE!",ha='center',va='center',size=20)
+                    pdf.savefig()
+                    plt.close()
 
 
     plt.figure() 

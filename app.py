@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 
@@ -549,6 +549,7 @@ def reporting():
     #print(paymentdf)
     form=MainReportForm()
     if form.validate_on_submit():
+        dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
         paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)={0} group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
         #paymentslist=db.engine.execute("SELECT *from payment")
@@ -557,12 +558,13 @@ def reporting():
         paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
         #generate_payment_report(paymentdf)
         paymentdf.set_index('paiementsType',inplace=True)
-        
+        dfs.append(paymentdf)
         encaissementlist=db.engine.execute("""select * from encaissement where YEAR(encaissementDate)={0}""".format(form.year.data))
         encaissementlistitems=encaissementlist.fetchall()
         headersencaissementlist=encaissementlist.keys()
         encaissementdf = pd.DataFrame(encaissementlistitems,columns=headersencaissementlist)
         #print(encaissementdf)
+        dfs.append(encaissementdf)
         print(encaissementdf.sum()["montant"])
         enctotal=encaissementdf.sum()["montant"]
         print(paymentdf.sum()["somme"])
@@ -573,7 +575,7 @@ def reporting():
 
 
 
-        dataframe_to_pdf(paymentdf,pnl,form.year.data,'sample.pdf')        
+        dataframe_to_pdf(dfs,pnl,form.year.data,'sample.pdf')        
 
         return send_file('sample.pdf')
     if "reports" in current_user.access  or current_user.access=="all":
