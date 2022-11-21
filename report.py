@@ -18,8 +18,8 @@ def _draw_as_table(df, pagesize):
     the_table = ax.table(cellText=df.values,
                         rowLabels=df.index,
                         colLabels=df.columns,
-                        rowColours=['lightblue']*len(df),
-                        colColours=['lightblue']*len(df.columns),
+                        rowColours=['lightgreen']*len(df),
+                        colColours=['lightgreen']*len(df.columns),
                         cellColours=alternating_colors,
                         loc='center')
     return fig
@@ -32,7 +32,8 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
 
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"Consolidated payment report for: {0}\n Date: {1}".format(year,datetime.datetime.now()),ha='center',va='center',size=20)
+    plt.text(0.5,0.5,"Rapport de paiement consolidé pour: {0}".format(year),ha='center',va='center',size=20)
+    plt.text(0.5,0.1,"\nDate: {0}".format(datetime.datetime.now()),ha='center',va='bottom',size=8)
     pdf.savefig()
     plt.close()
     for i in range(0, nh):
@@ -55,7 +56,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
                 
                     #df.plot()
                     #df["somme"].value_counts().plot.bar()
-                    df.plot(y=["somme"], kind="bar")
+                    df.plot(y=["somme"], kind="bar",color="blue")
                     
                     plt.xticks(rotation=10)
                     pdf.savefig()

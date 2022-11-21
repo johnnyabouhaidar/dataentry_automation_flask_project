@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 
@@ -559,18 +559,20 @@ def reporting():
         #generate_payment_report(paymentdf)
         paymentdf.set_index('paiementsType',inplace=True)
         dfs.append(paymentdf)
-        encaissementlist=db.engine.execute("""select * from encaissement where YEAR(encaissementDate)={0}""".format(form.year.data))
+        encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
         encaissementlistitems=encaissementlist.fetchall()
         headersencaissementlist=encaissementlist.keys()
         encaissementdf = pd.DataFrame(encaissementlistitems,columns=headersencaissementlist)
+        encaissementdf.rename(columns = {'montant':'somme'}, inplace = True)
+        encaissementdf.set_index('encaissementNom',inplace=True)
         #print(encaissementdf)
         dfs.append(encaissementdf)
-        print(encaissementdf.sum()["montant"])
-        enctotal=encaissementdf.sum()["montant"]
-        print(paymentdf.sum()["somme"])
+        #print(encaissementdf.sum()["montant"])
+        enctotal=encaissementdf.sum()["somme"]
+        #print(paymentdf.sum()["somme"])
         paymenttotal=paymentdf.sum()["somme"]
 
-        print(enctotal-paymenttotal)
+        #print(enctotal-paymenttotal)
         pnl=enctotal-paymenttotal
 
 
