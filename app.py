@@ -559,6 +559,8 @@ def reporting():
         #generate_payment_report(paymentdf)
         paymentdf.set_index('paiementsType',inplace=True)
         dfs.append(paymentdf)
+
+
         encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
         encaissementlistitems=encaissementlist.fetchall()
         headersencaissementlist=encaissementlist.keys()
@@ -567,6 +569,15 @@ def reporting():
         encaissementdf.set_index('encaissementNom',inplace=True)
         #print(encaissementdf)
         dfs.append(encaissementdf)
+
+        facturationlist = db.engine.execute("""select facturationType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date),MONTH(date) , facturationType""".format(form.year.data))
+        facturationlistitems=facturationlist.fetchall()
+        headersfacturationlist = facturationlist.keys()
+        facturationdf=pd.DataFrame(facturationlistitems,columns=headersfacturationlist)
+        facturationdf.set_index('facturationType',inplace=True)
+        dfs.append(facturationdf)
+
+
         #print(encaissementdf.sum()["montant"])
         enctotal=encaissementdf.sum()["somme"]
         #print(paymentdf.sum()["somme"])
@@ -575,11 +586,14 @@ def reporting():
         #print(enctotal-paymenttotal)
         pnl=enctotal-paymenttotal
 
+        
+        current_date=datetime.datetime.now()
 
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
 
-        dataframe_to_pdf(dfs,pnl,form.year.data,'sample.pdf')        
+        dataframe_to_pdf(dfs,pnl,form.year.data,r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp))        
 
-        return send_file('sample.pdf')
+        return send_file(r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp))
     if "reports" in current_user.access  or current_user.access=="all":
         
         return render_template("reporting.html",form=form)

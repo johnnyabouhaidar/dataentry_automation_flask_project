@@ -147,11 +147,11 @@ a:link, a:visited,input {
 
 .grid-container {
   display: inline-grid; 
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns:auto auto auto;
   text-align: center;
 
-row-gap:    20px;
-column-gap: 35rem;
+row-gap:    2px;
+column-gap: 2rem;
 
 
 }
