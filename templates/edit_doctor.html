@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <h1 class="header">Edit Item</h1>
+    <div class="items">
+        {%with messages = get_flashed_messages() %}
+        {%if messages %}
+        {%for message in messages %}
+         {{message}}
+        {%endfor%}
+        {%endif%}
+    {%endwith%}         
+    <form method="POST" action="">
+        <div class="grid-container-doctor">
+        
+        {% for field in form %}
+        
+        <div class="grid-item-doctor">
+            {%if loop.index>5%}
+            <br><br><br>
+            {%endif%}
+            
+            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+            <td>{{ field }}</td><br><br>
+        </div>
+        
+        {% endfor %}
+        
+    </div>
+    </form>
+
+
+    <a href="{{url_for('dashboard')}}">Go Back</a>
+</div>
+</body>
+</html>

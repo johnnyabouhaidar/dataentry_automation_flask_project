@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkey'
 
 
@@ -49,6 +49,25 @@ class Doctor(db.Model):
     doctorspeciality=db.Column(db.String(80),nullable=False)
     isActive = db.Column(db.Boolean,nullable=False)
     percentageShare = db.Column(db.Float,nullable=False)
+    conditionsfinanciers=db.Column(db.String(250),nullable=False)
+
+    surfacecentremedical = db.Column(db.Float)
+    surfacecommunes=db.Column(db.Float)
+    loyermensuel=db.Column(db.Float)
+    surfaceaccordee=db.Column(db.Float)
+    nettoyage=db.Column(db.Float)
+    conciergerie=db.Column(db.Float)
+    salairepersonnel=db.Column(db.Float)
+    telephonieinternet=db.Column(db.Float)
+    logicielaxenita=db.Column(db.Float)
+    nbmedicins=db.Column(db.Float)
+    assurances =db.Column(db.Float)
+    blanchisserieleman=db.Column(db.Float)
+    informatique=db.Column(db.Float)
+    nblocaux=db.Column(db.Float)
+    nbmedicinsrepartirfrais=db.Column(db.Float)
+    receptionniste=db.Column(db.Float)
+    Apprentie=db.Column(db.Float)
 
 
 class Paymenttype(db.Model):
@@ -93,7 +112,11 @@ class Encaissement(db.Model):
     montant=db.Column(db.Float,nullable=False)
     banque=db.Column(db.String(80),nullable=False)
 
-
+class Doctorpayment(db.Model):
+    doctorpaiementId=db.Column(db.Integer,primary_key=True)
+    doctorname=db.Column(db.String(80),nullable=False)
+    paimentnom=db.Column(db.String(80),nullable=False)
+    doctorpaiementsomme=db.Column(db.Float,nullable=False)
 
 
 
@@ -127,6 +150,21 @@ def login():
 def dashboard():
     return render_template('dashboard.html',username=current_user.username,user_role=current_user.role)
 
+
+@app.route('/doctorpayment',methods=['GET','POST'])
+@login_required
+def doctorpayment():
+    form=AddDoctorPaymentForm()
+
+
+    DoctorPayments=db.engine.execute("select * from DoctorPayment")
+    DoctorPaymentitems=DoctorPayments.fetchall()
+    headersDoctorPayment=DoctorPayments.keys()
+
+    if "doctorpayment" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="DoctorPayment",dbtableid="doctorpaiementId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
 
 @app.route('/encaissement',methods=['GET','POST'])
 @login_required
@@ -333,7 +371,7 @@ def paymentnames(paymenttype):
 @login_required
 def doctor():
     form=AddDoctorForm()
-    doctors=db.engine.execute("select * from doctor")
+    doctors=db.engine.execute("select doctorid,doctorname,doctorspeciality,isActive,percentageShare from doctor")
     doctoritems=doctors.fetchall()
     headersdoctors=doctors.keys()
     
@@ -341,37 +379,65 @@ def doctor():
         #boolean = False
         #if form.isActive.data=='True':
             #boolean = True
-        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=form.isActive.data,percentageShare=form.percentageShare.data)
+        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=form.isActive.data,percentageShare=form.percentageShare.data,conditionsfinanciers=form.conditionsfinanciers.data)
         db.session.add(new_doctor)
         db.session.commit()
         return redirect(url_for('doctor'))
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
     if "doctors" in current_user.access  or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
+        return render_template('doctor_setup.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
 
-
-@app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
+@app.route('/load_doctor/tbl=<tbl>/id=<id>',methods=['GET','POST'])
 @login_required
-def edit_entry(tbl,id):
+def load_doctor(tbl,id):
     if tbl=='doctor':
         qry = Doctor.query.filter(
             Doctor.doctorid==id).first()
         #doc = qry.first()
         
-        form=AddDoctorForm(obj=qry)
-        if form.validate_on_submit():
+        form=AddDoctorConstantsForm(obj=qry)
+        #subform=AddDoctorConstantsForm(obj=qry)
+        if form.is_submitted() and request.method=='POST':
             #qry.doctorid = form.doctorid.data
             qry.doctorname=form.doctorname.data
             qry.isActive = form.isActive.data
             qry.doctorspeciality=form.doctorspeciality.data
             qry.percentageShare=form.percentageShare.data
+            qry.conditionsfinanciers=form.conditionsfinanciers.data
+            #print(subform.surfacecentremedical.value)
+            qry.surfacecentremedical=form.surfacecentremedical.data
+            qry.surfacecommunes=form.surfacecommunes.data
+            qry.loyermensuel=form.loyermensuel.data
+            qry.surfaceaccordee=form.surfaceaccordee.data
+            qry.nettoyage=form.nettoyage.data
+            qry.conciergerie=form.conciergerie.data
+            qry.salairepersonnel=form.salairepersonnel.data
+            qry.telephonieinternet=form.telephonieinternet.data
+            qry.logicielaxenita=form.logicielaxenita.data
+            qry.nbmedicins=form.nbmedicins.data
+            qry.assurances=form.assurances.data
+            qry.blanchisserieleman=form.blanchisserieleman.data
+            qry.informatique=form.informatique.data
+            qry.nblocaux=form.nblocaux.data
+            qry.nbmedicinsrepartirfrais=form.nbmedicinsrepartirfrais.data
+            qry.receptionniste=form.receptionniste.data
+            qry.Apprentie=form.Apprentie.data
             
             #qry=form
             db.session.commit()
-            return redirect(url_for('doctor'))
+            return redirect(url_for('doctor'))    
+        else:
+            print(form.errors)
+    return render_template('edit_doctor.html',form=form)
+
+
+@app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
+@login_required
+def edit_entry(tbl,id):
+
     if tbl=='payment':
         qry = Payment.query.filter(
             Payment.paiementsId==id).first()

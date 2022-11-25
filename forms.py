@@ -4,6 +4,7 @@ from flask import Flask, render_template, url_for,redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
+from wtforms.widgets import TextArea
 from wtforms import StringField,PasswordField,SubmitField,Label,BooleanField,FloatField,SelectField,DateField,SelectMultipleField,IntegerField 
 from wtforms.validators import InputRequired,Length,ValidationError,DataRequired,NumberRange
 from flask_bcrypt import Bcrypt
@@ -48,8 +49,44 @@ class AddDoctorForm(FlaskForm):
     #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
     percentageShare=FloatField(label="Percentage Share ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
     isActive = BooleanField('Active?')
+    conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
     submit =SubmitField("Submit")
+
+class AddDoctorConstantsForm(FlaskForm):
+    doctorname=StringField(label="Doctor Name ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
+    doctorspeciality=StringField(label="Doctor Speciality ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
+    #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
+    percentageShare=FloatField(label="Percentage Share ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+    isActive = BooleanField('Active?')
+    conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
+
+    surfacecentremedical = FloatField(label="Surface Centre medical en M2")
+    surfacecommunes=FloatField(label="Surface Communes en M2")
+    loyermensuel=FloatField(label="Loyer Mensuel")
+    surfaceaccordee=FloatField(label="Surface Accordee")
+    nettoyage=FloatField(label="Nettoyage Bureau/an")
+    conciergerie=FloatField(label="Conciergerie")
+    salairepersonnel=FloatField(label="Salaire Personnel a 100%/mois")
+    telephonieinternet=FloatField(label="Telephonie-Internet")
+    logicielaxenita=FloatField(label="Logiciel Axenita")
+    nbmedicins=FloatField(label="Nb de medecins pour axenita")
+    assurances =FloatField(label="Assurances/annuel")
+    blanchisserieleman=FloatField(label="Blanchisserie du leman/annuel")
+    informatique=FloatField(label="Informatique/annuel")
+    nblocaux=FloatField(label="Nb de Locaux")
+    nbmedicinsrepartirfrais=FloatField(label="Nb de medecins pour repartir frais")
+    receptionniste=FloatField(label="Receptionniste annuel")
+    Apprentie=FloatField(label="Apprentie de 2eme annee")
+    submit =SubmitField("Submit")
+
+
+class AddDoctorPaymentForm(FlaskForm):
+    doctorname=SelectField("Doctor Name",choices=[])
+    paimentnom=StringField("Paiement Nom",validators=[InputRequired()],render_kw={"placeholder":"Paiement Nom"})
+    doctorpaiementsomme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
+
+    submit=SubmitField("Submit")
 
 class Addpaymenttype(FlaskForm):
     paymenttype=StringField(label="Payment Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Charges Fixes...)"})
