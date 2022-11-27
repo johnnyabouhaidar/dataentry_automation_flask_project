@@ -1,0 +1,37 @@
+Surface Centre médical en M2
+Surfaces communes en M2
+Loyer mensuel
+Surface accordée (cabinet) 
+Nettoyage bureau/an
+Conciergerie 
+Salaire personnel à 100% / mois 
+Téléphonie-internet / annuel 
+Logiciel Axenita / annuel 
+Nb de médecins pour axenita
+Assurances / annuel
+Blanchisserie du léman / annuel 
+Informatique / annuel
+Nb de locaux 
+Nb de médecins pour répartir frais 
+Réceptionniste annuel 
+Apprentie de 2ème année 
+
+
+    surfacecentremedical = FloatField(label="Surface Centre medical en M2")
+    surfacecommunes=FloatField(label="Surface Communes en M2")
+    loyermensuel=FloatField(label="Loyer Mensuel")
+    surfaceaccordee=FloatField(label="Surface Accordee")
+    nettoyage=FloatField(label="Nettoyage Bureau/an")
+    conciergerie=FloatField(label="Conciergerie")
+    salairepersonnel=FloatField(label="Salaire Personnel a 100%/mois")
+    telephonieinternet=FloatField(label="Telephonie-Internet")
+    logicielaxenita=FloatField(label="Logiciel Axenita")
+    nbmedicins=FloatField(label="Nb de medecins pour axenita")
+    assurances =FloatField(label="Assurances/annuel")
+    blanchisserieleman=FloatField(label="Blanchisserie du leman/annuel")
+    informatique=FloatField(label="Informatique/annuel")
+    nblocaux=FloatField(label="Nb de Locaux")
+    nbmedicinsrepartirfrais=FloatField(label="Nb de medecins pour repartir frais")
+    receptionniste=FloatField(label="Receptionniste annuel")
+    Apprentie=FloatField(label="Apprentie de 2eme annee")
+    submit =SubmitField("Submit")

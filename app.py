@@ -156,13 +156,27 @@ def dashboard():
 def doctorpayment():
     form=AddDoctorPaymentForm()
 
+    choices=[]
+    #choices.append(("---","---"))
+    choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
+    form.doctorname.choices=choices
+
 
     DoctorPayments=db.engine.execute("select * from DoctorPayment")
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
+    if form.validate_on_submit():
+        new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data)
+        db.session.add(new_doctorpayment)
+        db.session.commit()
+        return redirect(url_for('doctorpayment'))
+    else:
+        #flash("Invalid Data: ",form.errors)
+        pass
+
     if "doctorpayment" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="DoctorPayment",dbtableid="doctorpaiementId",user_role=current_user.role)
+        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -438,6 +452,28 @@ def load_doctor(tbl,id):
 @login_required
 def edit_entry(tbl,id):
 
+    if tbl=='doctorpayment':
+        qry = Doctorpayment.query.filter(
+            Doctorpayment.doctorpaiementId==id
+        ).first()
+
+        form=AddDoctorPaymentForm(obj=qry)
+        choices=[]
+        #choices.append(("---","---"))
+        choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
+        form.doctorname.choices=choices 
+
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            qry.doctorname=form.doctorname.data
+            qry.paimentnom=form.paimentnom.data
+            qry.doctorpaiementsomme=form.doctorpaiementsomme.data
+            
+            #qry=form
+            db.session.commit()
+            return redirect(url_for('doctorpayment'))               
+
+    
     if tbl=='payment':
         qry = Payment.query.filter(
             Payment.paiementsId==id).first()
@@ -569,7 +605,7 @@ def edit_entry(tbl,id):
             print(form.errors)
         
 
-    return render_template('edititem.html',form=form)
+    return render_template('edititem.html',form=form,tbl=tbl)
 
 
 
