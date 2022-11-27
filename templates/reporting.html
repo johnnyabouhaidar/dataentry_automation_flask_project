@@ -19,6 +19,10 @@
         {%endfor%}
         {%endif%}
     {%endwith%}    
+    <div class="grid-container">
+        {% for form in forms %}
+        <div class="grid-item">
+        <label for="div"><b>{{formtitles[loop.index0]}}</b></label><br><br>
     <form method="POST" action="">
         {% for field in form %}
         <tr>
@@ -27,5 +31,8 @@
         </tr>
         {% endfor %}
     </form>
+    </div>
+    {%endfor%}
+    </div>
 </body>
 </html>

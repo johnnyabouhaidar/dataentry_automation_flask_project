@@ -22,7 +22,7 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 #app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SECRET_KEY']='thisisasecretkey'
+app.config['SECRET_KEY']='thisisasecretkeyjohnny'
 
 
 login_manager=LoginManager()
@@ -175,7 +175,7 @@ def doctorpayment():
         #flash("Invalid Data: ",form.errors)
         pass
 
-    if "doctorpayment" in current_user.access or current_user.access=="all":
+    if "paiement_medecin" in current_user.access or current_user.access=="all":
         return render_template('generalform.html',form=form,hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
@@ -399,7 +399,7 @@ def doctor():
         return redirect(url_for('doctor'))
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
     if "doctors" in current_user.access  or current_user.access=="all":
-        return render_template('doctor_setup.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
+        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -650,6 +650,12 @@ def reporting():
 
     #print(paymentdf)
     form=MainReportForm()
+    ind_doctor_form=IndividualDoctorReportForm()
+    choices=[]
+    #choices.append(("---","---"))
+    choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
+    ind_doctor_form.doctorname.choices=choices
+
     if form.validate_on_submit():
         dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
@@ -698,7 +704,7 @@ def reporting():
         return send_file(r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp))
     if "reports" in current_user.access  or current_user.access=="all":
         
-        return render_template("reporting.html",form=form)
+        return render_template("reporting.html",forms=[form,ind_doctor_form],formtitles=["Rapport Général","Rapport du Médecin"])
     else:
         return render_template("NOT_AUTHORIZED.html")
     

@@ -15,7 +15,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -31,7 +31,7 @@ class RegisterForm(FlaskForm):
 class EditRegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -144,8 +144,14 @@ class AddEncaissementForm(FlaskForm):
     submit =SubmitField("Submit")
 
 class MainReportForm(FlaskForm):
-    year = IntegerField(label="Year",validators=[InputRequired()],render_kw={"placeholder":"Year"})
+    year = IntegerField(label="An",validators=[InputRequired()],render_kw={"placeholder":"Year"})
     submit =SubmitField("Submit")
+
+class IndividualDoctorReportForm(FlaskForm):
+    doctorname=SelectField('Nom du médecin',choices=[])
+
+    submit=SubmitField("Submit")
+    
     
 
 
