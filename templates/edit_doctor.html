@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Item</title>
+    <title>Informations sur le médecin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <h1 class="header">Edit Item</h1>
+    <h1 class="header">Informations sur le médecin</h1>
     <div class="items">
         {%with messages = get_flashed_messages() %}
         {%if messages %}
@@ -38,7 +38,7 @@
     </form>
 
 
-    <a href="{{url_for('dashboard')}}">Go Back</a>
+    <a href="{{url_for('doctor')}}">Go Back</a>
 </div>
 </body>
 </html>

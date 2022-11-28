@@ -15,7 +15,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Utilisez "Ctrl" pour plusieurs rôles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -102,6 +102,8 @@ class AddPaymentForm(FlaskForm):
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
     date = DateField(label="Paiement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
 
+    comment=StringField('Comment',widget=TextArea())
+
     submit = SubmitField("Submit")
 
 class AddDentistrytype(FlaskForm):
@@ -149,8 +151,9 @@ class MainReportForm(FlaskForm):
 
 class IndividualDoctorReportForm(FlaskForm):
     doctorname=SelectField('Nom du médecin',choices=[])
+    year = IntegerField(label="An",validators=[InputRequired()],render_kw={"placeholder":"Year"})
 
-    submit=SubmitField("Submit")
+    doctor_submit=SubmitField("Submit")
     
     
 

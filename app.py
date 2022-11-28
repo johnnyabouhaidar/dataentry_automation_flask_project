@@ -20,8 +20,8 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
 
 
@@ -80,6 +80,7 @@ class Payment(db.Model):
     paiementsType = db.Column(db.String(80),nullable=False)
     paiementsNom = db.Column(db.String(80),nullable=False)
     somme = db.Column(db.Float,nullable=False)
+    comment = db.Column(db.String(250))
     date = db.Column(db.Date,nullable=False)
 
 class Facturationtype(db.Model):
@@ -341,9 +342,9 @@ def payment():
     
     if form.is_submitted() and request.method=='POST':
         if form.paiementsNom.data!="addnew":
-            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data)
+            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
         else:
-            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.date.data)
+            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
         if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
             db.session.add(new_payment)
             db.session.commit()
@@ -399,7 +400,7 @@ def doctor():
         return redirect(url_for('doctor'))
     #return render_template('doctorregisterform.html',form=form,tables=[doctors.to_html(classes='data',index=False)], titles=doctors.columns.values)
     if "doctors" in current_user.access  or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
+        return render_template('doctor_setup.html',form=form,hasDynamicSelector=False,table=doctoritems,headers=headersdoctors,dbtable="doctor",dbtableid="doctorId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -494,6 +495,7 @@ def edit_entry(tbl,id):
                 qry.paiementsNom = form.paiementsNomALT.data
             qry.somme=form.somme.data
             qry.date=form.date.data
+            qry.comment=form.comment.data
             
             #qry=form
             db.session.commit()
@@ -640,7 +642,7 @@ def user():
         db.session.commit()
         return redirect(url_for('login'))
     if current_user.role=="admin":
-        return render_template("user.html",form=form,table=userlslistitems,headers=headersuserlslist,user_role=current_user.role,dbtable="user",dbtableid="id")
+        return render_template("user.html",form=form,table=userlslistitems,headers=headersuserlslist,username=current_user.username,user_role=current_user.role,dbtable="user",dbtableid="id")
     else:
         return render_template("NOT_AUTHORIZED.html")
 
@@ -698,13 +700,28 @@ def reporting():
         current_date=datetime.datetime.now()
 
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        report_filename=r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp)
+        
+        dataframe_to_pdf(dfs,pnl,form.year.data,report_filename)        
 
-        dataframe_to_pdf(dfs,pnl,form.year.data,r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp))        
+        return send_file(report_filename)
 
-        return send_file(r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp))
+
+    if ind_doctor_form.validate_on_submit():
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        doctor_report_filename=r'reporting_temporary\RAPPORT_MEDECINS_{0}.pdf'.format(current_num_timestamp)
+        dfs=[]
+
+        doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)
+
+        return send_file(doctor_report_filename)
+
+
+
+
     if "reports" in current_user.access  or current_user.access=="all":
         
-        return render_template("reporting.html",forms=[form,ind_doctor_form],formtitles=["Rapport Général","Rapport du Médecin"])
+        return render_template("reporting.html",forms=[form,ind_doctor_form],formtitles=["Rapport Général (P&L)","Rapport du Médecin"])
     else:
         return render_template("NOT_AUTHORIZED.html")
     

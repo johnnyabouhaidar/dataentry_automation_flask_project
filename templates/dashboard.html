@@ -20,6 +20,7 @@
     </h2><br>
 
     {%if user_role == 'admin'%}
+    <a href="{{url_for('user')}}">Gestion des Utilisateurs</a><br><br>    
     <a href="{{url_for('setup')}}">Configuration des Constantes</a><br><br>
     {%endif%}
     <a href="{{url_for('doctor')}}">Ajouter des données Docteur</a><br>
@@ -28,9 +29,7 @@
     <a href="{{url_for('dentisterie')}}">Ajouter des données Dentaires</a><br><br>
     <a href="{{url_for('encaissement')}}">Encaissements-Avance</a><br><br><br>
     <a href="{{url_for('doctorpayment')}}">Paiement Médecin</a><br><br>
-    {%if user_role == 'admin'%}
-    <a href="{{url_for('user')}}">Gestion des Utilisateurs</a><br><br>
-    {%endif%}
+
     <a href="{{url_for('reporting')}}">Rapport</a><br><br>
 
     <a href="{{url_for('logout')}}">Déconnecter</a>
