@@ -23,6 +23,9 @@ def _draw_as_table(df, pagesize):
                         cellColours=alternating_colors,
                         loc='center')
     return fig
+
+def _draw_as_graph(df):
+    pass
   
 
 def doctor_report(dfs,doctorname,year,filename, numpages=(1, 1), pagesize=(11, 8.5)):
