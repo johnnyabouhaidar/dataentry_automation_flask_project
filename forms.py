@@ -95,8 +95,8 @@ class Addpaymenttype(FlaskForm):
 
 
 class AddPaymentForm(FlaskForm):
-    paiementsType= SelectField('PaiementsType',choices=[])
-    paiementsNom = SelectField('PaiementsNom',choices=[])
+    paiementsType= SelectField('PaiementsType',choices=[],validators=[InputRequired()])
+    paiementsNom = SelectField('PaiementsNom',choices=[],validators=[InputRequired()])
 
     paiementsNomALT = StringField(label="Nouveau paiement ?",render_kw={"placeholder":"paiementsNom"})
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
@@ -112,8 +112,8 @@ class AddDentistrytype(FlaskForm):
     submit=SubmitField("Submit")
 
 class AddDentistryInfoForm(FlaskForm):
-    dentisterieType=SelectField('DentisterieType',choices=[])
-    dentisterieNom=SelectField('DentisterieNom',choices=[])
+    dentisterieType=SelectField('DentisterieType',choices=[],validators=[InputRequired()])
+    dentisterieNom=SelectField('DentisterieNom',choices=[],validators=[InputRequired()])
 
     dentisterieNomALT =StringField(label='Nouveau Dentistrie Info',render_kw={"placeholder":"dentistrieInfoNom"})
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
@@ -127,8 +127,8 @@ class AddFacturationtype(FlaskForm):
     submit =SubmitField("Submit")
 
 class AddFacturationForm(FlaskForm):
-    facturationType= SelectField('FacturationType',choices=[])
-    facturationNom = SelectField('FacturationNom',choices=[])
+    facturationType= SelectField('FacturationType',choices=[],validators=[InputRequired()])
+    facturationNom = SelectField('FacturationNom',choices=[],validators=[InputRequired()])
 
     facturationNomALT = StringField(label="Nouveau facturation ?",render_kw={"placeholder":"facturationNom"})
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
@@ -155,6 +155,9 @@ class IndividualDoctorReportForm(FlaskForm):
 
     doctor_submit=SubmitField("Submit")
     
+class Export_to_excel(FlaskForm):
+
+    export_submit=SubmitField("Exporter vers Excel")
     
 
 

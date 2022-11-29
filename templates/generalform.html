@@ -11,15 +11,22 @@
 <body>
 
     <h1 class="header">Ajouter Nouveau {{dbtable}}</h1>
+    <a href="{{url_for('dashboard')}}">🠐 BACK</a>
+    
+    {%with messages = get_flashed_messages() %}
+    {%if messages %}
+    {%for message in messages %}
+     {{message}}
+    {%endfor%}
+    {%endif%}
+{%endwith%} 
     <div class="items">
-        {%with messages = get_flashed_messages() %}
-        {%if messages %}
-        {%for message in messages %}
-         {{message}}
-        {%endfor%}
-        {%endif%}
-    {%endwith%}    
-    <form method="POST" action="">
+   
+
+    <div class="grid-container">
+        {% for form in forms %}
+        <div class="grid-item">
+    <form method="POST" action="" id="{{loop.index0}}">
         {% for field in form %}
         <tr>
             <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
@@ -27,8 +34,10 @@
         </tr>
         {% endfor %}
     </form>
-    <a href="{{url_for('dashboard')}}">Go Back</a>
-    <div>
+</div>
+{%endfor%}
+
+
         <table class="fl-table" border="1">
       <thead>
             <tr>
@@ -55,6 +64,9 @@
     </div>
 
 </div>
+</div>
+
+<div>
 
 {%if hasDynamicSelector == True and dbtable == 'payment'%}
 <script>
@@ -68,10 +80,11 @@
             response.json().then(function(data){
                 let optionHTML='';
                 
+                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
                 for (let paymentname of data.paymentnames){
                     optionHTML+= '<option value="'+paymentname.name+'">'+paymentname.name+'</option>';
                 }
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
+                
                 paymentname_select.innerHTML=optionHTML;
             });
         });
@@ -90,10 +103,11 @@
             response.json().then(function(data){
                 let optionHTML='';
                 
+                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
                 for (let facturationname of data.facturationnames){
                     optionHTML+= '<option value="'+facturationname.name+'">'+facturationname.name+'</option>';
                 }
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
+                
                 facturationname_select.innerHTML=optionHTML;
             });
         });
@@ -112,10 +126,11 @@
             response.json().then(function(data){
                 let optionHTML='';
                 
+                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
                 for (let dentisteriename of data.dentisterienames){
                     optionHTML+= '<option value="'+dentisteriename.name+'">'+dentisteriename.name+'</option>';
                 }
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
+                
                 dentisteriename_select.innerHTML=optionHTML;
             });
         });

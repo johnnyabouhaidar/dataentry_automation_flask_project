@@ -20,8 +20,12 @@ app = Flask(__name__)
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+
+
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+
+
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
 
 
@@ -177,7 +181,7 @@ def doctorpayment():
         pass
 
     if "paiement_medecin" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -208,7 +212,7 @@ def encaissement():
             flash("Invalid Data. Please re-check and submit again")
 
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -239,7 +243,7 @@ def dentisterie():
             flash("Invalid Data. Please re-check and submit again")
     
     if "dentisterie" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=dentisterieitems,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')    
 
@@ -296,7 +300,7 @@ def facturation():
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -328,6 +332,7 @@ def facturationnames(facturationtype):
 @login_required
 def payment():
     form=AddPaymentForm()
+    export2excel_frm=Export_to_excel()
     choices=[]
     choices.append(("---","---"))
     choices=choices+[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
@@ -336,24 +341,34 @@ def payment():
     form.paiementsType.choices = choices
     form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
 
-    payments=db.engine.execute("select * from payment")
+    payments=db.engine.execute("select * from payment order by paiementsId DESC")
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
+    payment_dataframe=pd.DataFrame(paymentitems,columns=headerspayments)
     
+    if export2excel_frm.validate_on_submit():
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"reporting_temporary\PAIEMENTS_{}.xlsx".format(current_num_timestamp)
+        payment_dataframe.to_excel(excel_report_path)
+
+        return send_file(excel_report_path)    
     if form.is_submitted() and request.method=='POST':
         if form.paiementsNom.data!="addnew":
             new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
         else:
             new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
-        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float) and form.is_submitted():
             db.session.add(new_payment)
             db.session.commit()
             return redirect(url_for('payment'))
         else:
             flash("Invalid Data. Please re-check and submit again")
     
+
+    
     if "payments" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',form=form,hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -658,6 +673,17 @@ def reporting():
     choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
     ind_doctor_form.doctorname.choices=choices
 
+
+    if ind_doctor_form.validate_on_submit():
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        doctor_report_filename=r'reporting_temporary\RAPPORT_MEDECINS_{0}.pdf'.format(current_num_timestamp)
+        dfs=[]
+
+        doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)
+
+        return send_file(doctor_report_filename)
+
     if form.validate_on_submit():
         dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
@@ -707,14 +733,6 @@ def reporting():
         return send_file(report_filename)
 
 
-    if ind_doctor_form.validate_on_submit():
-        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        doctor_report_filename=r'reporting_temporary\RAPPORT_MEDECINS_{0}.pdf'.format(current_num_timestamp)
-        dfs=[]
-
-        doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)
-
-        return send_file(doctor_report_filename)
 
 
 

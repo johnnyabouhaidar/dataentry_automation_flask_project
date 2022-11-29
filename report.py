@@ -32,10 +32,10 @@ def doctor_report(dfs,doctorname,year,filename, numpages=(1, 1), pagesize=(11, 8
   with PdfPages(filename) as pdf:
     nh, nv = numpages
 
-
+    
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"Rapport du médecin pour : {0}\n pour l'année:{1}".format(doctorname,year),ha='center',va='center',size=20)
+    plt.text(0.5,0.5,"Rapport du médecin pour :\n\n {0}\n\n pour l'année:{1}".format(doctorname,year),ha='center',va='center',size=17)
     plt.text(0.5,0.1,"\nDate: {0}".format(datetime.datetime.now()),ha='center',va='bottom',size=8)
     pdf.savefig()
     plt.close()    
@@ -45,7 +45,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
   with PdfPages(filename) as pdf:
     nh, nv = numpages
 
-
+    
     plt.figure() 
     plt.axis('off')
     plt.text(0.5,0.5,"Rapport de paiement consolidé pour: {0}".format(year),ha='center',va='center',size=20)
