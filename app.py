@@ -22,8 +22,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -346,14 +346,9 @@ def payment():
     headerspayments=payments.keys()
     payment_dataframe=pd.DataFrame(paymentitems,columns=headerspayments)
     
-    if export2excel_frm.validate_on_submit():
-        current_date=datetime.datetime.now()
-        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        excel_report_path=r"reporting_temporary\PAIEMENTS_{}.xlsx".format(current_num_timestamp)
-        payment_dataframe.to_excel(excel_report_path)
+   
 
-        return send_file(excel_report_path)    
-    if form.is_submitted() and request.method=='POST':
+    if form.is_submitted() and request.method=='POST' and form.submit.data:
         if form.paiementsNom.data!="addnew":
             new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
         else:
@@ -364,6 +359,14 @@ def payment():
             return redirect(url_for('payment'))
         else:
             flash("Invalid Data. Please re-check and submit again")
+
+    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"reporting_temporary\PAIEMENTS_{}.xlsx".format(current_num_timestamp)
+        payment_dataframe.to_excel(excel_report_path,index=False)
+
+        return send_file(excel_report_path)             
     
 
     

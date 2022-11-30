@@ -26,11 +26,12 @@
     <div class="grid-container">
         {% for form in forms %}
         <div class="grid-item">
-    <form method="POST" action="" id="{{loop.index0}}">
+            {%set form_id=loop.index0%}
+    <form method="POST" action="" id="{{form_id}}">
         {% for field in form %}
         <tr>
             <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
-            <td>{{ field }}</td><br><br>
+            <td>{{ field(form=form_id) }}</td><br><br>
         </tr>
         {% endfor %}
     </form>
