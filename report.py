@@ -57,6 +57,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
             for df in dfs:
                 rows_per_page = len(df) // nh
                 cols_per_page = len(df.columns) // nv
+                
                 page = df.iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df)),
                             (j*cols_per_page):min((j+1)*cols_per_page, len(df.columns))]
                 try:
@@ -72,6 +73,12 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
                 
                     #df.plot()
                     #df["somme"].value_counts().plot.bar()
+                    try:
+                        df.drop(['month'], axis=1)
+                    except:
+                        pass
+                    #df=df.groupby(df.columns[0])
+                    print(df)
                     df.plot(y=["somme"], kind="bar",color="blue")
                     
                     plt.xticks(rotation=10)

@@ -22,8 +22,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -96,6 +96,7 @@ class Facturation(db.Model):
     facturationType = db.Column(db.String(80),nullable=False)
     facturationNom = db.Column(db.String(80),nullable=False)
     somme = db.Column(db.Float,nullable=False)
+    comment = db.Column(db.String(250))
     date = db.Column(db.Date,nullable=False)
 
 
@@ -116,6 +117,8 @@ class Encaissement(db.Model):
     encaissementDate=db.Column(db.Date,nullable=False)
     montant=db.Column(db.Float,nullable=False)
     banque=db.Column(db.String(80),nullable=False)
+    comment = db.Column(db.String(250))
+
 
 class Doctorpayment(db.Model):
     doctorpaiementId=db.Column(db.Integer,primary_key=True)
@@ -201,9 +204,9 @@ def encaissement():
     headersencaissement=encaissements.keys()
     if form.is_submitted() and request.method=='POST':
         if form.encaissementNom.data!="addnew":
-            new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data) 
+            new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
         else:
-            new_encaissement = Encaissement(encaissementNom=form.encaissementNomALT.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data) 
+            new_encaissement = Encaissement(encaissementNom=form.encaissementNomALT.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
         if isinstance(form.montant.data,int) or isinstance(form.montant.data,float):
             db.session.add(new_encaissement)
             db.session.commit()
@@ -288,9 +291,9 @@ def facturation():
     if form.is_submitted() and request.method=='POST':
 
         if form.facturationNom.data!="addnew":
-            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,date=form.date.data)
+            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
         else:
-            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNomALT.data,somme=form.somme.data,date=form.date.data)
+            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNomALT.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
         if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
             db.session.add(new_facturation)
             db.session.commit()
@@ -312,7 +315,7 @@ def facturationnames(facturationtype):
     Arry=[]
     for facturation in facturationnames:
         
-        if not any(obj['name'] == facturation.paiementsNom for obj in Arry):
+        if not any(obj['name'] == facturation.facturationNom for obj in Arry):
             
             facturationObj={}
             facturationObj['id']=facturation.facturationId
@@ -540,6 +543,7 @@ def edit_entry(tbl,id):
                 qry.facturationNom = form.facturationNomALT.data
             qry.somme=form.somme.data
             qry.date=form.date.data
+            qry.comment=form.comment.data
             
             #qry=form
             db.session.commit()
@@ -588,6 +592,7 @@ def edit_entry(tbl,id):
                 qry.encaissementNom=form.encaissementNomALT.data 
             qry.montant=form.montant.data
             qry.banque=form.banque.data
+            qry.comment=form.comment.data
             db.session.commit()
             return redirect(url_for('encaissement'))
 

@@ -133,6 +133,7 @@ class AddFacturationForm(FlaskForm):
     facturationNomALT = StringField(label="Nouveau facturation ?",render_kw={"placeholder":"facturationNom"})
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
     date = DateField(label="Facturation Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
+    comment=StringField('Comment',widget=TextArea())
 
     submit = SubmitField("Submit")
 
@@ -142,6 +143,7 @@ class AddEncaissementForm(FlaskForm):
     encaissementDate=DateField(label="Encaissement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
     montant=FloatField(label="montant",validators=[InputRequired()],render_kw={"placeholder":"Montant"})
     banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance','Postfinance')])
+    comment=StringField('Comment',widget=TextArea())
 
     submit =SubmitField("Submit")
 
