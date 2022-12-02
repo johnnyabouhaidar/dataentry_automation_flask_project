@@ -15,6 +15,7 @@ def _draw_as_table(df, pagesize):
     fig, ax = plt.subplots(figsize=pagesize)
     ax.axis('tight')
     ax.axis('off')
+    
     the_table = ax.table(cellText=df.values,
                         rowLabels=df.index,
                         colLabels=df.columns,
@@ -22,6 +23,10 @@ def _draw_as_table(df, pagesize):
                         colColours=['lightgreen']*len(df.columns),
                         cellColours=alternating_colors,
                         loc='center')
+    
+    ax.set_title("Your title", fontsize=15,y=2, pad=2)
+
+
     return fig
 
 def _draw_as_graph(df):
@@ -55,11 +60,11 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
     for i in range(0, nh):
         for j in range(0, nv):
             for df in dfs:
-                rows_per_page = len(df) // nh
-                cols_per_page = len(df.columns) // nv
+                rows_per_page = len(df[0]) // nh
+                cols_per_page = len(df[0].columns) // nv
                 
-                page = df.iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df)),
-                            (j*cols_per_page):min((j+1)*cols_per_page, len(df.columns))]
+                page = df[0].iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df[0])),
+                            (j*cols_per_page):min((j+1)*cols_per_page, len(df[0].columns))]
                 try:
                     fig = _draw_as_table(page, pagesize)
                     '''
@@ -73,15 +78,14 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
                 
                     #df.plot()
                     #df["somme"].value_counts().plot.bar()
-                    try:
-                        df.drop(['month'], axis=1)
-                    except:
-                        pass
+                
                     #df=df.groupby(df.columns[0])
-                    print(df)
-                    df.plot(y=["somme"], kind="bar",color="blue")
+                    #print(df)
                     
-                    plt.xticks(rotation=10)
+                    df[1].plot(y=["somme"], kind="bar",color="blue",linewidth=1,figsize=(11,11))
+                    plt.subplots_adjust(bottom=0.3)
+                    
+                    plt.xticks(rotation=90)
                     pdf.savefig()
                     plt.close()
                 except:

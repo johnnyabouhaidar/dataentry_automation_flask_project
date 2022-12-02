@@ -30,8 +30,12 @@ a:link, a:visited,input {
   }
 
   .items{
+    
     text-align: center;
   }
+.inneritems{
+  display: inline;
+}
 
   *{
     box-sizing: border-box;
@@ -164,7 +168,7 @@ column-gap: 2rem;
 
 }
 .grid-item{
-  /*border:5px solid rgb(23, 192, 178);*/
+  border:5px solid rgb(23, 192, 178);
   
 }
 .grid-container-doctor {

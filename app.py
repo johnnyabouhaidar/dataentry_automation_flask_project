@@ -669,6 +669,13 @@ def user():
     else:
         return render_template("NOT_AUTHORIZED.html")
 
+def convert_list_to_dataframe(input_list):
+    items=input_list.fetchall()
+    headers=input_list.keys()
+    output_dataframe = pd.DataFrame(items,columns=headers)
+
+    return output_dataframe
+
 @app.route('/reporting',methods=['GET','POST'])
 @login_required
 def reporting():
@@ -696,30 +703,39 @@ def reporting():
         dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
         paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)={0} group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
-        #paymentslist=db.engine.execute("SELECT *from payment")
-        paymentslistitems=paymentslist.fetchall()
-        headerspaymentslist=paymentslist.keys()
-        paymentdf = pd.DataFrame(paymentslistitems,columns=headerspaymentslist)
-        #generate_payment_report(paymentdf)
+
+        paymentdf=convert_list_to_dataframe(paymentslist)
         paymentdf.set_index('paiementsType',inplace=True)
-        dfs.append(paymentdf)
+
+        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where YEAR(date)=2022 group by YEAR(date) , paiementsType""".format(form.year.data))
+        paymentforgraphdf=convert_list_to_dataframe(paymentforgraphlist)
+        paymentforgraphdf.set_index('paiementsType',inplace=True)
+
+
+        dfs.append((paymentdf,paymentforgraphdf))
 
 
         encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
-        encaissementlistitems=encaissementlist.fetchall()
-        headersencaissementlist=encaissementlist.keys()
-        encaissementdf = pd.DataFrame(encaissementlistitems,columns=headersencaissementlist)
+        encaissementdf=convert_list_to_dataframe(encaissementlist)
         encaissementdf.rename(columns = {'montant':'somme'}, inplace = True)
         encaissementdf.set_index('encaissementNom',inplace=True)
         #print(encaissementdf)
-        dfs.append(encaissementdf)
+
+        encaissementgraphlist=db.engine.execute("""select SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by banque""".format(form.year.data))
+        encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
+        encaissementgraphdf.set_index('banque',inplace=True)
+        
+        dfs.append((encaissementdf,encaissementgraphdf))
 
         facturationlist = db.engine.execute("""select facturationType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date),MONTH(date) , facturationType""".format(form.year.data))
-        facturationlistitems=facturationlist.fetchall()
-        headersfacturationlist = facturationlist.keys()
-        facturationdf=pd.DataFrame(facturationlistitems,columns=headersfacturationlist)
+        
+        facturationdf=convert_list_to_dataframe(facturationlist)
         facturationdf.set_index('facturationType',inplace=True)
-        dfs.append(facturationdf)
+        facturationgraphlist=db.engine.execute("""select facturationType, SUM(somme) AS somme ,YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date) , facturationType""".format(form.year.data))
+        facturationgraphdf=convert_list_to_dataframe(facturationgraphlist)
+        facturationgraphdf.set_index('facturationType',inplace=True)
+
+        dfs.append((facturationdf,facturationgraphdf))
 
 
         #print(encaissementdf.sum()["montant"])
