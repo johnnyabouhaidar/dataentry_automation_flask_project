@@ -24,7 +24,7 @@ def _draw_as_table(df, pagesize):
                         cellColours=alternating_colors,
                         loc='center')
     
-    ax.set_title("Your title", fontsize=15,y=2, pad=2)
+    #ax.set_title("Your title", fontsize=15,y=2, pad=2)
 
 
     return fig
