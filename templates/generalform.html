@@ -31,8 +31,8 @@
         <tr>
         {% for field in form %}
        
-            {%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%else%}<br><br>{%endif%} {% if field.flags.required %}*{% endif %}
-            {{ field(form=form_id) }} 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%else%}<br><br>{%endif%} {% if field.flags.required %}*{% endif %}
+            {{ field(form=form_id) }} 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
             
         
         {% endfor %}

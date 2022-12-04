@@ -45,6 +45,9 @@ def doctor_report(dfs,doctorname,year,filename, numpages=(1, 1), pagesize=(11, 8
     pdf.savefig()
     plt.close()    
       
+def addlabels(x,y):
+    for i in range(len(x)):
+        plt.text(i, y[i], y[i], ha = 'center')
 
 def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)):
   with PdfPages(filename) as pdf:
@@ -83,8 +86,13 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
                     #print(df)
                     
                     df[1].plot(y=["somme"], kind="bar",color="blue",linewidth=1,figsize=(11,11))
+                    #plt.ticklabel_format(style='plain') 
+                    plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
                     plt.subplots_adjust(bottom=0.3)
-                    
+                    rows=df[1].somme.values
+                    addlabels(rows,rows)
+
+
                     plt.xticks(rotation=90)
                     pdf.savefig()
                     plt.close()
