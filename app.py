@@ -649,7 +649,7 @@ def delete_entry(tbl,tblid,id):
 @app.route('/user',methods=['GET','POST'])
 def user():
     form=RegisterForm()
-    userlslist=db.engine.execute("select * from \"user\"")
+    userlslist=db.engine.execute("select id,username,role from \"user\"")
     userlslistitems=userlslist.fetchall()
     headersuserlslist=userlslist.keys()
     if form.validate_on_submit():
@@ -702,7 +702,7 @@ def reporting():
     if form.validate_on_submit():
         dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
-        paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From payment where YEAR(date)={0} group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
+        paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month" From payment where YEAR(date)={0} group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
 
         paymentdf=convert_list_to_dataframe(paymentslist)
         paymentdf.set_index('paiementsType',inplace=True)

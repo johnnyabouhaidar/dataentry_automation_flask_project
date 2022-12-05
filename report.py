@@ -63,6 +63,10 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
     for i in range(0, nh):
         for j in range(0, nv):
             for df in dfs:
+                try:
+                    print(df[0].groupby(["month"]).sum())
+                except:
+                    pass
                 rows_per_page = len(df[0]) // nh
                 cols_per_page = len(df[0].columns) // nv
                 

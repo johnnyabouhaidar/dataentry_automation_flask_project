@@ -83,7 +83,9 @@ class AddDoctorConstantsForm(FlaskForm):
 
 class AddDoctorPaymentForm(FlaskForm):
     doctorname=SelectField("Doctor Name",choices=[],validators=[InputRequired()])
-    paimentnom=StringField("Paiement Nom",validators=[InputRequired()],render_kw={"placeholder":"Paiement Nom"})
+    paimentnomMC=SelectField("Paiement Nom",choices=[],validators=[InputRequired()])
+    paimentnom=StringField("Nouveau Paiement",validators=[InputRequired()],render_kw={"placeholder":"Paiement Nom"})
+    
     doctorpaiementsomme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
 
     submit=SubmitField("Submit")
