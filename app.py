@@ -126,6 +126,18 @@ class Doctorpayment(db.Model):
     paimentnom=db.Column(db.String(80),nullable=False)
     doctorpaiementsomme=db.Column(db.Float,nullable=False)
 
+class Fraismaterieltype(db.Model):
+    fraismaterieltypeId=db.Column(db.Integer,primary_key=True)
+    fraismaterieltype = db.Column(db.String(80),nullable=False)
+
+class Fraismateriel(db.Model):
+    fraismaterielId=db.Column(db.Integer,primary_key=True)
+    fraismaterieltype=db.Column(db.String(80),nullable=False)
+    fraismaterielnom=db.Column(db.String(80),nullable=False)
+    fraismaterielsomme=db.Column(db.Float,nullable=False)
+    fraismaterieldate=db.Column(db.Date,nullable=False)
+
+
 
 
 
@@ -169,13 +181,21 @@ def doctorpayment():
     choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
     form.doctorname.choices=choices
 
+    paymentchoices=[]
+    paymentchoices.append(("addnew","Ajouter Nouveau ?"))
+    paymentchoices=paymentchoices+[(doctorpay.paimentnom,doctorpay.paimentnom)for doctorpay in db.engine.execute("select DISTINCT paimentnom   from doctorpayment").fetchall()]
+    form.paimentnom.choices=paymentchoices
+
 
     DoctorPayments=db.engine.execute("select * from DoctorPayment")
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
     if form.validate_on_submit():
-        new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data)
+        if form.paimentnom.data=="addnew":
+            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnomALT.data,doctorpaiementsomme=form.doctorpaiementsomme.data)
+        else:
+            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data)
         db.session.add(new_doctorpayment)
         db.session.commit()
         return redirect(url_for('doctorpayment'))
@@ -425,6 +445,21 @@ def doctor():
     else:
         return render_template('NOT_AUTHORIZED.html')
 
+@app.route('/fraismateriel',methods=['GET','POST'])
+@login_required
+def fraismateriel():
+    form =AddFraismaterielForm()
+    fraismateriel=db.engine.execute("select * from fraismateriel")
+    fraismaterielitems=fraismateriel.fetchall()
+    headersfraismateriel=fraismateriel.keys()
+
+    if "fraismateriel" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
+
+
+
 
 @app.route('/load_doctor/tbl=<tbl>/id=<id>',methods=['GET','POST'])
 @login_required
@@ -480,15 +515,26 @@ def edit_entry(tbl,id):
         ).first()
 
         form=AddDoctorPaymentForm(obj=qry)
+
         choices=[]
         #choices.append(("---","---"))
         choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
-        form.doctorname.choices=choices 
+        form.doctorname.choices=choices
+        
+        paymentchoices=[]
+        paymentchoices.append(("addnew","Ajouter Nouveau ?"))
+        paymentchoices=paymentchoices+[(doctor.paimentnom,doctor.paimentnom)for doctor in db.engine.execute("select DISTINCT paimentnom   from doctorpayment").fetchall()]
+        form.paimentnom.choices=paymentchoices
+        #form.paimentnom.data=qry.paimentnom 
+        
 
         if form.validate_on_submit():
             #qry.doctorid = form.doctorid.data
             qry.doctorname=form.doctorname.data
-            qry.paimentnom=form.paimentnom.data
+            if form.paimentnom.data=="addnew":
+                qry.paimentnom=form.paimentnomALT.data
+            else:    
+                qry.paimentnom=form.paimentnom.data
             qry.doctorpaiementsomme=form.doctorpaiementsomme.data
             
             #qry=form
@@ -804,9 +850,20 @@ def setup():
         db.session.commit()
         return redirect(url_for('setup'))
 
+    form4 = AddFraismaterieltype()
+    fraismaterieltypes=db.engine.execute("select * from Fraismaterieltype")
+    fraismaterielitems=fraismaterieltypes.fetchall()
+    headersfraismaterieltypes=fraismaterieltypes.keys()
+
+    if form4.validate_on_submit():
+        new_fraismateriel_type=Fraismaterieltype(fraismaterieltype=form4.fraismaterieltype.data)
+        db.session.add(new_fraismateriel_type)
+        db.session.commit()
+        return redirect(url_for('setup'))
+
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',forms=[form1,form2,form3],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes],dbtable=["paymenttype","facturationtype","dentisterietype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid"],user_role=current_user.role)
+        return render_template('setup.html',forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

@@ -83,8 +83,8 @@ class AddDoctorConstantsForm(FlaskForm):
 
 class AddDoctorPaymentForm(FlaskForm):
     doctorname=SelectField("Doctor Name",choices=[],validators=[InputRequired()])
-    paimentnomMC=SelectField("Paiement Nom",choices=[],validators=[InputRequired()])
-    paimentnom=StringField("Nouveau Paiement",validators=[InputRequired()],render_kw={"placeholder":"Paiement Nom"})
+    paimentnom=SelectField("Paiement Nom",choices=[],validators=[InputRequired()])
+    paimentnomALT=StringField("Nouveau Paiement?",render_kw={"placeholder":"Paiement Nom"})
     
     doctorpaiementsomme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
 
@@ -139,11 +139,25 @@ class AddFacturationForm(FlaskForm):
 
     submit = SubmitField("Submit")
 
+class AddFraismaterieltype(FlaskForm):
+    fraismaterieltype=StringField(label="Frais Meteriel Type ",validators=[InputRequired()],render_kw={"placeholder":"Type"})
+
+    submit =SubmitField("Submit")
+
+class AddFraismaterielForm(FlaskForm):
+    fraismaterieltype=SelectField('Frais Materiel Type',choices=[],validators=[InputRequired()])
+    fraismaterielnom=SelectField('Frais Materiel Nom',choices=[],validators=[InputRequired()])
+    fraismaterielnomALT=StringField('Nouveau Frais Materiel?',render_kw={"palceholder","Frais Materiel"})
+    fraismaterielsomme=FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder","Somme"})
+    fraismaterieldate=DateField('Date',validators=[InputRequired()])
+
+    submit = SubmitField("Submit")
+
 class AddEncaissementForm(FlaskForm):
     encaissementNom=SelectField('Encaissement Nom',choices=[])
-    encaissementNomALT = StringField(label="Nouveau encaissement ?",render_kw={"placeholder":"encaissementNom"})
-    encaissementDate=DateField(label="Encaissement Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
-    montant=FloatField(label="montant",validators=[InputRequired()],render_kw={"placeholder":"Montant"})
+    encaissementNomALT = StringField(label="Nouveau encaissement ?")
+    encaissementDate=DateField(label="Encaissement Date",validators=[InputRequired()])
+    montant=FloatField(label="montant",validators=[InputRequired()])
     banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance','Postfinance')])
     comment=StringField('Comment',widget=TextArea())
 
