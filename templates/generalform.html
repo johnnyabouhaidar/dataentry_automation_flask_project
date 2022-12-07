@@ -75,8 +75,31 @@
 </div>
 
 <div>
+    {%if hasDynamicSelector == True and dbtable == 'fraismateriel'%}
+    <script>
+        let fraismaterieltype_select = document.getElementById('fraismaterieltype');
+        let fraismaterielname_select = document.getElementById('fraismaterielnom');
+    
+        fraismaterieltype_select.onclick = function(){
+            fraismaterieltype = fraismaterieltype_select.value;
+    
+            fetch('/fraismaterielname/'+fraismaterieltype).then(function(response){
+                response.json().then(function(data){
+                    let optionHTML='';
+                    
+                    optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
+                    for (let fraismateriel of data.fraismaterielnames){
+                        optionHTML+= '<option value="'+fraismateriel.name+'">'+fraismateriel.name+'</option>';
+                    }
+                    
+                    fraismaterielname_select.innerHTML=optionHTML;
+                });
+            });
+        }
+    </script>
+    {%endif%}
 
-{%if hasDynamicSelector == True and dbtable == 'payment'%}
+    {%if hasDynamicSelector == True and dbtable == 'payment'%}
 <script>
     let paymenttype_select = document.getElementById('paiementsType');
     let paymentname_select = document.getElementById('paiementsNom');

@@ -453,10 +453,57 @@ def fraismateriel():
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
 
+    choices=[]
+    choices.append(("---","---"))
+    choices=choices+[(fraistype.fraismaterieltype,fraistype.fraismaterieltype)for fraistype in db.engine.execute("select * from fraismaterieltype").fetchall()]
+    #choices.append((paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall())
+    
+    form.fraismaterieltype.choices = choices
+    form.fraismaterielnom.choices= [(fraisname.fraismaterielId,fraisname.fraismaterielnom) for fraisname in Fraismateriel.query.filter_by(fraismaterieltype='---').all()]
+
+    if form.is_submitted() and request.method=='POST' and form.submit.data:
+        if form.fraismaterielnom.data!="addnew":
+            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnom.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data)
+        else:
+            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnomALT.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data)
+        if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float) and form.is_submitted():
+            db.session.add(new_fraismateriel)
+            db.session.commit()
+            return redirect(url_for('fraismateriel'))
+        else:
+            flash("Invalid Data. Please re-check and submit again")
+    
+
     if "fraismateriel" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
+
+
+@app.route('/fraismaterielname/<fraismaterieltype>')
+def fraismaterielnames(fraismaterieltype):
+    fraismaterielnames = Fraismateriel.query.filter_by(fraismaterieltype=fraismaterieltype).all()
+    doctornames = Doctor.query.all()
+    
+    Arry=[]
+    for fraismateriel in fraismaterielnames:
+        
+        if not any(obj['name'] == fraismateriel.fraismaterielnom for obj in Arry):
+            
+            fraismaterielObj={}
+            fraismaterielObj['id']=fraismateriel.fraismaterielId
+            fraismaterielObj['name']=fraismateriel.fraismaterielNom
+            Arry.append(fraismaterielObj)
+    
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
+            
+
+    return jsonify({'fraismaterielnames':Arry})
 
 
 
@@ -508,6 +555,19 @@ def load_doctor(tbl,id):
 @app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
 @login_required
 def edit_entry(tbl,id):
+
+    if tbl=='fraismateriel':
+        qry=Fraismateriel.query.filter(
+            Fraismateriel.fraismaterielId==id
+        ).first()
+
+        form=AddFraismaterielForm(obj=qry)
+        choices=[]
+        choices.append(("---","---"))
+        choices=choices+[(fraistype.fraismaterieltype,fraistype.fraismaterieltype)for fraistype in db.engine.execute("select * from fraismaterieltype").fetchall()]
+        #choices.append((paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall())
+    
+        form.fraismaterieltype.choices = choices
 
     if tbl=='doctorpayment':
         qry = Doctorpayment.query.filter(
@@ -695,7 +755,7 @@ def delete_entry(tbl,tblid,id):
 @app.route('/user',methods=['GET','POST'])
 def user():
     form=RegisterForm()
-    userlslist=db.engine.execute("select id,username,role from \"user\"")
+    userlslist=db.engine.execute("select id,username,role,access from \"user\"")
     userlslistitems=userlslist.fetchall()
     headersuserlslist=userlslist.keys()
     if form.validate_on_submit():

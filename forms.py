@@ -15,7 +15,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Utilisez "Ctrl" pour plusieurs rôles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Utilisez "Ctrl" pour plusieurs rôles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -31,7 +31,7 @@ class RegisterForm(FlaskForm):
 class EditRegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Doctors'),('payments','Payments'),('facturation','Facturation'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -147,8 +147,8 @@ class AddFraismaterieltype(FlaskForm):
 class AddFraismaterielForm(FlaskForm):
     fraismaterieltype=SelectField('Frais Materiel Type',choices=[],validators=[InputRequired()])
     fraismaterielnom=SelectField('Frais Materiel Nom',choices=[],validators=[InputRequired()])
-    fraismaterielnomALT=StringField('Nouveau Frais Materiel?',render_kw={"palceholder","Frais Materiel"})
-    fraismaterielsomme=FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder","Somme"})
+    fraismaterielnomALT=StringField('Nouveau Frais Materiel?',render_kw={"placeholder":"Frais Materiel"})
+    fraismaterielsomme=FloatField("Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
     fraismaterieldate=DateField('Date',validators=[InputRequired()])
 
     submit = SubmitField("Submit")
