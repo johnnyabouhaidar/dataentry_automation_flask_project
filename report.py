@@ -22,9 +22,14 @@ def _draw_as_table(df, pagesize):
                         rowColours=['lightgreen']*len(df),
                         colColours=['lightgreen']*len(df.columns),
                         cellColours=alternating_colors,
-                        loc='center')
+                        loc='center',
+                        )
     
+    [t.auto_set_font_size(False) for t in [the_table]]
+    #[t.set_fontsize(8) for t in [the_table]]
+    the_table.auto_set_column_width(col=list(range(len(df.columns))))
     #ax.set_title("Your title", fontsize=15,y=2, pad=2)
+    #plt.title("test",loc="left")
 
 
     return fig
@@ -110,7 +115,11 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
 
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"P&l: {0}".format(pnl),ha='center',va='center',size=20)
+    plt.text(0.5,0.5,"Paiements Totale: {0}".format(pnl),ha='center',va='center',size=15)
+    plt.text(0.5,0.4,"-",ha='center',va='center',size=15)
+    plt.text(0.5,0.3,"Encaissement-Avance Totale: {0}".format(pnl),ha='center',va='center',size=15)
+    plt.text(0.5,0.2,"-------------------------------------------------------------------",ha='center',va='center',size=15)
+    plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20)
     pdf.savefig()
     plt.close()
 

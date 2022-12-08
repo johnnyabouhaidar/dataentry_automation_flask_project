@@ -561,6 +561,8 @@ def edit_entry(tbl,id):
             Fraismateriel.fraismaterielId==id
         ).first()
 
+
+
         form=AddFraismaterielForm(obj=qry)
         choices=[]
         choices.append(("---","---"))
@@ -568,6 +570,28 @@ def edit_entry(tbl,id):
         #choices.append((paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall())
     
         form.fraismaterieltype.choices = choices
+        
+
+        form.fraismaterielnom.choices=[(qry.fraismaterielnom,qry.fraismaterielnom)]
+
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            qry.fraismaterieltype=form.fraismaterieltype.data
+            if form.fraismaterielnomALT.data=="":
+                qry.fraismaterielnom = form.fraismaterielnom.data
+            else:
+                qry.fraismaterielnom = form.fraismaterielnomALT.data
+            qry.fraismaterielsomme=form.fraismaterielsomme.data
+            qry.fraismaterieldate=form.fraismaterieldate.data
+            #qry.comment=form.comment.data
+            if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float) and form.is_submitted():
+            #qry=form
+
+                db.session.commit()
+            else:
+                flash("Invalid Data. Please re-check and submit again") 
+            return redirect(url_for('fraismateriel'))
+       
 
     if tbl=='doctorpayment':
         qry = Doctorpayment.query.filter(
@@ -817,8 +841,28 @@ def reporting():
         paymentforgraphdf=convert_list_to_dataframe(paymentforgraphlist)
         paymentforgraphdf.set_index('paiementsType',inplace=True)
 
+        paymentforreportlist=db.engine.execute("""SELECT paiementsType AS PaiementType, 
+	SUM (CASE WHEN Month(date)=1 THEN somme END) AS January,
+	SUM (CASE WHEN Month(date)=2 THEN somme END) AS February,
+	SUM (CASE WHEN Month(date)=3 THEN somme END) AS March,
+	SUM (CASE WHEN Month(date)=4 THEN somme END) AS April,
+	SUM (CASE WHEN Month(date)=5 THEN somme END) AS May,
+	SUM (CASE WHEN Month(date)=6 THEN somme END) AS June,
+	SUM (CASE WHEN Month(date)=7 THEN somme END) AS July,
+	SUM (CASE WHEN Month(date)=8 THEN somme END) AS August,
+	SUM (CASE WHEN Month(date)=9 THEN somme END) AS September,
+	SUM (CASE WHEN Month(date)=10 THEN somme END) AS October,
+	SUM (CASE WHEN Month(date)=11 THEN somme END) AS November,
+	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December
 
-        dfs.append((paymentdf,paymentforgraphdf))
+FROM payment
+WHERE Year(date)={0}
+GROUP BY paiementsType""".format(form.year.data))
+        paymentforreportdf=convert_list_to_dataframe(paymentforreportlist)
+        paymentforreportdf.set_index('PaiementType',inplace=True)        
+
+
+        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2)))
 
 
         encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
@@ -831,17 +875,37 @@ def reporting():
         encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
         encaissementgraphdf.set_index('banque',inplace=True)
         
-        dfs.append((encaissementdf,encaissementgraphdf))
+        dfs.append((encaissementdf.fillna(0).round(2),encaissementgraphdf.fillna(0).round(2)))
 
-        facturationlist = db.engine.execute("""select facturationType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date),MONTH(date) , facturationType""".format(form.year.data))
+        '''facturationlist = db.engine.execute("""select facturationType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date),MONTH(date) , facturationType""".format(form.year.data))
         
         facturationdf=convert_list_to_dataframe(facturationlist)
-        facturationdf.set_index('facturationType',inplace=True)
+        facturationdf.set_index('facturationType',inplace=True)'''
         facturationgraphlist=db.engine.execute("""select facturationType, SUM(somme) AS somme ,YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date) , facturationType""".format(form.year.data))
         facturationgraphdf=convert_list_to_dataframe(facturationgraphlist)
         facturationgraphdf.set_index('facturationType',inplace=True)
 
-        dfs.append((facturationdf,facturationgraphdf))
+        facturationforreportlist=db.engine.execute("""SELECT facturationType AS FacturationType, 
+	SUM (CASE WHEN Month(date)=1 THEN somme END) AS January,
+	SUM (CASE WHEN Month(date)=2 THEN somme END) AS February,
+	SUM (CASE WHEN Month(date)=3 THEN somme END) AS March,
+	SUM (CASE WHEN Month(date)=4 THEN somme END) AS April,
+	SUM (CASE WHEN Month(date)=5 THEN somme END) AS May,
+	SUM (CASE WHEN Month(date)=6 THEN somme END) AS June,
+	SUM (CASE WHEN Month(date)=7 THEN somme END) AS July,
+	SUM (CASE WHEN Month(date)=8 THEN somme END) AS August,
+	SUM (CASE WHEN Month(date)=9 THEN somme END) AS September,
+	SUM (CASE WHEN Month(date)=10 THEN somme END) AS October,
+	SUM (CASE WHEN Month(date)=11 THEN somme END) AS November,
+	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December
+
+FROM facturation
+WHERE Year(date)={0}
+GROUP BY facturationType""".format(form.year.data))
+        facturationforreportdf=convert_list_to_dataframe(facturationforreportlist)
+        facturationforreportdf.set_index('FacturationType',inplace=True) 
+
+        dfs.append((facturationforreportdf.fillna(0).round(2),facturationgraphdf.fillna(0).round(2)))
 
 
         #print(encaissementdf.sum()["montant"])
