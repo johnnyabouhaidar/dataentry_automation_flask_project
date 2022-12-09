@@ -25,11 +25,14 @@ def _draw_as_table(df, pagesize):
                         loc='center',
                         )
     
+    ax.set_title("Title Goes Here...", fontsize=15, y=1.8, pad=1)
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
     the_table.auto_set_column_width(col=list(range(len(df.columns))))
-    #ax.set_title("Your title", fontsize=15,y=2, pad=2)
+    #ax.set_title("Your title",  pad=20)
     #plt.title("test",loc="left")
+    
+    #plt.text(-0.05,0.095,"Encaissement-Avance Totale:",ha='left',va='center',size=15)
 
 
     return fig
@@ -54,7 +57,7 @@ def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i, y[i], y[i], ha = 'center')
 
-def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)):
+def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), pagesize=(11, 8.5)):
   with PdfPages(filename) as pdf:
     nh, nv = numpages
 
@@ -94,7 +97,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
                     #df=df.groupby(df.columns[0])
                     #print(df)
                     
-                    df[1].plot(y=["somme"], kind="bar",color="blue",linewidth=1,figsize=(11,11))
+                    df[1].plot(y=["somme"], kind="bar",color="blue",linewidth=1,figsize=(11,11),title="Graphique informatif")
                     #plt.ticklabel_format(style='plain') 
                     plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
                     plt.subplots_adjust(bottom=0.3)
@@ -115,9 +118,9 @@ def dataframe_to_pdf(dfs,pnl,year, filename, numpages=(1, 1), pagesize=(11, 8.5)
 
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"Paiements Totale: {0}".format(pnl),ha='center',va='center',size=15)
+    plt.text(0.5,0.5,"Encaissement-Avance Totale: {0}".format(enctot),ha='center',va='center',size=15)
     plt.text(0.5,0.4,"-",ha='center',va='center',size=15)
-    plt.text(0.5,0.3,"Encaissement-Avance Totale: {0}".format(pnl),ha='center',va='center',size=15)
+    plt.text(0.5,0.3,"Paiements Totale: {0}".format(paytot),ha='center',va='center',size=15)
     plt.text(0.5,0.2,"-------------------------------------------------------------------",ha='center',va='center',size=15)
     plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20)
     pdf.savefig()

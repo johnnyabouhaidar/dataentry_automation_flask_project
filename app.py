@@ -492,7 +492,7 @@ def fraismaterielnames(fraismaterieltype):
             
             fraismaterielObj={}
             fraismaterielObj['id']=fraismateriel.fraismaterielId
-            fraismaterielObj['name']=fraismateriel.fraismaterielNom
+            fraismaterielObj['name']=fraismateriel.fraismaterielnom
             Arry.append(fraismaterielObj)
     
     for doctor in doctornames:
@@ -922,7 +922,7 @@ GROUP BY facturationType""".format(form.year.data))
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
         report_filename=r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp)
         
-        dataframe_to_pdf(dfs,pnl,form.year.data,report_filename)        
+        dataframe_to_pdf(dfs,pnl,form.year.data,report_filename,enctotal,paymenttotal)        
 
         return send_file(report_filename)
 
