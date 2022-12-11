@@ -176,6 +176,14 @@ class IndividualDoctorReportForm(FlaskForm):
 class Export_to_excel(FlaskForm):
 
     export_submit=SubmitField("Exporter vers Excel")
+
+class LeasingForm(FlaskForm):
+    locationNom=StringField(label="Location(Leasing) Nom",validators=[InputRequired()])
+    debut=DateField(label="Debut",validators=[InputRequired()])
+    finPrevue=DateField(label="Fin Prevue",validators=[InputRequired()])
+    paiement=FloatField(label="Paiement",validators=[InputRequired()])
+
+    leasesubmit=SubmitField("Submit")
     
 
 

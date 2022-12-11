@@ -22,8 +22,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -137,13 +137,21 @@ class Fraismateriel(db.Model):
     fraismaterielsomme=db.Column(db.Float,nullable=False)
     fraismaterieldate=db.Column(db.Date,nullable=False)
 
+class Leasing(db.Model):
+    LeasingId=db.Column(db.Integer,primary_key=True)
+    locationNom=db.Column(db.String(80),nullable=False)
+    docteur=db.Column(db.String(80),nullable=False)
+    debut=db.Column(db.Date,nullable=False)
+    finPrevue=db.Column(db.Date,nullable=False)
+    paiement=db.Column(db.Float,nullable=True)
+
 
 
 
 
 @app.route('/')
 def home():
-    #return render_template("welcome.html")
+    
     return redirect(url_for('login'))
 
 @app.route('/login',methods=['GET','POST'])
@@ -518,7 +526,19 @@ def load_doctor(tbl,id):
         
         form=AddDoctorConstantsForm(obj=qry)
         #subform=AddDoctorConstantsForm(obj=qry)
-        if form.is_submitted() and request.method=='POST':
+
+        leasing_form=LeasingForm()
+        leasingdata=db.engine.execute("select LeasingId,LocationNom,debut,finPrevue,paiement from leasing where docteur='{0}'".format(qry.doctorname))
+        leasingdataitems=leasingdata.fetchall()
+        headersleasingdata=leasingdata.keys()
+
+        if leasing_form.validate_on_submit() and request.method=='POST' and leasing_form.leasesubmit.data:
+            new_leasing=Leasing(locationNom=leasing_form.locationNom.data,docteur=qry.doctorname,debut=leasing_form.debut.data,finPrevue=leasing_form.finPrevue.data,paiement=leasing_form.paiement.data)
+            db.session.add(new_leasing)
+            db.session.commit()
+            return redirect(request.url)
+
+        if form.is_submitted() and request.method=='POST' and form.submit.data:
             #qry.doctorid = form.doctorid.data
             qry.doctorname=form.doctorname.data
             qry.isActive = form.isActive.data
@@ -549,7 +569,7 @@ def load_doctor(tbl,id):
             return redirect(url_for('doctor'))    
         else:
             print(form.errors)
-    return render_template('edit_doctor.html',form=form)
+    return render_template('edit_doctor.html',form=form,leasingform=leasing_form,headers=headersleasingdata,table=leasingdataitems,user_role=current_user.role,dbtable="leasing",dbtableid="leasingId")
 
 
 @app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])
@@ -771,6 +791,8 @@ def delete_entry(tbl,tblid,id):
     db.session.commit()
     if 'type' in tbl:
         return redirect(url_for('setup'))
+    elif 'leasing' in tbl:
+        return redirect(url_for('load_doctor',tbl=tbl,id=id))
     else:
         return redirect(url_for(tbl))
 
