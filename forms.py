@@ -85,6 +85,7 @@ class AddDoctorPaymentForm(FlaskForm):
     doctorname=SelectField("Doctor Name",choices=[],validators=[InputRequired()])
     paimentnom=SelectField("Paiement Nom",choices=[],validators=[InputRequired()])
     paimentnomALT=StringField("Nouveau Paiement?",render_kw={"placeholder":"Paiement Nom"})
+    date=DateField(label="Date",validators=[InputRequired()])
     
     doctorpaiementsomme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
 

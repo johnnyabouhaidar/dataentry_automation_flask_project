@@ -28,7 +28,7 @@ def _draw_as_table(df, pagesize,title):
                         )
     
     rowss=len(df)
-    ax.set_title(title,y=rowss*0.03+0.48)
+    ax.set_title(title,y=rowss*0.04+0.48)
     #the_table.set_title("Title Goes Here...")
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
@@ -41,27 +41,21 @@ def _draw_as_table(df, pagesize,title):
 
     return fig
 
-def _draw_as_graph(df):
-    pass
-  
-
-  
       
 def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i, y[i], y[i], ha = 'center')
 
-def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), pagesize=(1, 1)):
+def doctor_report(dfs,doctorname,year,filename, numpages=(1, 1), pagesize=(11, 8.5)):
   with PdfPages(filename) as pdf:
     nh, nv = numpages
-
-    
     plt.figure() 
     plt.axis('off')
-    plt.text(0.5,0.5,"Rapport de paiement consolidé pour: {0}".format(year),ha='center',va='center',size=20)
+    plt.text(0.5,0.5,"Rapport du médecin pour :\n\n {0}\n\n pour l'année:{1}".format(doctorname,year),ha='center',va='center',size=17)
     plt.text(0.5,0.1,"\nDate: {0}".format(datetime.datetime.now()),ha='center',va='bottom',size=8)
     pdf.savefig()
-    plt.close()
+    plt.close() 
+    
     for i in range(0, nh):
         for j in range(0, nv):
             for df in dfs:
@@ -75,7 +69,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                 page = df[0].iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df[0])),
                             (j*cols_per_page):min((j+1)*cols_per_page, len(df[0].columns))]
                 try:
-                    fig = _draw_as_table(page, pagesize,df[2])
+                    fig = _draw_as_table(page, pagesize,df[1])
                     '''
                     if True:
                         # Add a part/page number at bottom-center of page
@@ -85,22 +79,6 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                     '''
                     pdf.savefig(fig, bbox_inches='tight')
                 
-                    #df.plot()
-                    #df["somme"].value_counts().plot.bar()
-                
-                    #df=df.groupby(df.columns[0])
-                    #print(df)
-                    
-                    df[1].plot(y=["somme"], kind="bar",color="blue",linewidth=1,figsize=(11,11),title="Graphique informatif")
-                    #plt.ticklabel_format(style='plain') 
-                    plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
-                    plt.subplots_adjust(bottom=0.3)
-                    rows=df[1].somme.values
-                    addlabels(rows,rows)
-
-
-                    plt.xticks(rotation=90)
-                    pdf.savefig()
                     plt.close()
                 except:
                     plt.figure() 
@@ -109,14 +87,4 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                     pdf.savefig()
                     plt.close()
 
-
-    plt.figure() 
-    plt.axis('off')
-    plt.text(0.5,0.5,"Encaissement-Avance Totale: {0}".format(enctot),ha='center',va='center',size=15)
-    plt.text(0.5,0.4,"-",ha='center',va='center',size=15)
-    plt.text(0.5,0.3,"Paiements Totale: {0}".format(paytot),ha='center',va='center',size=15)
-    plt.text(0.5,0.2,"-------------------------------------------------------------------",ha='center',va='center',size=15)
-    plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20)
-    pdf.savefig()
-    plt.close()
-
+ 

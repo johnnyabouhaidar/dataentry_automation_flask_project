@@ -9,6 +9,7 @@ from flask_bcrypt import Bcrypt
 from forms import *
 import datetime
 from report import *
+from doctor_report import *
 import pandas as pd
 
 #from UserClass import *
@@ -22,8 +23,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -125,6 +126,7 @@ class Doctorpayment(db.Model):
     doctorname=db.Column(db.String(80),nullable=False)
     paimentnom=db.Column(db.String(80),nullable=False)
     doctorpaiementsomme=db.Column(db.Float,nullable=False)
+    date=db.Column(db.Date,nullable=False)
 
 class Fraismaterieltype(db.Model):
     fraismaterieltypeId=db.Column(db.Integer,primary_key=True)
@@ -201,9 +203,9 @@ def doctorpayment():
 
     if form.validate_on_submit():
         if form.paimentnom.data=="addnew":
-            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnomALT.data,doctorpaiementsomme=form.doctorpaiementsomme.data)
+            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnomALT.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
         else:
-            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data)
+            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
         db.session.add(new_doctorpayment)
         db.session.commit()
         return redirect(url_for('doctorpayment'))
@@ -847,6 +849,12 @@ def reporting():
         doctor_report_filename=r'reporting_temporary\RAPPORT_MEDECINS_{0}.pdf'.format(current_num_timestamp)
         dfs=[]
 
+        varying_paymentslist=db.engine.execute("""select paimentnom AS PaiementNom,doctorpaiementsomme AS Somme,date AS Date FROM doctorpayment where doctorname='{0}' and YEAR(date)={1}""".format(ind_doctor_form.doctorname.data,ind_doctor_form.year.data))
+        varying_paymentsdf=convert_list_to_dataframe(varying_paymentslist)
+        varying_paymentsdf.set_index("PaiementNom",inplace=True)
+
+        dfs.append((varying_paymentsdf.fillna(0).round(2),"Paeiment Medcins"))
+
         doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)
 
         return send_file(doctor_report_filename)
@@ -884,7 +892,7 @@ GROUP BY paiementsType""".format(form.year.data))
         paymentforreportdf.set_index('PaiementType',inplace=True)        
 
 
-        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2)))
+        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2),"Paeiment"))
 
 
         encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
@@ -897,7 +905,7 @@ GROUP BY paiementsType""".format(form.year.data))
         encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
         encaissementgraphdf.set_index('banque',inplace=True)
         
-        dfs.append((encaissementdf.fillna(0).round(2),encaissementgraphdf.fillna(0).round(2)))
+        dfs.append((encaissementdf.fillna(0).round(2),encaissementgraphdf.fillna(0).round(2),"Encaissement"))
 
         '''facturationlist = db.engine.execute("""select facturationType, SUM(somme) AS somme ,MONTH(date) AS "month",YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date),MONTH(date) , facturationType""".format(form.year.data))
         
@@ -927,7 +935,7 @@ GROUP BY facturationType""".format(form.year.data))
         facturationforreportdf=convert_list_to_dataframe(facturationforreportlist)
         facturationforreportdf.set_index('FacturationType',inplace=True) 
 
-        dfs.append((facturationforreportdf.fillna(0).round(2),facturationgraphdf.fillna(0).round(2)))
+        dfs.append((facturationforreportdf.fillna(0).round(2),facturationgraphdf.fillna(0).round(2),"Facturation"))
 
 
         #print(encaissementdf.sum()["montant"])
