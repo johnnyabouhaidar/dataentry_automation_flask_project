@@ -830,6 +830,21 @@ def convert_list_to_dataframe(input_list):
 
     return output_dataframe
 
+def fetch_doctor_info(doctorname):
+    qry = Doctor.query.filter(
+            Doctor.doctorname==doctorname
+        ).first()
+    try:
+        dict_to_return={
+            "informatique":getattr(qry,"informatique",0.1),
+            "nbmedicinsrepartirfrais":getattr(qry,"nbmedicinsrepartirfrais",0.1),
+            "assurances":getattr(qry,"assurances",0.1)
+        }
+        
+        return dict_to_return
+    except:
+        return None
+
 @app.route('/reporting',methods=['GET','POST'])
 @login_required
 def reporting():
@@ -855,9 +870,40 @@ def reporting():
 
         dfs.append((varying_paymentsdf.fillna(0).round(2),"Paeiment Medcins"))
 
+        composite_df = pd.DataFrame(columns=['Charges','Cout Mensuel','Cout Annuel'])
+        
+        composite_df.set_index('Charges',inplace=True)
+        #print(composite_df)
+        dataa=fetch_doctor_info(ind_doctor_form.doctorname.data)
+
+        informatique_ann=dataa["informatique"]/dataa["nbmedicinsrepartirfrais"]
+        informatique_men=informatique_ann/12
+
+        assurance_ann=dataa["assurances"]/dataa["nbmedicinsrepartirfrais"]
+        assurance_men=assurance_ann/12
+
+        temp_df2 = pd.DataFrame({
+                    "Cout Mensuel": [informatique_men,assurance_men],
+                    "Cout Annuel":[informatique_ann,assurance_ann]},
+                   index=["Informatique","Assurances"])
+
+        composite_df=pd.concat([composite_df, temp_df2])
+        print(composite_df)
+
+        dfs.append((composite_df.fillna(0).round(2),"Charges Mensuel/Annuel"))
         doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)
 
+        
+
         return send_file(doctor_report_filename)
+
+
+
+
+
+
+
+
 
     if form.validate_on_submit():
         dfs=[]
@@ -892,7 +938,7 @@ GROUP BY paiementsType""".format(form.year.data))
         paymentforreportdf.set_index('PaiementType',inplace=True)        
 
 
-        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2),"Paeiment"))
+        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2),"Paiements tout au long de l'année"))
 
 
         encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
