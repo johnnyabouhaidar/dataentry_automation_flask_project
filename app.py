@@ -835,10 +835,14 @@ def fetch_doctor_info(doctorname):
             Doctor.doctorname==doctorname
         ).first()
     try:
+        nbmedicinsrepartirfrais=getattr(qry,"nbmedicinsrepartirfrais")
+        informatique=getattr(qry,"informatique")
+        assurances=getattr(qry,"assurances")
+
         dict_to_return={
-            "informatique":getattr(qry,"informatique",0.1),
-            "nbmedicinsrepartirfrais":getattr(qry,"nbmedicinsrepartirfrais",0.1),
-            "assurances":getattr(qry,"assurances",0.1)
+            "informatique":informatique if informatique != 0 and informatique is not None else 0.1 ,
+            "nbmedicinsrepartirfrais":nbmedicinsrepartirfrais if nbmedicinsrepartirfrais != 0 and nbmedicinsrepartirfrais is not None else 0.1 ,
+            "assurances":assurances if assurances != 0 and assurances is not None else 0.1 
         }
         
         return dict_to_return
@@ -888,9 +892,23 @@ def reporting():
                    index=["Informatique","Assurances"])
 
         composite_df=pd.concat([composite_df, temp_df2])
-        print(composite_df)
+        #print(composite_df)
 
         dfs.append((composite_df.fillna(0).round(2),"Charges Mensuel/Annuel"))
+
+        leasinglist=db.engine.execute("""Select locationNom as LocationNom,
+debut as Debut,
+finPrevue as FinPrevue,
+paiement as PaiementMensuel,
+paiement*12 as PaiementAnnuel
+From leasing
+where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
+        leasingdf=convert_list_to_dataframe(leasinglist)
+        leasingdf.set_index("LocationNom",inplace=True)
+
+        dfs.append((leasingdf.fillna(0).round(2),"Locations(Leasing)"))
+
+
         doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)
 
         

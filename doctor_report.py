@@ -28,7 +28,7 @@ def _draw_as_table(df, pagesize,title):
                         )
     
     rowss=len(df)
-    ax.set_title(title,y=rowss*0.04+0.48)
+    ax.set_title(title,y=rowss*0.04+0.52)
     #the_table.set_title("Title Goes Here...")
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
