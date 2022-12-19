@@ -41,7 +41,14 @@
     </form>
 </div>
 {%endfor%}
-
+{%if searchform%}
+<form method="POST" action="" id="searchformid">
+{{searchform.searchstring}}
+{{searchform.searchsubmit}}
+{{searchform.clearsearch}}
+{{searchform.hidden_tag()}}
+</form>
+{%endif%}
 {%if table|length !=0%}
         <table class="fl-table" border="1">
       <thead>
@@ -168,5 +175,6 @@
     }
 </script>
 {%endif%}
+
 </body>
 </html>

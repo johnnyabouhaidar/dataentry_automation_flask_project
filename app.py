@@ -362,10 +362,13 @@ def facturationnames(facturationtype):
     return jsonify({'facturationnames':Arry})
 
 @app.route('/payments',methods=['GET','POST'])
+@app.route('/payments/search=<search>',methods=['GET','POST'])
 @login_required
-def payment():
+def payment(search=""):
     form=AddPaymentForm()
     export2excel_frm=Export_to_excel()
+    searchform=SearchForm()
+    #searchform.searchstring.data=search
     choices=[]
     choices.append(("---","---"))
     choices=choices+[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
@@ -374,11 +377,23 @@ def payment():
     form.paiementsType.choices = choices
     form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
 
-    payments=db.engine.execute("select * from payment order by paiementsId DESC")
+    payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' order by paiementsId DESC".format(search))
+    #payments=db.engine.execute("select * from payment  order by paiementsId DESC")
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
     payment_dataframe=pd.DataFrame(paymentitems,columns=headerspayments)
     
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        print(searchform.searchstring.data)
+        return redirect(url_for('payment',search=searchform.searchstring.data))
+    else:
+        print(searchform.errors)
+
+    if searchform.validate_on_submit() and searchform.clearsearch.data:
+        
+        return redirect(url_for('payment'))
+    else:
+        print(searchform.errors)
    
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
@@ -404,7 +419,7 @@ def payment():
 
     
     if "payments" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
