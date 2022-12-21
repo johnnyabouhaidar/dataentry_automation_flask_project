@@ -187,10 +187,11 @@ class LeasingForm(FlaskForm):
     leasesubmit=SubmitField("Submit")
 
 class SearchForm(FlaskForm):
-    searchstring=SearchField(validators=[InputRequired()])
-    
+    searchstring=SearchField()
+    #searchfilter=SelectField(choices=[("none","Filtrer par")])
+
     searchsubmit=SubmitField("🔍Chercher")
-    clearsearch=SubmitField("CLEAR")
+    #clearsearch=SubmitField("CLEAR")
     
 
 

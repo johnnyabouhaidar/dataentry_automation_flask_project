@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 
 
-db=SQLAlchemy(app)
+db=SQLAlchemy()
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
@@ -26,7 +26,7 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
-
+db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
 
 
@@ -222,6 +222,7 @@ def doctorpayment():
 @login_required
 def encaissement():
     form = AddEncaissementForm()
+    export2excel_frm=Export_to_excel()
     encaissementnameschoices = []
     encaissementnameschoices.append(("addnew","Ajouter Nouveau ?"))
     for encname in db.engine.execute("select * from encaissement").fetchall():
@@ -232,7 +233,7 @@ def encaissement():
     encaissements=db.engine.execute("select * from encaissement")
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
-    if form.is_submitted() and request.method=='POST':
+    if form.is_submitted() and request.method=='POST' and form.submit.data:
         if form.encaissementNom.data!="addnew":
             new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
         else:
@@ -244,8 +245,17 @@ def encaissement():
         else:
             flash("Invalid Data. Please re-check and submit again")
 
+    encaissementdf=pd.DataFrame(encaissementitems,columns=headersencaissement)
+    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"reporting_temporary\ENCAISSEMENT_{}.xlsx".format(current_num_timestamp)
+        encaissementdf.to_excel(excel_report_path,index=False)
+
+        return send_file(excel_report_path)
+
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -367,8 +377,8 @@ def facturationnames(facturationtype):
 def payment(search=""):
     form=AddPaymentForm()
     export2excel_frm=Export_to_excel()
-    searchform=SearchForm()
-    #searchform.searchstring.data=search
+    searchform=SearchForm(searchstring=search)
+    
     choices=[]
     choices.append(("---","---"))
     choices=choices+[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
@@ -376,6 +386,7 @@ def payment(search=""):
     
     form.paiementsType.choices = choices
     form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
+    #searchform.searchfilter.choices=[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
 
     payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' order by paiementsId DESC".format(search))
     #payments=db.engine.execute("select * from payment  order by paiementsId DESC")
@@ -384,14 +395,10 @@ def payment(search=""):
     payment_dataframe=pd.DataFrame(paymentitems,columns=headerspayments)
     
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
-        print(searchform.searchstring.data)
-        return redirect(url_for('payment',search=searchform.searchstring.data))
-    else:
-        print(searchform.errors)
-
-    if searchform.validate_on_submit() and searchform.clearsearch.data:
-        
-        return redirect(url_for('payment'))
+        if searchform.searchstring.data !="":
+            return redirect(url_for('payment',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('payment'))    
     else:
         print(searchform.errors)
    
@@ -474,6 +481,7 @@ def doctor():
 @login_required
 def fraismateriel():
     form =AddFraismaterielForm()
+    export2excel_frm=Export_to_excel()
     fraismateriel=db.engine.execute("select * from fraismateriel")
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
@@ -498,9 +506,17 @@ def fraismateriel():
         else:
             flash("Invalid Data. Please re-check and submit again")
     
+    fraismaterieldf=pd.DataFrame(fraismaterielitems,columns=headersfraismateriel)
+    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"reporting_temporary\FRAIS_MATERIEL_{}.xlsx".format(current_num_timestamp)
+        fraismaterieldf.to_excel(excel_report_path,index=False)
+
+        return send_file(excel_report_path)
 
     if "fraismateriel" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
