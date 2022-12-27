@@ -14,8 +14,11 @@
     </h1>
 </div>
 <a href="{{url_for('dashboard')}}">Go Back</a>
-<div class="grid-container">
+<!--<div class="grid-container">-->
+
 {% for form in forms %}
+<button type="button" class="collapsible">{{titles[loop.index0]}}</button>
+<div class="content"> 
 <div class="grid-item">
 <form method="POST" action="">
 {%set formindex = loop.index0%}
@@ -52,9 +55,53 @@
     {% endfor %}
 </table>
 </div>
+</div>
 {%endfor%}
+
 </div>
 <br>
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    } 
+    </script>
+    <style>
+        .content {
+          padding: 0 18px;
+          background-color: white;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.2s ease-out;
+        }
+        </style>
+        
+        <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
+        </script>
 
 </body>
 </html>

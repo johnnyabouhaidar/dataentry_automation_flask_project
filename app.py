@@ -319,16 +319,26 @@ def dentisterienames(dentisterietype):
 @login_required
 def facturation():
     form = AddFacturationForm()
+    export2excel_frm=Export_to_excel()
     choices=[]
     choices.append(("---","---"))
     choices=choices+[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
     form.facturationType.choices = choices
     form.facturationNom.choices= [(factname.facturationId,factname.facturationNom) for factname in Facturation.query.filter_by(facturationType='---').all()]
-    facturations=db.engine.execute("select * from facturation")
+    facturations=db.engine.execute("select * from facturation order by facturationId DESC")
     facturationsitems=facturations.fetchall()
     headersfacturations=facturations.keys()
 
-    if form.is_submitted() and request.method=='POST':
+    facturationdf=pd.DataFrame(facturationsitems,columns=headersfacturations)
+    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"reporting_temporary\FACTURATION_{}.xlsx".format(current_num_timestamp)
+        facturationdf.to_excel(excel_report_path,index=False)
+
+        return send_file(excel_report_path)
+
+    if form.is_submitted() and request.method=='POST' and form.submit.data:
 
         if form.facturationNom.data!="addnew":
             new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
@@ -343,7 +353,7 @@ def facturation():
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -1112,7 +1122,7 @@ def setup():
 
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],user_role=current_user.role)
+        return render_template('setup.html',forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

@@ -21,18 +21,21 @@
     {%endif%}
 {%endwith%} 
     <div class="items">
-   
+ 
 
     <div >
+        <button type="button" class="collapsible">+ Ajouter Nouveau</button>
+        <div class="content"> 
         {% for form in forms %}
+      
         <div >
             {%set form_id=loop.index0%}
     <form method="POST" action="" id="{{form_id}}">
         <tr>
         {% for field in form %}
        
-            <span>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%else%}<br><br>{%endif%} {% if field.flags.required %}*{% endif %}
-            {{ field(form=form_id) }} 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            {%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{% endif %}<br>
+            {{ field(form=form_id) }}<br><br>
             
         
         {% endfor %}
@@ -40,7 +43,9 @@
     </tr>
     </form>
 </div>
+
 {%endfor%}
+</div>
 {%if searchform%}
 <form method="POST" action="" id="searchformid">
 {{searchform.searchstring}}
@@ -177,5 +182,48 @@
 </script>
 {%endif%}
 
+
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+} 
+</script>
+<style>
+    .content {
+      padding: 0 18px;
+      background-color: white;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease-out;
+    }
+    </style>
+    
+    <script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+        }
+      });
+    }
+    </script>
 </body>
 </html>
