@@ -18,7 +18,7 @@ app = Flask(__name__)
 
 
 
-db=SQLAlchemy()
+db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
@@ -147,6 +147,12 @@ class Leasing(db.Model):
     finPrevue=db.Column(db.Date,nullable=False)
     paiement=db.Column(db.Float,nullable=True)
 
+class Percentageactivity(db.Model):
+    activiteId=db.Column(db.Integer,primary_key=True)
+    docteur=db.Column(db.String(80),nullable=False)
+    de=db.Column(db.Integer,nullable=False)
+    a=db.Column(db.Integer,nullable=False)
+    pourcentages=db.Column(db.Float,nullable=False)
 
 
 
@@ -197,7 +203,7 @@ def doctorpayment():
     form.paimentnom.choices=paymentchoices
 
 
-    DoctorPayments=db.engine.execute("select * from DoctorPayment")
+    DoctorPayments=db.engine.execute("select * from DoctorPayment  order by doctorpaiementId DESC")
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
@@ -230,7 +236,7 @@ def encaissement():
             encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
 
     form.encaissementNom.choices = encaissementnameschoices
-    encaissements=db.engine.execute("select * from encaissement")
+    encaissements=db.engine.execute("select * from encaissement  order by encaissementId DESC")
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
     if form.is_submitted() and request.method=='POST' and form.submit.data:
@@ -269,7 +275,7 @@ def dentisterie():
     choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
     form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
-    dentisterie=db.engine.execute("select * from dentisterie")
+    dentisterie=db.engine.execute("select * from dentisterie  order by dentisterieId DESC")
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
     if form.is_submitted() and request.method=='POST':
@@ -492,7 +498,7 @@ def doctor():
 def fraismateriel():
     form =AddFraismaterielForm()
     export2excel_frm=Export_to_excel()
-    fraismateriel=db.engine.execute("select * from fraismateriel")
+    fraismateriel=db.engine.execute("select * from fraismateriel order by fraismaterielId DESC")
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
 
@@ -581,6 +587,17 @@ def load_doctor(tbl,id):
             db.session.commit()
             return redirect(request.url)
 
+        perc_act_form=PercentageactivityForm()
+        perc_act_data=db.engine.execute("select activiteId,de,a,pourcentages from percentageactivity where docteur='{0}'".format(qry.doctorname))
+        perc_act_dataitems=perc_act_data.fetchall()
+        headersperc_act_data=perc_act_data.keys()
+
+        if perc_act_form.validate_on_submit() and request.method=='POST' and perc_act_form.submit.data:
+            new_perc_act=Percentageactivity(locationNom=leasing_form.locationNom.data,docteur=qry.doctorname,debut=leasing_form.debut.data,finPrevue=leasing_form.finPrevue.data,paiement=leasing_form.paiement.data)
+            db.session.add(new_perc_act)
+            db.session.commit()
+            return redirect(request.url)
+
         if form.is_submitted() and request.method=='POST' and form.submit.data:
             #qry.doctorid = form.doctorid.data
             qry.doctorname=form.doctorname.data
@@ -612,7 +629,7 @@ def load_doctor(tbl,id):
             return redirect(url_for('doctor'))    
         else:
             print(form.errors)
-    return render_template('edit_doctor.html',form=form,leasingform=leasing_form,headers=headersleasingdata,table=leasingdataitems,user_role=current_user.role,dbtable="leasing",dbtableid="leasingId")
+    return render_template('edit_doctor.html',form=form,leasingform=leasing_form,perc_act_form=perc_act_form,headers=headersleasingdata,table=leasingdataitems,headersperc_act_data=headersperc_act_data,perc_act_dataitems=perc_act_dataitems,user_role=current_user.role,dbtable="leasing",dbtableid="leasingId",perc_act_dbtable="percentageactivity",perc_act_id="activiteId")
 
 
 @app.route('/edit_entry/tbl=<tbl>/id=<id>',methods=['GET','POST'])

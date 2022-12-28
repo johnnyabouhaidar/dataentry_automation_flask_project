@@ -193,6 +193,12 @@ class SearchForm(FlaskForm):
     searchsubmit=SubmitField("🔍Chercher")
     #clearsearch=SubmitField("CLEAR")
     
+class PercentageactivityForm(FlaskForm):
+    de=IntegerField(label="De",validators=[InputRequired()],render_kw={"placeholder":"e.g. 0"})
+    a=IntegerField(label="A",validators=[InputRequired()],render_kw={"placeholder":"e.g. 200000"})
+    pourcentages=FloatField(label="Pourcentages",validators=[InputRequired()])
+
+    submit=SubmitField("Submit")
 
 
 
