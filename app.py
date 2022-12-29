@@ -16,7 +16,7 @@ import pandas as pd
 
 app = Flask(__name__)
 
-
+file_download_location= r"C:\Users\Public\Documents"
 
 db=SQLAlchemy(app)
 bcrypt = Bcrypt(app)
