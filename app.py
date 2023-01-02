@@ -1,5 +1,5 @@
 from DB_layer import *
-from flask import Flask, render_template, url_for,redirect, flash,send_file, jsonify,request
+from flask import Flask, render_template, url_for,redirect, flash,send_file, jsonify,request,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin,login_user,LoginManager,login_required,logout_user,current_user
 from flask_wtf import FlaskForm
@@ -13,6 +13,7 @@ from doctor_report import *
 import pandas as pd
 
 #from UserClass import *
+
 
 app = Flask(__name__)
 
@@ -33,6 +34,7 @@ app.config['SECRET_KEY']='thisisasecretkeyjohnny'
 login_manager=LoginManager()
 login_manager.init_app(app)
 login_manager.login_view="login"
+
 
 
 @login_manager.user_loader
@@ -569,6 +571,7 @@ def fraismaterielnames(fraismaterieltype):
 @login_required
 def load_doctor(tbl,id):
     if tbl=='doctor':
+        session['curr_route']=request.path
         qry = Doctor.query.filter(
             Doctor.doctorid==id).first()
         #doc = qry.first()
@@ -852,7 +855,11 @@ def delete_entry(tbl,tblid,id):
     if 'type' in tbl:
         return redirect(url_for('setup'))
     elif 'leasing' in tbl:
-        return redirect(url_for('load_doctor',tbl=tbl,id=id))
+        current_route=session.get('curr_route',None)
+        return redirect(current_route)
+    elif 'percentageactivity' in tbl:
+        current_route=session.get('curr_route',None)
+        return redirect(current_route)
     else:
         return redirect(url_for(tbl))
 
