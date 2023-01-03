@@ -9,7 +9,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <h1 class="header">Register</h1>
+    <h1 class="header">Gestion des utilisateurs</h1>
     <div class="items">
         Ajouter/modifier un utilisateur
     <form method="POST" action="">
@@ -47,8 +47,8 @@
         {%endfor%}
         {%if user_role == 'admin'%}
         {%if loop.index0!=0%}
-        <td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}">Edit</a></td>
-        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}">Delete</a></td>
+        <td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}">Éditer</a></td>
+        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}">Effacer</a></td>
         {%endif%}
         {%endif%}
         </tr>
