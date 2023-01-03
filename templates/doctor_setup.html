@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add item: {{dbtable}}</title>
+    <title>Ajouter Nouveau: Docteur</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
 
-    <div class="header"><h1>Ajouter Nouveau {{dbtable}}</h1></div>
+    <div class="header"><h1>Ajouter Nouveau Docteur</h1></div>
     <div class="items">
         {%with messages = get_flashed_messages() %}
         {%if messages %}

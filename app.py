@@ -58,6 +58,8 @@ class Doctor(db.Model):
     percentageShare = db.Column(db.Float,nullable=False)
     conditionsfinanciers=db.Column(db.String(250),nullable=False)
 
+    pourcentagesalaire=db.Column(db.Float)
+    pourcentagechargessociales=db.Column(db.Float)
     surfacecentremedical = db.Column(db.Float)
     surfacecommunes=db.Column(db.Float)
     loyermensuel=db.Column(db.Float)
@@ -75,6 +77,8 @@ class Doctor(db.Model):
     nbmedicinsrepartirfrais=db.Column(db.Float)
     receptionniste=db.Column(db.Float)
     Apprentie=db.Column(db.Float)
+    simplify=db.Column(db.Float)
+    steriswiss=db.Column(db.Float)
 
 
 class Paymenttype(db.Model):
@@ -190,10 +194,11 @@ def dashboard():
 
 
 @app.route('/doctorpayment',methods=['GET','POST'])
+@app.route('/doctorpayment/search=<search>',methods=['GET','POST'])
 @login_required
-def doctorpayment():
+def doctorpayment(search=""):
     form=AddDoctorPaymentForm()
-
+    searchform=SearchForm(searchstring=search)
     choices=[]
     #choices.append(("---","---"))
     choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
@@ -205,9 +210,17 @@ def doctorpayment():
     form.paimentnom.choices=paymentchoices
 
 
-    DoctorPayments=db.engine.execute("select * from DoctorPayment  order by doctorpaiementId DESC")
+    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' order by doctorpaiementId DESC".format(search))
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('doctorpayment',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('doctorpayment'))    
+    else:
+        print(searchform.errors)
 
     if form.validate_on_submit():
         if form.paimentnom.data=="addnew":
@@ -222,15 +235,17 @@ def doctorpayment():
         pass
 
     if "paiement_medecin" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role,searchform=searchform,module_name="Paiement Docteur")
     else:
         return render_template('NOT_AUTHORIZED.html')
 
 @app.route('/encaissement',methods=['GET','POST'])
+@app.route('/encaissement/search=<search>',methods=['GET','POST'])
 @login_required
-def encaissement():
+def encaissement(search=""):
     form = AddEncaissementForm()
     export2excel_frm=Export_to_excel()
+    searchform=SearchForm(searchstring=search)
     encaissementnameschoices = []
     encaissementnameschoices.append(("addnew","Ajouter Nouveau ?"))
     for encname in db.engine.execute("select * from encaissement").fetchall():
@@ -238,9 +253,18 @@ def encaissement():
             encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
 
     form.encaissementNom.choices = encaissementnameschoices
-    encaissements=db.engine.execute("select * from encaissement  order by encaissementId DESC")
+    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%'  order by encaissementId DESC".format(search))
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('encaissement',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('encaissement'))    
+    else:
+        print(searchform.errors)
+
     if form.is_submitted() and request.method=='POST' and form.submit.data:
         if form.encaissementNom.data!="addnew":
             new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
@@ -263,23 +287,34 @@ def encaissement():
         return send_file(excel_report_path)
 
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance")
     else:
         return render_template('NOT_AUTHORIZED.html')
 
 
 @app.route('/dentisterie',methods=['GET','POST'])
+@app.route('/dentisterie/search=<search>',methods=['GET','POST'])
 @login_required
-def dentisterie():
+def dentisterie(search=""):
     form=AddDentistryInfoForm()
+    searchform=SearchForm(searchstring=search)
     choices=[]
     choices.append(("---","---"))
     choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
     form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
-    dentisterie=db.engine.execute("select * from dentisterie  order by dentisterieId DESC")
+    dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%'  order by dentisterieId DESC".format(search))
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('dentisterie',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('dentisterie'))    
+    else:
+        print(searchform.errors)
+
     if form.is_submitted() and request.method=='POST':
 
         if form.dentisterieNom.data!="addnew":
@@ -294,7 +329,7 @@ def dentisterie():
             flash("Invalid Data. Please re-check and submit again")
     
     if "dentisterie" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role,searchform=searchform,module_name="Dentisterie")
     else:
         return render_template('NOT_AUTHORIZED.html')    
 
@@ -324,16 +359,18 @@ def dentisterienames(dentisterietype):
 
 
 @app.route('/facturation',methods=['GET','POST'])
+@app.route('/facturation/search=<search>',methods=['GET','POST'])
 @login_required
-def facturation():
+def facturation(search=""):
     form = AddFacturationForm()
     export2excel_frm=Export_to_excel()
+    searchform=SearchForm(searchstring=search)
     choices=[]
     choices.append(("---","---"))
     choices=choices+[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
     form.facturationType.choices = choices
     form.facturationNom.choices= [(factname.facturationId,factname.facturationNom) for factname in Facturation.query.filter_by(facturationType='---').all()]
-    facturations=db.engine.execute("select * from facturation order by facturationId DESC")
+    facturations=db.engine.execute("select * from facturation where facturationnom LIKE '%{0}%' order by facturationId DESC".format(search))
     facturationsitems=facturations.fetchall()
     headersfacturations=facturations.keys()
 
@@ -345,6 +382,14 @@ def facturation():
         facturationdf.to_excel(excel_report_path,index=False)
 
         return send_file(excel_report_path)
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('facturation',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('facturation'))    
+    else:
+        print(searchform.errors)
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
 
@@ -361,7 +406,7 @@ def facturation():
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation")
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -444,7 +489,7 @@ def payment(search=""):
 
     
     if "payments" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement")
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -496,11 +541,13 @@ def doctor():
         return render_template('NOT_AUTHORIZED.html')
 
 @app.route('/fraismateriel',methods=['GET','POST'])
+@app.route('/fraismateriel/search=<search>',methods=['GET','POST'])
 @login_required
-def fraismateriel():
+def fraismateriel(search=""):
     form =AddFraismaterielForm()
     export2excel_frm=Export_to_excel()
-    fraismateriel=db.engine.execute("select * from fraismateriel order by fraismaterielId DESC")
+    searchform=SearchForm(searchstring=search)
+    fraismateriel=db.engine.execute("select * from fraismateriel where fraismaterielnom LIKE '%{0}%' order by fraismaterielId DESC".format(search))
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
 
@@ -511,6 +558,14 @@ def fraismateriel():
     
     form.fraismaterieltype.choices = choices
     form.fraismaterielnom.choices= [(fraisname.fraismaterielId,fraisname.fraismaterielnom) for fraisname in Fraismateriel.query.filter_by(fraismaterieltype='---').all()]
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('fraismateriel',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('fraismateriel'))    
+    else:
+        print(searchform.errors)
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
         if form.fraismaterielnom.data!="addnew":
@@ -534,7 +589,7 @@ def fraismateriel():
         return send_file(excel_report_path)
 
     if "fraismateriel" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role)
+        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role,searchform=searchform,module_name="Frais Materiel")
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -609,6 +664,9 @@ def load_doctor(tbl,id):
             qry.percentageShare=form.percentageShare.data
             qry.conditionsfinanciers=form.conditionsfinanciers.data
             #print(subform.surfacecentremedical.value)
+
+            qry.pourcentagesalaire=form.pourcentagesalaire.data
+            qry.pourcentagechargessociales=form.pourcentagechargessociales.data
             qry.surfacecentremedical=form.surfacecentremedical.data
             qry.surfacecommunes=form.surfacecommunes.data
             qry.loyermensuel=form.loyermensuel.data
@@ -626,6 +684,8 @@ def load_doctor(tbl,id):
             qry.nbmedicinsrepartirfrais=form.nbmedicinsrepartirfrais.data
             qry.receptionniste=form.receptionniste.data
             qry.Apprentie=form.Apprentie.data
+            qry.simplify=form.simplify.data
+            qry.steriswiss=form.steriswiss.data
             
             #qry=form
             db.session.commit()
@@ -903,11 +963,42 @@ def fetch_doctor_info(doctorname):
         nbmedicinsrepartirfrais=getattr(qry,"nbmedicinsrepartirfrais")
         informatique=getattr(qry,"informatique")
         assurances=getattr(qry,"assurances")
+        blanchisserie=getattr(qry,"blanchisserieleman")
+        nbmedicins=getattr(qry,"nbmedicins")
+        logicielaxenita=getattr(qry,"logicielaxenita")
+        telephonieinternet=getattr(qry,"telephonieinternet")
+        simplify=getattr(qry,"simplify")
+        conciergerie=getattr(qry,"conciergerie")
+        nettoyage=getattr(qry,"nettoyage")
+        surfaceaccordee=getattr(qry,"surfaceaccordee")
+        surfacecentremedical=getattr(qry,"surfacecentremedical")
+        loyermensuel=getattr(qry,"loyermensuel")
+        surfacecommunes=getattr(qry,"surfacecommunes")
+        pourcentagesalaire=getattr(qry,"pourcentagesalaire")
+        pourcentagechargessociales=getattr(qry,"pourcentagechargessociales")
+        salairepersonnel=getattr(qry,"salairepersonnel")
+        pourcentagechargessociales=getattr(qry,"pourcentagechargessociales")
+
 
         dict_to_return={
             "informatique":informatique if informatique != 0 and informatique is not None else 0.1 ,
             "nbmedicinsrepartirfrais":nbmedicinsrepartirfrais if nbmedicinsrepartirfrais != 0 and nbmedicinsrepartirfrais is not None else 0.1 ,
-            "assurances":assurances if assurances != 0 and assurances is not None else 0.1 
+            "assurances":assurances if assurances != 0 and assurances is not None else 0.1, 
+            "blanchisserie":blanchisserie if blanchisserie!=0 and blanchisserie is not None else 0.1,
+            "nbmedicins":nbmedicins if nbmedicins!=0 and nbmedicins is not None else 0.1,
+            "logicielaxenita":logicielaxenita if logicielaxenita!=0 and logicielaxenita is not None else 0.1,
+            "telephonieinternet":telephonieinternet if telephonieinternet !=0 and telephonieinternet is not None else 0.1,
+            "simplify":simplify if simplify !=0 and simplify is not None else 0.1,
+            "conciergerie":conciergerie if conciergerie!=0 and conciergerie is not None else 0.1,
+            "nettoyage":nettoyage if nettoyage!=0 and nettoyage is not None else 0.1,
+            "surfaceaccordee":surfaceaccordee if surfaceaccordee!=0 and surfaceaccordee is not None else 0.1,
+            "surfacecentremedical":surfacecentremedical if surfacecentremedical !=0 and surfacecentremedical is not None else 0.1,
+            "loyermensuel":loyermensuel if loyermensuel !=0 and loyermensuel is not None else 0.1,
+            "surfacecommunes":surfacecommunes if surfacecommunes !=0 and surfacecommunes is not None else 0.1,
+            "pourcentagesalaire":pourcentagesalaire if pourcentagesalaire!=0 and pourcentagesalaire is not None else 0.1,
+            "pourcentagechargessociales":pourcentagechargessociales if pourcentagechargessociales!=0 and pourcentagechargessociales is not None else 0.1,
+            "salairepersonnel":salairepersonnel if salairepersonnel!=0 and salairepersonnel is not None else 0.1,
+            "pourcentagechargessociales":pourcentagechargessociales if pourcentagechargessociales!=0 and pourcentagechargessociales is not None else 0.1
         }
         
         return dict_to_return
@@ -951,10 +1042,38 @@ def reporting():
         assurance_ann=dataa["assurances"]/dataa["nbmedicinsrepartirfrais"]
         assurance_men=assurance_ann/12
 
+        blanchisserie_ann=dataa["blanchisserie"]/dataa["nbmedicinsrepartirfrais"]
+        blanchisserie_men = blanchisserie_ann/12
+
+        logicielaxenita_ann=dataa["logicielaxenita"]/dataa["nbmedicins"]
+        logicielaxenita_men=logicielaxenita_ann/12
+
+        telephonieinternet_ann=dataa["telephonieinternet"]/dataa["nbmedicinsrepartirfrais"]
+        telephonieinternet_men=telephonieinternet_ann/12
+
+        simplify_ann=dataa["simplify"]/3
+        simplify_men=simplify_ann/12
+
+        conciergerie_ann=dataa["conciergerie"]/dataa["nbmedicinsrepartirfrais"]
+        conciergerie_men = conciergerie_ann/12
+
+        nettoyage_ann=dataa["nettoyage"]/dataa["nbmedicinsrepartirfrais"]
+        nettoyage_men=nettoyage_ann/12
+
+        loyersurfacecom_ann=dataa["surfacecommunes"]*(dataa["loyermensuel"]*12)/(dataa["surfacecentremedical"])*(dataa["surfaceaccordee"]/dataa["surfacecentremedical"])
+        loyersurfacecom_men=loyersurfacecom_ann/12
+
+        personnelsalaire_men=dataa["salairepersonnel"]*(dataa["pourcentagesalaire"]/100)
+        personnelsalaire_ann=personnelsalaire_men*13
+
+        chargesociales_men=personnelsalaire_men*dataa["pourcentagechargessociales"]/100
+        chargesociales_ann=chargesociales_men*13
+        
+
         temp_df2 = pd.DataFrame({
-                    "Cout Mensuel": [informatique_men,assurance_men],
-                    "Cout Annuel":[informatique_ann,assurance_ann]},
-                   index=["Informatique","Assurances"])
+                    "Cout Mensuel": [informatique_men,assurance_men,blanchisserie_men,logicielaxenita_men,telephonieinternet_men,simplify_men,conciergerie_men,nettoyage_men,loyersurfacecom_men,personnelsalaire_men,chargesociales_men],
+                    "Cout Annuel":[informatique_ann,assurance_ann,blanchisserie_ann,logicielaxenita_ann,telephonieinternet_ann,simplify_ann,conciergerie_ann,nettoyage_ann,loyersurfacecom_ann,personnelsalaire_ann,chargesociales_ann]},
+                   index=["Informatique","Assurances","Blanchisserie","Axenita","TelePhonie Internet","Simplify","Conciergerie","Nettoyage","Loyer Surface Commune","Personnel  {0}% 13 Salaires".format(str(dataa["pourcentagesalaire"])),"Charges Sociale {0}%".format(str(dataa["pourcentagechargessociales"]))])
 
         composite_df=pd.concat([composite_df, temp_df2])
         #print(composite_df)
@@ -1081,7 +1200,7 @@ GROUP BY facturationType""".format(form.year.data))
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
         report_filename=r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp)
         
-        dataframe_to_pdf(dfs,pnl,form.year.data,report_filename,enctotal,paymenttotal)        
+        dataframe_to_pdf(dfs,pnl.round(2),form.year.data,report_filename,enctotal.round(2),paymenttotal.round(2))        
 
         return send_file(report_filename)
 

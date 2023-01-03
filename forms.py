@@ -61,6 +61,8 @@ class AddDoctorConstantsForm(FlaskForm):
     isActive = BooleanField('Active?')
     conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
+    pourcentagesalaire=FloatField(label="Pourcentage Salaire")
+    pourcentagechargessociales=FloatField(label="Pourcentage Charges Sociales")
     surfacecentremedical = FloatField(label="Surface Centre medical en M2")
     surfacecommunes=FloatField(label="Surface Communes en M2")
     loyermensuel=FloatField(label="Loyer Mensuel")
@@ -78,6 +80,8 @@ class AddDoctorConstantsForm(FlaskForm):
     nbmedicinsrepartirfrais=FloatField(label="Nb de medecins pour repartir frais")
     receptionniste=FloatField(label="Receptionniste annuel")
     Apprentie=FloatField(label="Apprentie de 2eme annee")
+    simplify=FloatField(label="Simplify")
+    steriswiss=FloatField(label="Steriswiss")
     submit =SubmitField("Submit")
 
 
