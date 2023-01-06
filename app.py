@@ -727,13 +727,13 @@ def edit_entry(tbl,id):
             qry.fraismaterielsomme=form.fraismaterielsomme.data
             qry.fraismaterieldate=form.fraismaterieldate.data
             #qry.comment=form.comment.data
-            if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float) and form.is_submitted():
-            #qry=form
+            if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float):
+            #qry=form   
 
                 db.session.commit()
                 return redirect(url_for('fraismateriel'))
-            else:
-                flash("Invalid Data. Please re-check and submit again") 
+        elif form.is_submitted():
+            flash("Invalid Data. Please re-check and submit again") 
             
        
 
@@ -795,7 +795,7 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('payment'))
-        else:
+        elif form.is_submitted():
             flash("Invalid Data. Please re-check and submit again!")
     if tbl=='facturation':
         qry = Facturation.query.filter(
@@ -822,6 +822,8 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('facturation'))
+        elif form.is_submitted():
+            flash("Invalid Data. Please re-check and submit again!")
     if tbl=='dentisterie':
         qry = Dentisterie.query.filter(
             Dentisterie.dentisterieId==id).first()
@@ -847,9 +849,11 @@ def edit_entry(tbl,id):
             #qry=form
             db.session.commit()
             return redirect(url_for('dentisterie'))
+        elif form.is_submitted():
+            flash("Invalid Data. Please re-check and submit again!")
     if tbl=="encaissement":
         qry=Encaissement.query.filter(Encaissement.encaissementId==id).first()
-        form=AddEncaissementForm(obj=qry)
+        form=AddEncaissementForm(obj=qry,banque=qry.banque)
         encaissementnameschoices = []
         encaissementnameschoices.append(("addnew","Ajouter Nouveau ?"))
         for encname in db.engine.execute("select * from encaissement").fetchall():
@@ -869,6 +873,8 @@ def edit_entry(tbl,id):
             qry.comment=form.comment.data
             db.session.commit()
             return redirect(url_for('encaissement'))
+        elif form.is_submitted():
+            flash("Invalid Data. Please re-check and submit again!")
 
     if tbl=='user':
         qry = User.query.filter(
