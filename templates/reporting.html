@@ -9,8 +9,10 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <div class="header"><h1>Génération de rapports</h1></div>
-    <a href="{{url_for('dashboard')}}">Go Back</a>
+    <div><a href="{{url_for('dashboard')}}"><img src="./../static/back-btn.png" class="back-btn"></a> </div>
+
+    <h1 class="header">Génération de rapports</h1>
+    <!-- <a href="{{url_for('dashboard')}}">Go Back</a> -->
     <div class="items">
         {%with messages = get_flashed_messages() %}
         {%if messages %}
@@ -21,13 +23,16 @@
     {%endwith%}    
     <div class="grid-container">
         {% for form in forms %}
-        <div class="grid-item">
+        <div class="grid-item-report">
         <label for="div"><b>{{formtitles[loop.index0]}}</b></label><br><br>
+        <br/><br/>
     <form method="POST" action="">
         {% for field in form %}
         <tr>
-            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
-            <td>{{ field }}</td><br><br>
+            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
+            
+            <span class="margin-left"><td>{{ field }}</td></span>
+            <br><br>
         </tr>
         {% endfor %}
     </form>

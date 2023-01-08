@@ -9,32 +9,51 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <div class="header"><h1>
+    <h1 class="header">
         Content de te Revoir {{username}}!
-    </h1>
-</div>
+</h1>
 
-<div class="items">
-    <h2>
+<div>
+    <!-- <h2>
         Qu'est-ce que tu aimerais faire?
-    </h2><br>
-
-    {%if user_role == 'admin'%}
-    <a href="{{url_for('user')}}">Gestion des Utilisateurs</a><br><br>    
-    <a href="{{url_for('setup')}}">Configuration des Constantes</a><br><br>
+    </h2> -->
+    <ul>
+        <li>
+            <h2>&nbsp;&nbsp; Qu'est-ce que tu aimerais faire?</h2>
+        </li>
+        {%if user_role == 'admin'%}
+        <li><a href="{{url_for('user')}}">Gestion des Utilisateurs</a></li>
+        <li> <a href="{{url_for('setup')}}">Configuration des Constantes</a></li><br/>
+        {%endif%}
+        <hr/><br/>
+        <li><a href="{{url_for('doctor')}}">Ajouter des données Docteur</a></li>
+        <li><a href="{{url_for('payment')}}">Ajouter des données Paiement</a></li>
+        <li><a href="{{url_for('facturation')}}">Ajouter des données Facturation</a></li>
+        <li><a href="{{url_for('fraismateriel')}}">Ajouter des données Frais Materiele</a></li>
+        <li><a href="{{url_for('dentisterie')}}">Ajouter des données Dentaires</a></li><br/>
+        <hr/><br/>
+        <li><a href="{{url_for('encaissement')}}">Encaissements-Avance</a></li>
+        <li><a href="{{url_for('doctorpayment')}}">Paiement Médecin</a></li>
+        <li><a href="{{url_for('reporting')}}">Rapport</a></li><br/>
+        <hr/><br/>
+        <li><a href="{{url_for('logout')}}">Déconnecter</a></li>
+      </ul>
+    <!-- {%if user_role == 'admin'%}
+    <a href="{{url_for('user')}}"><span class="menu-item">Gestion des Utilisateurs</span></a><br><br>    
+    <a href="{{url_for('setup')}}"><span class="menu-item">Configuration des Constantes</span></a><br><br>
     {%endif%}
-    <a href="{{url_for('doctor')}}">Ajouter des données Docteur</a><br>
-    <a href="{{url_for('payment')}}">Ajouter des données Paiement</a><br>    
-    <a href="{{url_for('facturation')}}">Ajouter des données Facturation</a><br>
-    <a href="{{url_for('fraismateriel')}}">Ajouter des données Frais Materiele</a><br>
-    <a href="{{url_for('dentisterie')}}">Ajouter des données Dentaires</a><br><br>    
-    <a href="{{url_for('encaissement')}}">Encaissements-Avance</a><br><br><br>
-    <a href="{{url_for('doctorpayment')}}">Paiement Médecin</a><br><br>
+    <a href="{{url_for('doctor')}}"><span class="menu-item">Ajouter des données Docteur</span></a><br>
+    <a href="{{url_for('payment')}}"><span class="menu-item">Ajouter des données Paiement</span></a><br>    
+    <a href="{{url_for('facturation')}}"><span class="menu-item">Ajouter des données Facturation</span></a><br>
+    <a href="{{url_for('fraismateriel')}}"><span class="menu-item">Ajouter des données Frais Materiele</span></a><br>
+    <a href="{{url_for('dentisterie')}}"><span class="menu-item">Ajouter des données Dentaires</span></a><br><br>    
+    <a href="{{url_for('encaissement')}}"><span class="menu-item">Encaissements-Avance</span></a><br><br><br>
+    <a href="{{url_for('doctorpayment')}}"><span class="menu-item">Paiement Médecin</span></a><br><br>
 
-    <a href="{{url_for('reporting')}}">Rapport</a><br><br>
+    <a href="{{url_for('reporting')}}"><span class="menu-item">Rapport</span></a><br><br>
 
-    <a href="{{url_for('logout')}}">Déconnecter</a>
-</div>
+    <a href="{{url_for('logout')}}"><span class="menu-item">Déconnecter</span></a>
+</div> -->
 
 
     

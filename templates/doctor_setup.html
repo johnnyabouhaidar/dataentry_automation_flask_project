@@ -9,9 +9,9 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-
-    <div class="header"><h1>Ajouter Nouveau Docteur</h1></div>
-    <div class="items">
+    <div><a href="{{url_for('dashboard')}}"><img src="./../static/back-btn.png" class="back-btn"></a> </div>
+    <h1 class="header">Ajouter Nouveau Docteur</h1>
+    <div>
         {%with messages = get_flashed_messages() %}
         {%if messages %}
         {%for message in messages %}
@@ -19,15 +19,20 @@
         {%endfor%}
         {%endif%}
     {%endwith%}    
+    <div class="section-view">
     <form method="POST" action="">
         {% for field in form %}
         <tr>
-            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+            <span class="form-titles">
+            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
+            </span>
             <td>{{ field }}</td><br><br>
         </tr>
         {% endfor %}
     </form>
-    <a href="{{url_for('dashboard')}}">Go Back</a>
+    </div>
+    <br />
+    <!-- <a href="{{url_for('dashboard')}}">Go Back</a> -->
     <div>
         <table class="fl-table" border="1">
       <thead>
@@ -48,8 +53,8 @@
 
         {%endfor%}
         {%if user_role == 'admin'%}
-        <td><a href="{{url_for('load_doctor',tbl=dbtable,id=value[0])}}">Modifier</a></td>
-        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}">Effacer</a></td>
+        <td><a href="{{url_for('load_doctor',tbl=dbtable,id=value[0])}}"><span class="table-btn-edit">Modifier</span></a></td>
+        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span class="table-btn">Effacer</span></a></td>
         {%endif%}
 
         </tr>

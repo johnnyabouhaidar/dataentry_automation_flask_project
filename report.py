@@ -12,6 +12,10 @@ matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 
 def _draw_as_table(df, pagesize,title):
+
+
+
+    
     alternating_colors = [['white'] * len(df.columns), ['lightgray'] * len(df.columns)] * len(df)
     alternating_colors = alternating_colors[:len(df)]
     fig, ax = plt.subplots()
@@ -21,8 +25,8 @@ def _draw_as_table(df, pagesize,title):
     the_table = ax.table(cellText=df.values,
                         rowLabels=df.index,
                         colLabels=df.columns,
-                        rowColours=['lightgreen']*len(df),
-                        colColours=['lightgreen']*len(df.columns),
+                        rowColours=['lightgray']*len(df),
+                        colColours=['gray']*len(df.columns),
                         cellColours=alternating_colors,
                         loc='center',
                         )
@@ -65,6 +69,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
     for i in range(0, nh):
         for j in range(0, nv):
             for df in dfs:
+
                 try:
                     print(df[0].groupby(["month"]).sum())
                 except:
@@ -75,7 +80,27 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                 page = df[0].iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df[0])),
                             (j*cols_per_page):min((j+1)*cols_per_page, len(df[0].columns))]
                 try:
-                    fig = _draw_as_table(page, pagesize,df[2])
+                    fig, axis = plt.subplots(2)
+                    figg = _draw_as_table(page, pagesize,df[2])
+                
+                    #df.plot()
+                    #df["somme"].value_counts().plot.bar()
+                
+                    #df=df.groupby(df.columns[0])
+                    #print(df)
+                    c = ['blue','orange','gray', 'yellow','red','green','purple','brown','black','violet']
+                    try:
+                        del df[1]["year"]
+                    except:
+                        pass
+                    ax=df[1].T.plot( kind="bar",color=c,width=5,figsize=(11,11),title="Graphique informatif")
+                    for p in ax.patches:
+                        ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+                    #plt.ticklabel_format(style='plain') 
+                    ax.grid(axis='y')
+                    plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
+                    plt.subplots_adjust(bottom=0.3)
+                    rows=df[1].somme.values                 
                     '''
                     if True:
                         # Add a part/page number at bottom-center of page
@@ -83,23 +108,13 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                                 "Part-{}x{}: Page-{}".format(i+1, j+1, i*nv + j + 1),
                                 ha='center', fontsize=8)
                     '''
-                    pdf.savefig(fig, bbox_inches='tight')
-                
-                    #df.plot()
-                    #df["somme"].value_counts().plot.bar()
-                
-                    #df=df.groupby(df.columns[0])
-                    #print(df)
+                    pdf.savefig(figg, bbox_inches='tight')
                     
-                    df[1].plot(y=["somme"], kind="bar",color="blue",linewidth=1,figsize=(11,11),title="Graphique informatif")
-                    #plt.ticklabel_format(style='plain') 
-                    plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
-                    plt.subplots_adjust(bottom=0.3)
-                    rows=df[1].somme.values
-                    addlabels(rows,rows)
+
+                    #addlabels(rows,rows)
 
 
-                    plt.xticks(rotation=90)
+                    #plt.xticks(rotation=90)
                     pdf.savefig()
                     plt.close()
                 except:
