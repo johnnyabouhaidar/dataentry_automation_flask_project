@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -1143,7 +1143,8 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
 	SUM (CASE WHEN Month(date)=9 THEN somme END) AS September,
 	SUM (CASE WHEN Month(date)=10 THEN somme END) AS October,
 	SUM (CASE WHEN Month(date)=11 THEN somme END) AS November,
-	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December
+	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December,
+    SUM (somme) AS TOTAL
 
 FROM payment
 WHERE Year(date)={0}

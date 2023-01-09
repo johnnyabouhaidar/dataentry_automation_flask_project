@@ -26,13 +26,16 @@ def _draw_as_table(df, pagesize,title):
                         rowLabels=df.index,
                         colLabels=df.columns,
                         rowColours=['lightgray']*len(df),
-                        colColours=['gray']*len(df.columns),
+                        #colColours=['gray']*len(df.columns),
                         cellColours=alternating_colors,
                         loc='center',
+                        
                         )
+    for key, cell in the_table.get_celld().items():
+        cell.set_linewidth(0)
     
     rowss=len(df)
-    ax.set_title(title,y=rowss*0.03+0.48)
+    ax.set_title(title,y=rowss*0.03+0.48,backgroundcolor='gray')
     #the_table.set_title("Title Goes Here...")
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
