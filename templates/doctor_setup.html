@@ -33,13 +33,15 @@
     </div>
     <br />
     <!-- <a href="{{url_for('dashboard')}}">Go Back</a> -->
-    <div>
+    <div class="tableCover">
         <table class="fl-table" border="1">
       <thead>
             <tr>
             {%for title in headers%}
             <th>{{title}}</th>
             {%endfor%}
+            <th></th>
+            <th></th>
         </tr>
         
     </thead>

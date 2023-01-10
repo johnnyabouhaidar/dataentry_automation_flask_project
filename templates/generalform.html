@@ -65,12 +65,16 @@
 {%endif%}
 <br/>
 {%if table|length !=0%}
+<div class="tableCover">
+
         <table class="fl-table" border="1">
       <thead>
             <tr>
             {%for title in headers%}
             <th>{{title}}</th>
             {%endfor%}
+            <th></th>
+            <th></th>
         </tr>
         
     </thead>
@@ -88,7 +92,7 @@
         </tr>
         {% endfor %}
     </table>
-    
+</div>
     
     {%endif%}
     </div>

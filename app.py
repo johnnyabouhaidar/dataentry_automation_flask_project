@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -281,7 +281,7 @@ def encaissement(search=""):
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        excel_report_path=r"reporting_temporary\ENCAISSEMENT_{}.xlsx".format(current_num_timestamp)
+        excel_report_path=r"{0}\reporting_temporary\ENCAISSEMENT_{1}.xlsx".format(file_download_location,current_num_timestamp)
         encaissementdf.to_excel(excel_report_path,index=False)
 
         return send_file(excel_report_path)
@@ -378,7 +378,7 @@ def facturation(search=""):
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        excel_report_path=r"reporting_temporary\FACTURATION_{}.xlsx".format(current_num_timestamp)
+        excel_report_path=r"{0}\reporting_temporary\FACTURATION_{1}.xlsx".format(file_download_location,current_num_timestamp)
         facturationdf.to_excel(excel_report_path,index=False)
 
         return send_file(excel_report_path)
@@ -481,7 +481,7 @@ def payment(search=""):
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        excel_report_path=r"reporting_temporary\PAIEMENTS_{}.xlsx".format(current_num_timestamp)
+        excel_report_path=r"{0}\reporting_temporary\PAIEMENTS_{1}.xlsx".format(file_download_location,current_num_timestamp)
         payment_dataframe.to_excel(excel_report_path,index=False)
 
         return send_file(excel_report_path)             
@@ -583,7 +583,7 @@ def fraismateriel(search=""):
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        excel_report_path=r"reporting_temporary\FRAIS_MATERIEL_{}.xlsx".format(current_num_timestamp)
+        excel_report_path=r"{0}\reporting_temporary\FRAIS_MATERIEL_{1}.xlsx".format(file_download_location,current_num_timestamp)
         fraismaterieldf.to_excel(excel_report_path,index=False)
 
         return send_file(excel_report_path)
@@ -1030,7 +1030,7 @@ def reporting():
     if ind_doctor_form.validate_on_submit():
         current_date=datetime.datetime.now()
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        doctor_report_filename=r'reporting_temporary\RAPPORT_MEDECINS_{0}.pdf'.format(current_num_timestamp)
+        doctor_report_filename=r'{0}\reporting_temporary\RAPPORT_MEDECINS_{1}.pdf'.format(file_download_location,current_num_timestamp)
         dfs=[]
 
         varying_paymentslist=db.engine.execute("""select paimentnom AS PaiementNom,doctorpaiementsomme AS Somme,date AS Date FROM doctorpayment where doctorname='{0}' and YEAR(date)={1}""".format(ind_doctor_form.doctorname.data,ind_doctor_form.year.data))
@@ -1188,7 +1188,8 @@ GROUP BY paiementsType""".format(form.year.data))
 	SUM (CASE WHEN Month(date)=9 THEN somme END) AS September,
 	SUM (CASE WHEN Month(date)=10 THEN somme END) AS October,
 	SUM (CASE WHEN Month(date)=11 THEN somme END) AS November,
-	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December
+	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December,
+    SUM (somme) AS TOTAL
 
 FROM facturation
 WHERE Year(date)={0}
@@ -1211,7 +1212,7 @@ GROUP BY facturationType""".format(form.year.data))
         current_date=datetime.datetime.now()
 
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        report_filename=r'reporting_temporary\RAPPORT_{0}.pdf'.format(current_num_timestamp)
+        report_filename=r'{0}\reporting_temporary\RAPPORT_{1}.pdf'.format(file_download_location,current_num_timestamp)
         
         dataframe_to_pdf(dfs,pnl.round(2),form.year.data,report_filename,enctotal.round(2),paymenttotal.round(2))        
 

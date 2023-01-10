@@ -22,7 +22,7 @@
   {% for form in forms %}
   <button type="button" class="collapsible">{{titles[loop.index0]}}</button>
   <div class="content">
-    <div class="grid-item">
+    <div class="grid-item setupPage">
 <br/>
       <form method="POST" action="">
         {%set formindex = loop.index0%}
@@ -37,6 +37,7 @@
 
         {%endfor%}
       </form>
+      <div class="tableCover">
 
       <table class="fl-table" border="1">
         <thead>
@@ -44,6 +45,7 @@
             {%for title in headers[loop.index0]%}
             <th>{{title}}</th>
             {%endfor%}
+            <th></th>
           </tr>
 
         </thead>
@@ -62,6 +64,7 @@
         </tr>
         {% endfor %}
       </table>
+    </div>
     </div>
   </div>
   {%endfor%}

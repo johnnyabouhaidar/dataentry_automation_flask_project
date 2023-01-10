@@ -21,11 +21,15 @@ def _draw_as_table(df, pagesize,title):
     fig, ax = plt.subplots()
     ax.axis('tight')
     ax.axis('off')
+    rowcolors=["white","lightgray"]*len(df)
+    
+    
+    #print(colors)
     
     the_table = ax.table(cellText=df.values,
                         rowLabels=df.index,
                         colLabels=df.columns,
-                        rowColours=['lightgray']*len(df),
+                        rowColours=rowcolors,
                         #colColours=['gray']*len(df.columns),
                         cellColours=alternating_colors,
                         loc='center',
@@ -35,7 +39,11 @@ def _draw_as_table(df, pagesize,title):
         cell.set_linewidth(0)
     
     rowss=len(df)
-    ax.set_title(title,y=rowss*0.03+0.48,backgroundcolor='gray')
+    if title=="Encaissement":
+        ax.set_title("{0}".format(title),y=rowss*0.03+0.48,color="white",backgroundcolor='gray')
+    else:
+        ax.set_title("                                                                {0}                                                                ".format(title),y=rowss*0.03+0.48,color="white",backgroundcolor='gray')
+    
     #the_table.set_title("Title Goes Here...")
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
@@ -100,7 +108,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                     for p in ax.patches:
                         ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
                     #plt.ticklabel_format(style='plain') 
-                    ax.grid(axis='y')
+                    #ax.grid(axis='y')
                     plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
                     plt.subplots_adjust(bottom=0.3)
                     rows=df[1].somme.values                 
@@ -134,7 +142,10 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
     plt.text(0.5,0.4,"-",ha='center',va='center',size=15)
     plt.text(0.5,0.3,"Paiements Totale: {0}".format(paytot),ha='center',va='center',size=15)
     plt.text(0.5,0.2,"-------------------------------------------------------------------",ha='center',va='center',size=15)
-    plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20)
+    if pnl<0:
+        plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20,backgroundcolor="red",color="white")
+    else:
+        plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20,backgroundcolor="green",color="Black")
     pdf.savefig()
     plt.close()
 
