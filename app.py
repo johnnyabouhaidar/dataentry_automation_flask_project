@@ -152,6 +152,7 @@ class Leasing(db.Model):
     debut=db.Column(db.Date,nullable=False)
     finPrevue=db.Column(db.Date,nullable=False)
     paiement=db.Column(db.Float,nullable=True)
+    paiementinitial=db.Column(db.Float,nullable=True)
 
 class Percentageactivity(db.Model):
     activiteId=db.Column(db.Integer,primary_key=True)
@@ -635,12 +636,12 @@ def load_doctor(tbl,id):
         #subform=AddDoctorConstantsForm(obj=qry)
 
         leasing_form=LeasingForm()
-        leasingdata=db.engine.execute("select LeasingId,LocationNom,debut,finPrevue,paiement from leasing where docteur='{0}'".format(qry.doctorname))
+        leasingdata=db.engine.execute("select LeasingId,LocationNom,debut,finPrevue,paiement,paiementinitial from leasing where docteur='{0}'".format(qry.doctorname))
         leasingdataitems=leasingdata.fetchall()
         headersleasingdata=leasingdata.keys()
 
         if leasing_form.validate_on_submit() and request.method=='POST' and leasing_form.leasesubmit.data:
-            new_leasing=Leasing(locationNom=leasing_form.locationNom.data,docteur=qry.doctorname,debut=leasing_form.debut.data,finPrevue=leasing_form.finPrevue.data,paiement=leasing_form.paiement.data)
+            new_leasing=Leasing(locationNom=leasing_form.locationNom.data,docteur=qry.doctorname,debut=leasing_form.debut.data,finPrevue=leasing_form.finPrevue.data,paiement=leasing_form.paiement.data,paiementinitial=leasing_form.paiementinitial.data)
             db.session.add(new_leasing)
             db.session.commit()
             return redirect(request.url)
@@ -1095,6 +1096,7 @@ def reporting():
         leasinglist=db.engine.execute("""Select locationNom as LocationNom,
 debut as Debut,
 finPrevue as FinPrevue,
+paiementinitial as "Paiement Initial",
 paiement as PaiementMensuel,
 paiement*12 as PaiementAnnuel
 From leasing
@@ -1103,6 +1105,22 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
         leasingdf.set_index("LocationNom",inplace=True)
 
         dfs.append((leasingdf.fillna(0).round(2),"Locations(Leasing)"))
+
+        percentagelist=db.engine.execute("""
+        select 
+de as DE,
+a as A,
+pourcentages as Pourcentages,
+(a-(de-1000))*(pourcentages/100) as "Chiffre d'affaires annuel"
+
+
+
+from percentageactivity where docteur='{0}'
+        """.format(ind_doctor_form.doctorname.data))
+        percentagedf=convert_list_to_dataframe(percentagelist)
+        #percentagedf.set_index("LocationNom",inplace=True)
+
+        dfs.append((percentagedf.fillna(0).round(2),"Pourcentage D'activite"))        
 
 
         doctor_report(dfs,ind_doctor_form.doctorname.data,ind_doctor_form.year.data,doctor_report_filename)

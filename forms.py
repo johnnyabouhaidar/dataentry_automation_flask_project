@@ -44,20 +44,20 @@ class LoginForm(FlaskForm):
     submit=SubmitField("Login")
 
 class AddDoctorForm(FlaskForm):    
-    doctorname=StringField(label="Doctor Name ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
-    doctorspeciality=StringField(label="Doctor Speciality ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
+    doctorname=StringField(label="Docteur Nom ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
+    doctorspeciality=StringField(label="Docteur Spécialité ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
     #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
-    percentageShare=FloatField(label="Percentage Share ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+    percentageShare=FloatField(label="Part en pourcentage ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
     isActive = BooleanField('Active?')
     conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
     submit =SubmitField("Submit")
 
 class AddDoctorConstantsForm(FlaskForm):
-    doctorname=StringField(label="Doctor Name ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
-    doctorspeciality=StringField(label="Doctor Speciality ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
+    doctorname=StringField(label="Docteur Nom ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
+    doctorspeciality=StringField(label="Docteur Spécialité ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
     #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
-    percentageShare=FloatField(label="Percentage Share ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+    percentageShare=FloatField(label="Part en pourcentage ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
     isActive = BooleanField('Active?')
     conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
@@ -187,6 +187,7 @@ class LeasingForm(FlaskForm):
     debut=DateField(label="Debut",validators=[InputRequired()])
     finPrevue=DateField(label="Fin Prevue",validators=[InputRequired()])
     paiement=FloatField(label="Paiement",validators=[InputRequired()])
+    paiementinitial=FloatField(label="Paiement Initial",validators=[InputRequired()])
 
     leasesubmit=SubmitField("Submit")
 
