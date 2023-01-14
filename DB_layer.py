@@ -3,7 +3,7 @@ import pyodbc
 import pandas as pd
 
 
-credsfilepath="sqlDBcreds-work.json"
+credsfilepath="sqlDBcreds-home.json"
 
 
 def initialize_connection():

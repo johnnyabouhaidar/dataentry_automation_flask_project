@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -1014,6 +1014,58 @@ def fetch_doctor_info(doctorname):
         return dict_to_return
     except:
         return None
+
+def get_frais_materiel_df(doctorname):
+    composite_df = pd.DataFrame(columns=['Charges','Cout Mensuel','Cout Annuel'])
+    
+    composite_df.set_index('Charges',inplace=True)
+    #print(composite_df)
+    dataa=fetch_doctor_info(ind_doctor_form.doctorname.data)
+
+    informatique_ann=dataa["informatique"]/dataa["nbmedicinsrepartirfrais"]
+    informatique_men=informatique_ann/12
+
+    assurance_ann=dataa["assurances"]/dataa["nbmedicinsrepartirfrais"]
+    assurance_men=assurance_ann/12
+
+    blanchisserie_ann=dataa["blanchisserie"]/dataa["nbmedicinsrepartirfrais"]
+    blanchisserie_men = blanchisserie_ann/12
+
+    logicielaxenita_ann=dataa["logicielaxenita"]/dataa["nbmedicins"]
+    logicielaxenita_men=logicielaxenita_ann/12
+
+    telephonieinternet_ann=dataa["telephonieinternet"]/dataa["nbmedicinsrepartirfrais"]
+    telephonieinternet_men=telephonieinternet_ann/12
+
+    simplify_ann=dataa["simplify"]/3
+    simplify_men=simplify_ann/12
+
+    conciergerie_ann=dataa["conciergerie"]/dataa["nbmedicinsrepartirfrais"]
+    conciergerie_men = conciergerie_ann/12
+
+    nettoyage_ann=dataa["nettoyage"]/dataa["nbmedicinsrepartirfrais"]
+    nettoyage_men=nettoyage_ann/12
+
+    loyersurfacecom_ann=dataa["surfacecommunes"]*(dataa["loyermensuel"]*12)/(dataa["surfacecentremedical"])*(dataa["surfaceaccordee"]/dataa["surfacecentremedical"])
+    loyersurfacecom_men=loyersurfacecom_ann/12
+
+    personnelsalaire_men=dataa["salairepersonnel"]*(dataa["pourcentagesalaire"]/100)
+    personnelsalaire_ann=personnelsalaire_men*13
+
+    chargesociales_men=personnelsalaire_men*dataa["pourcentagechargessociales"]/100
+    chargesociales_ann=chargesociales_men*13
+
+    prixloyersurfacem2_ann=dataa["surfaceaccordee"]*((dataa["loyermensuel"]*12)/(dataa["surfacecentremedical"]))
+    prixloyersurfacem2_men=prixloyersurfacem2_ann/12
+    
+
+    temp_df2 = pd.DataFrame({
+                "Cout Mensuel": [informatique_men,assurance_men,blanchisserie_men,logicielaxenita_men,telephonieinternet_men,simplify_men,conciergerie_men,nettoyage_men,loyersurfacecom_men,personnelsalaire_men,chargesociales_men,prixloyersurfacem2_men],
+                "Cout Annuel":[informatique_ann,assurance_ann,blanchisserie_ann,logicielaxenita_ann,telephonieinternet_ann,simplify_ann,conciergerie_ann,nettoyage_ann,loyersurfacecom_ann,personnelsalaire_ann,chargesociales_ann,prixloyersurfacem2_ann]},
+                index=["Informatique","Assurances","Blanchisserie","Axenita","TelePhonie Internet","Simplify","Conciergerie","Nettoyage","Loyer Surface Commune","Personnel  {0}% 13 Salaires".format(str(dataa["pourcentagesalaire"])),"Charges Sociale {0}%".format(str(dataa["pourcentagechargessociales"])),"Prix du loyer surface m2"])
+
+    composite_df=pd.concat([composite_df, temp_df2])
+
 
 @app.route('/reporting',methods=['GET','POST'])
 @login_required
