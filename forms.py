@@ -155,6 +155,7 @@ class AddFraismaterielForm(FlaskForm):
     fraismaterielnomALT=StringField('Nouveau Frais Materiel?',render_kw={"placeholder":"Frais Materiel"})
     fraismaterielsomme=FloatField("Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
     fraismaterieldate=DateField('Date',validators=[InputRequired()])
+    comment=StringField('Comment',widget=TextArea())
 
     submit = SubmitField("Submit")
 
@@ -163,7 +164,7 @@ class AddEncaissementForm(FlaskForm):
     encaissementNomALT = StringField(label="Nouveau encaissement ?")
     encaissementDate=DateField(label="Encaissement Date",validators=[InputRequired()])
     montant=FloatField(label="montant",validators=[InputRequired()])
-    banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance','Postfinance')])
+    banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance ','Postfinance')])
     comment=StringField('Comment',widget=TextArea())
 
     submit =SubmitField("Submit")

@@ -144,6 +144,7 @@ class Fraismateriel(db.Model):
     fraismaterielnom=db.Column(db.String(80),nullable=False)
     fraismaterielsomme=db.Column(db.Float,nullable=False)
     fraismaterieldate=db.Column(db.Date,nullable=False)
+    comment=db.Column(db.String(250))
 
 class Leasing(db.Model):
     LeasingId=db.Column(db.Integer,primary_key=True)
@@ -570,9 +571,9 @@ def fraismateriel(search=""):
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
         if form.fraismaterielnom.data!="addnew":
-            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnom.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data)
+            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnom.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
         else:
-            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnomALT.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data)
+            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnomALT.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
         if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float) and form.is_submitted():
             db.session.add(new_fraismateriel)
             db.session.commit()
@@ -727,6 +728,7 @@ def edit_entry(tbl,id):
                 qry.fraismaterielnom = form.fraismaterielnomALT.data
             qry.fraismaterielsomme=form.fraismaterielsomme.data
             qry.fraismaterieldate=form.fraismaterieldate.data
+            qry.comment=form.comment.data
             #qry.comment=form.comment.data
             if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float):
             #qry=form   
@@ -854,7 +856,7 @@ def edit_entry(tbl,id):
             flash("Invalid Data. Please re-check and submit again!")
     if tbl=="encaissement":
         qry=Encaissement.query.filter(Encaissement.encaissementId==id).first()
-        form=AddEncaissementForm(obj=qry,banque=qry.banque)
+        form=AddEncaissementForm(obj=qry,banque=qry.banque.strip())
         encaissementnameschoices = []
         encaissementnameschoices.append(("addnew","Ajouter Nouveau ?"))
         for encname in db.engine.execute("select * from encaissement").fetchall():

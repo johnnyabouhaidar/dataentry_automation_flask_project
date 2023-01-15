@@ -11,22 +11,25 @@ matplotlib.use('Agg')
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-def _draw_as_table(df, pagesize,title):
+def _draw_as_table(df, pagesize,title,df2):
 
 
 
     
     alternating_colors = [['white'] * len(df.columns), ['lightgray'] * len(df.columns)] * len(df)
     alternating_colors = alternating_colors[:len(df)]
-    fig, ax = plt.subplots()
-    ax.axis('tight')
-    ax.axis('off')
+    if title=="Encaissement":
+        fig, ax = plt.subplots(1, 2, figsize=(10, 10))
+    else:
+        fig, ax = plt.subplots(2, 1, figsize=(10, 10))
+    #ax[0].axis('tight')
+    ax[0].axis('off')
     rowcolors=["white","lightgray"]*len(df)
     
     
     #print(colors)
     
-    the_table = ax.table(cellText=df.values,
+    the_table = ax[0].table(cellText=df.values,
                         rowLabels=df.index,
                         colLabels=df.columns,
                         rowColours=rowcolors,
@@ -34,20 +37,36 @@ def _draw_as_table(df, pagesize,title):
                         cellColours=alternating_colors,
                         loc='center',
                         
+                        
                         )
     for key, cell in the_table.get_celld().items():
         cell.set_linewidth(0)
     
     rowss=len(df)
+    '''
     if title=="Encaissement":
-        ax.set_title("{0}".format(title),y=rowss*0.03+0.48,color="white",backgroundcolor='gray')
+        ax[0].set_title("{0}".format(title),y=rowss*0.03+0.48,color="white",backgroundcolor='gray')
     else:
-        ax.set_title("                                                                {0}                                                                ".format(title),y=rowss*0.03+0.48,color="white",backgroundcolor='gray')
-    
+        ax[0].set_title("                                                                {0}                                                                ".format(title),y=rowss*0.03+0.48,color="white",backgroundcolor='gray')
+    '''
+    fig.suptitle(title,fontweight="bold")
     #the_table.set_title("Title Goes Here...")
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
     the_table.auto_set_column_width(col=list(range(len(df.columns))))
+    c = ['blue','orange','gray', 'yellow','red','green','purple','brown','black','violet']
+    try:
+        del df2["year"]
+    except:
+        pass
+    ax=df2.T.plot( kind="bar",color=c,width=5,ax=ax[1],figsize=(20,10),title="Graphique informatif")
+    for p in ax.patches:
+        ax.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+    plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
+    ax.grid(axis='y')
+    #plt.subplots_adjust(bottom=0.3)
+    
+    
     #ax.set_title("Your title",  pad=20)
     #plt.title("test",loc="left")
     
@@ -90,9 +109,10 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                 
                 page = df[0].iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df[0])),
                             (j*cols_per_page):min((j+1)*cols_per_page, len(df[0].columns))]
+                fig, axis = plt.subplots(2)
+                figg = _draw_as_table(page, pagesize,df[2],df[1])
                 try:
-                    fig, axis = plt.subplots(2)
-                    figg = _draw_as_table(page, pagesize,df[2])
+
                 
                     #df.plot()
                     #df["somme"].value_counts().plot.bar()
