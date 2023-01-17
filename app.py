@@ -1080,7 +1080,7 @@ def reporting():
     ind_doctor_form=IndividualDoctorReportForm()
     choices=[]
     #choices.append(("---","---"))
-    choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor").fetchall()]   
+    choices=choices+[(doctor.doctorname,doctor.doctorname)for doctor in db.engine.execute("select doctorname from doctor where isActive=1").fetchall()]   
     ind_doctor_form.doctorname.choices=choices
 
 
@@ -1160,18 +1160,18 @@ from percentageactivity where docteur='{0}'
         paymentforgraphdf.set_index('paiementsType',inplace=True)
 
         paymentforreportlist=db.engine.execute("""SELECT paiementsType AS PaiementType, 
-	SUM (CASE WHEN Month(date)=1 THEN somme END) AS January,
-	SUM (CASE WHEN Month(date)=2 THEN somme END) AS February,
-	SUM (CASE WHEN Month(date)=3 THEN somme END) AS March,
-	SUM (CASE WHEN Month(date)=4 THEN somme END) AS April,
-	SUM (CASE WHEN Month(date)=5 THEN somme END) AS May,
-	SUM (CASE WHEN Month(date)=6 THEN somme END) AS June,
-	SUM (CASE WHEN Month(date)=7 THEN somme END) AS July,
-	SUM (CASE WHEN Month(date)=8 THEN somme END) AS August,
-	SUM (CASE WHEN Month(date)=9 THEN somme END) AS September,
-	SUM (CASE WHEN Month(date)=10 THEN somme END) AS October,
-	SUM (CASE WHEN Month(date)=11 THEN somme END) AS November,
-	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December,
+	SUM (CASE WHEN Month(date)=1 THEN somme END) AS Janvier,
+	SUM (CASE WHEN Month(date)=2 THEN somme END) AS Février,
+	SUM (CASE WHEN Month(date)=3 THEN somme END) AS Mars,
+	SUM (CASE WHEN Month(date)=4 THEN somme END) AS Avril,
+	SUM (CASE WHEN Month(date)=5 THEN somme END) AS Mai,
+	SUM (CASE WHEN Month(date)=6 THEN somme END) AS Juin,
+	SUM (CASE WHEN Month(date)=7 THEN somme END) AS Juillet,
+	SUM (CASE WHEN Month(date)=8 THEN somme END) AS Aout,
+	SUM (CASE WHEN Month(date)=9 THEN somme END) AS Septembre,
+	SUM (CASE WHEN Month(date)=10 THEN somme END) AS Octobre,
+	SUM (CASE WHEN Month(date)=11 THEN somme END) AS Novembre,
+	SUM (CASE WHEN Month(date)=12 THEN somme END) AS Décembre,
     SUM (somme) AS TOTAL
 
 FROM payment
@@ -1205,18 +1205,18 @@ GROUP BY paiementsType""".format(form.year.data))
         facturationgraphdf.set_index('facturationType',inplace=True)
 
         facturationforreportlist=db.engine.execute("""SELECT facturationType AS FacturationType, 
-	SUM (CASE WHEN Month(date)=1 THEN somme END) AS January,
-	SUM (CASE WHEN Month(date)=2 THEN somme END) AS February,
-	SUM (CASE WHEN Month(date)=3 THEN somme END) AS March,
-	SUM (CASE WHEN Month(date)=4 THEN somme END) AS April,
-	SUM (CASE WHEN Month(date)=5 THEN somme END) AS May,
-	SUM (CASE WHEN Month(date)=6 THEN somme END) AS June,
-	SUM (CASE WHEN Month(date)=7 THEN somme END) AS July,
-	SUM (CASE WHEN Month(date)=8 THEN somme END) AS August,
-	SUM (CASE WHEN Month(date)=9 THEN somme END) AS September,
-	SUM (CASE WHEN Month(date)=10 THEN somme END) AS October,
-	SUM (CASE WHEN Month(date)=11 THEN somme END) AS November,
-	SUM (CASE WHEN Month(date)=12 THEN somme END) AS December,
+	SUM (CASE WHEN Month(date)=1 THEN somme END) AS Janvier,
+	SUM (CASE WHEN Month(date)=2 THEN somme END) AS Février,
+	SUM (CASE WHEN Month(date)=3 THEN somme END) AS Mars,
+	SUM (CASE WHEN Month(date)=4 THEN somme END) AS Avril,
+	SUM (CASE WHEN Month(date)=5 THEN somme END) AS Mai,
+	SUM (CASE WHEN Month(date)=6 THEN somme END) AS Juin,
+	SUM (CASE WHEN Month(date)=7 THEN somme END) AS Juillet,
+	SUM (CASE WHEN Month(date)=8 THEN somme END) AS Aout,
+	SUM (CASE WHEN Month(date)=9 THEN somme END) AS Septembre,
+	SUM (CASE WHEN Month(date)=10 THEN somme END) AS Octobre,
+	SUM (CASE WHEN Month(date)=11 THEN somme END) AS Novembre,
+	SUM (CASE WHEN Month(date)=12 THEN somme END) AS Décembre,
     SUM (somme) AS TOTAL
 
 FROM facturation

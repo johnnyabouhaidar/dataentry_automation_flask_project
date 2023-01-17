@@ -41,7 +41,29 @@ def _draw_as_table(df, pagesize,title,df2):
                         )
     for key, cell in the_table.get_celld().items():
         cell.set_linewidth(0)
-    
+
+    xtls = ax[0].get_xticklabels()
+    xtls = [i.get_text() for i in xtls]
+
+    ax[0].set_xticklabels([])
+
+    t = ax[0].tables[0]
+    for c in t.get_children():
+        tobj = c.get_text()
+        text = tobj.get_text()
+        if text not in xtls:
+         
+            try: # some texts will be strings that are labels, we can't convert them
+                s = '{:0,.2f}'.format(float(text))
+                s=s.replace('.','|')
+                s=s.replace(',','.')
+                s=s.replace('|',',')
+                tobj.set_text(s)
+                #print(s)
+            except:
+                pass
+
+
     rowss=len(df)
     '''
     if title=="Encaissement":
