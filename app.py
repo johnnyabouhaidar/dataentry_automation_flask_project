@@ -1070,6 +1070,10 @@ def get_frais_materiel_df(doctorname):
 
     return composite_df
 
+def get_dr_details(doctorname):
+    search_query="""select SUM(somme) as Summation from facturation where facturationNom = 'Dr Diana' and facturationType='Facturation médecins'"""
+    
+
 
 @app.route('/reporting',methods=['GET','POST'])
 @login_required
