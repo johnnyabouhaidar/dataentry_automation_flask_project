@@ -132,15 +132,16 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                 page = df[0].iloc[(i*rows_per_page):min((i+1)*rows_per_page, len(df[0])),
                             (j*cols_per_page):min((j+1)*cols_per_page, len(df[0].columns))]
                 fig, axis = plt.subplots(2)
-                figg = _draw_as_table(page, pagesize,df[2],df[1])
+                
                 try:
-
+                    figg = _draw_as_table(page, pagesize,df[2],df[1])
                 
                     #df.plot()
                     #df["somme"].value_counts().plot.bar()
                 
                     #df=df.groupby(df.columns[0])
                     #print(df)
+                    '''
                     c = ['blue','orange','gray', 'yellow','red','green','purple','brown','black','violet']
                     try:
                         del df[1]["year"]
@@ -153,7 +154,8 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                     #ax.grid(axis='y')
                     plt.ticklabel_format(style='plain', useOffset=False, axis='y')                    
                     plt.subplots_adjust(bottom=0.3)
-                    rows=df[1].somme.values                 
+                    rows=df[1].somme.values 
+                    '''                
                     '''
                     if True:
                         # Add a part/page number at bottom-center of page
@@ -168,7 +170,7 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
 
 
                     #plt.xticks(rotation=90)
-                    pdf.savefig()
+                    #pdf.savefig()
                     plt.close()
                 except:
                     plt.figure() 
