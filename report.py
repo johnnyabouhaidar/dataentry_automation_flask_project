@@ -11,6 +11,51 @@ matplotlib.use('Agg')
 
 from matplotlib.backends.backend_pdf import PdfPages
 
+def _draw_main_doctor_table(df):
+    alternating_colors = [['white'] * len(df.columns), ['lightgray'] * len(df.columns)] * len(df)
+    alternating_colors = alternating_colors[:len(df)]    
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #ax[0].axis('tight')
+    ax.axis('off')
+    rowcolors=["white","lightgray"]*len(df)
+    #print(colors)
+    
+    the_table = ax.table(cellText=df.values,
+                        rowLabels=df.index,
+                        colLabels=df.columns,
+                        rowColours=rowcolors,
+                        #colColours=['gray']*len(df.columns),
+                        cellColours=alternating_colors,
+                        loc='center',
+                        
+                        
+                        )
+    for key, cell in the_table.get_celld().items():
+        cell.set_linewidth(0)
+
+    xtls = ax.get_xticklabels()
+    xtls = [i.get_text() for i in xtls]
+
+    ax.set_xticklabels([])
+
+    t = ax.tables[0]
+    for c in t.get_children():
+        tobj = c.get_text()
+        text = tobj.get_text()
+        if text not in xtls:
+         
+            try: # some texts will be strings that are labels, we can't convert them
+                s = '{:0,.2f}'.format(float(text))
+                s=s.replace('.','|')
+                s=s.replace(',','.')
+                s=s.replace('|',',')
+                tobj.set_text(s)
+                #print(s)
+            except:
+                pass
+    return fig
+
+
 def _draw_as_table(df, pagesize,title,df2):
 
 
@@ -107,7 +152,7 @@ def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i, y[i], y[i], ha = 'center')
 
-def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), pagesize=(1, 1)):
+def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot,query_for_general_table, numpages=(1, 1), pagesize=(1, 1)):
   with PdfPages(filename) as pdf:
     nh, nv = numpages
 
@@ -179,6 +224,8 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot, numpages=(1, 1), page
                     pdf.savefig()
                     plt.close()
 
+    figg = _draw_main_doctor_table(query_for_general_table)
+    pdf.savefig(figg, bbox_inches='tight')
 
     plt.figure() 
     plt.axis('off')

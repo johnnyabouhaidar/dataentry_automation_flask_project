@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,56 +8,156 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-</head>
-<body>
-    <h1 class="header">
-        Content de te Revoir {{username}}!
-</h1>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
-<div>
-    <!-- <h2>
+</head>
+
+<body>
+    <!-- <h1 class="header">
+        Content de te Revoir {{username}}!
+</h1> -->
+    <div class="row-view">
+
+        <!-- <h2>
         Qu'est-ce que tu aimerais faire?
     </h2> -->
-    <ul>
-        <li>
-            <h2 class="titleDash">Qu'est-ce que tu aimerais faire?</h2>
-        </li>
-        {%if user_role == 'admin'%}
-        <li><a href="{{url_for('user')}}">Gestion des Utilisateurs</a></li>
-        <li> <a href="{{url_for('setup')}}">Configuration des Constantes</a></li><br/>
-        {%endif%}
-        <hr/><br/>
-        <li><a href="{{url_for('doctor')}}">Ajouter des données Docteur</a></li>
-        <li><a href="{{url_for('payment')}}">Ajouter des données Paiement</a></li>
-        <li><a href="{{url_for('facturation')}}">Ajouter des données Facturation</a></li>
-        <li><a href="{{url_for('fraismateriel')}}">Ajouter des données Frais Materiele</a></li>
-        <li><a href="{{url_for('dentisterie')}}">Ajouter des données Dentaires</a></li><br/>
-        <hr/><br/>
-        <li><a href="{{url_for('encaissement')}}">Encaissements-Avance</a></li>
-        <li><a href="{{url_for('doctorpayment')}}">Paiement Médecin</a></li>
-        <li><a href="{{url_for('reporting')}}">Rapport</a></li><br/>
-        <hr/><br/>
-        <li><a href="{{url_for('logout')}}">Déconnecter</a></li>
-      </ul>
-    <!-- {%if user_role == 'admin'%}
-    <a href="{{url_for('user')}}"><span class="menu-item">Gestion des Utilisateurs</span></a><br><br>    
-    <a href="{{url_for('setup')}}"><span class="menu-item">Configuration des Constantes</span></a><br><br>
-    {%endif%}
-    <a href="{{url_for('doctor')}}"><span class="menu-item">Ajouter des données Docteur</span></a><br>
-    <a href="{{url_for('payment')}}"><span class="menu-item">Ajouter des données Paiement</span></a><br>    
-    <a href="{{url_for('facturation')}}"><span class="menu-item">Ajouter des données Facturation</span></a><br>
-    <a href="{{url_for('fraismateriel')}}"><span class="menu-item">Ajouter des données Frais Materiele</span></a><br>
-    <a href="{{url_for('dentisterie')}}"><span class="menu-item">Ajouter des données Dentaires</span></a><br><br>    
-    <a href="{{url_for('encaissement')}}"><span class="menu-item">Encaissements-Avance</span></a><br><br><br>
-    <a href="{{url_for('doctorpayment')}}"><span class="menu-item">Paiement Médecin</span></a><br><br>
+    <div>
+        <ul>
+            <div class="padding">
+                <img class="img" src="./../static/logo.png" alt="Trulli" width="230" height="auto" />
+            </div>
+            <br />
+            {%if user_role == 'admin'%}
+            <!-- <li><a href="{{url_for('user')}}"><span class="white">Gestion des Utilisateurs</span></a></li> -->
+            <li> <a href="{{url_for('setup')}}"><span class="white">Configuration des Constantes</span></a></li>
+            {%endif%}
+            <hr />
+            <li><a href="{{url_for('doctor')}}"><span class="white">Ajouter des données Docteur</span></a></li>
+            <li><a href="{{url_for('payment')}}"><span class="white">Ajouter des données Paiement</span></a></li>
+            <li><a href="{{url_for('facturation')}}"><span class="white">Ajouter des données Facturation</span></a></li>
+            <li><a href="{{url_for('fraismateriel')}}"><span class="white">Ajouter des données Frais Materiele</span></a></li>
+            <li><a href="{{url_for('dentisterie')}}"><span class="white">Ajouter des données Dentaires</span></a></li>
+            <hr />
+            <li><a href="{{url_for('encaissement')}}"><span class="white">Encaissements-Avance</span></a></li>
+            <li><a href="{{url_for('doctorpayment')}}"><span class="white">Paiement Médecin</span></a></li>
+            <li><a href="{{url_for('reporting')}}"><span class="white">Rapport</span></a></li>
+            <!-- <hr /> -->
+            <!-- <li><a href="{{url_for('logout')}}"><span class="white">Déconnecter</span></a></li> -->
+        </ul>
+    </div>
+    <div class="bodyCont container-fluid">
+        <div class="header-content">
+          <div class="dash-title">Tableau de Bord</div>
+          <div class="row">
+            <span class="glyphicon glyphicon-user"></span>&nbsp; Bienvenu User
+            <div class="dropdown">
+                <button onclick="myFunction()" class="dropbtn">Settings <i class="fa fa-caret-down"></i></button>
+                <div id="myDropdown" class="dropdown-content">
+                  <a href="{{url_for('user')}}">Gestion des Utilisateurs</a>
+                  <a href="{{url_for('logout')}}">Déconnecter</a>
+                </div>
+              </div>
+            </div>
+        </div>
+       
+        <!-- <nav class="navbar">
+          <div>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="margin-top15">
+                <span class="glyphicon glyphicon-user"></span> Bienvenu User
+              </li>
+            </ul>
+          </div>
+        </nav> -->
+        
+        <div class="padding30">
+            
+          <div class="row justify-content-around">
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">P&L</span><span>$180,594.56</span>
+            </div>
+            <div class="col-sm-1"></div>
 
-    <a href="{{url_for('reporting')}}"><span class="menu-item">Rapport</span></a><br><br>
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">Paiment Total</span
+              ><span>$180,594.56</span>
+            </div>
+            <div class="col-sm-1"></div>
 
-    <a href="{{url_for('logout')}}"><span class="menu-item">Déconnecter</span></a>
-</div> -->
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">Facturation Total</span
+              ><span>$180,594.56</span>
+            </div>
+          </div>
+        </div>
+        <div class="row col-sm-12">
+          <div class="col-sm-6 chart-view" id="piechart"></div>
+          <div class="col-sm-6 chart-view" id="barchart"></div>
+        </div>
+      </div>
+    </div>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
 
+    <script type="text/javascript">
+      // Load google charts
+      google.charts.load("current", { packages: ["corechart"] });
+      google.charts.setOnLoadCallback(drawChart);
 
-    
+      // Draw the chart and set the chart values
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ["Task", "Hours per Day"],
+          ["Work", 8],
+          ["Eat", 2],
+          ["TV", 4],
+          ["Gym", 2],
+          ["Sleep", 8],
+        ]);
+
+        // Optional; add a title and set the width and height of the chart
+        var options = { title: "My Average Day", width: 550, height: 400 };
+
+        // Display the chart inside the <div> element with id="piechart"
+        var piechart = new google.visualization.PieChart(
+          document.getElementById("piechart")
+        );
+        piechart.draw(data, options);
+        var barchart = new google.visualization.BarChart(
+          document.getElementById("barchart")
+        );
+        barchart.draw(data, options);
+      }
+    </script>
+    <script>
+        /* When the user clicks on the button, 
+        toggle between hiding and showing the dropdown content */
+        function myFunction() {
+          document.getElementById("myDropdown").classList.toggle("show");
+        }
+        
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+          if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+              var openDropdown = dropdowns[i];
+              if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+              }
+            }
+          }
+        }
+        </script>
+        
 </body>
-</html>
 
+</html>
