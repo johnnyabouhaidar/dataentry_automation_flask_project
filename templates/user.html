@@ -60,8 +60,8 @@
                     {%endfor%}
                     {%if user_role == 'admin'%}
                     {%if loop.index0!=0%}
-                    <td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}"> <span class="table-btn-edit">Éditer</span></a></td>
-                    <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span class="table-btn">Effacer</span></a></td>
+                    <td><a class="ic-view" href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}"> <span><img src="./../static/icons8-edit.svg" alt="Edit" width="26" height="26" /></span></a></td>
+                    <td><a class="ic-view" href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span><img src="./../static/icons8-trash.svg" alt="Edit" width="26" height="26" /></span></a></td>
                     {%endif%}
                     {%endif%}
                 </tr>

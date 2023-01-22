@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -188,11 +188,27 @@ def login():
 
 
 
+
+
+def get_ls_for_dashboard(query):
+    encaissementgraphlist=db.engine.execute(query)
+    encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
+    encaissementgraphdf=encaissementgraphdf.round(2)
+    ls=encaissementgraphdf.values.tolist()
+    ls.insert(0,encaissementgraphdf.columns.tolist())
+    
+    return ls
+
+
 @app.route('/dashboard',methods=['GET','POST'])
 #@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
 @login_required
 def dashboard():
-    return render_template('dashboard.html',username=current_user.username,user_role=current_user.role)
+    encls = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where YEAR(encaissementDate)={0} group by banque""".format(2022))
+    paymentls = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment group by paiementsType """)
+
+
+    return render_template('dashboard.html',username=current_user.username,user_role=current_user.role,encdf=encls,paymentgrph=paymentls)
 
 
 @app.route('/doctorpayment',methods=['GET','POST'])
@@ -289,7 +305,7 @@ def encaissement(search=""):
         return send_file(excel_report_path)
 
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -408,7 +424,7 @@ def facturation(search=""):
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -491,7 +507,7 @@ def payment(search=""):
 
     
     if "payments" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -591,7 +607,7 @@ def fraismateriel(search=""):
         return send_file(excel_report_path)
 
     if "fraismateriel" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form,export2excel_frm],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role,searchform=searchform,module_name="Frais Materiel")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role,searchform=searchform,module_name="Frais Materiel",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

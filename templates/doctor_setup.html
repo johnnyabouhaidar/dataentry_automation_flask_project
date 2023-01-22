@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,18 +9,45 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
+
 <body>
     <div><a href="{{url_for('dashboard')}}"><img src="./../static/back-btn.png" class="back-btn"></a> </div>
     <h1 class="header">Ajouter Nouveau Docteur</h1>
+    <!-- <button id="myBtn">Open Modal</button> -->
+    <div class="add-icon-view">
+        <img id="myBtn" class="cursor-pointer" src="./../static/add-icon.png" alt="Dialog" width="30" height="30" />
+    </div>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="section-view">
+                <form method="POST" action="">
+                    {% for field in form %}
+                    <tr>
+                        <span class="form-titles">
+                            <th>{%if field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label
+                                }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
+                        </span>
+                        <td>{{ field }}</td><br><br>
+                    </tr>
+                    {% endfor %}
+                </form>
+            </div>
+        </div>
+
+    </div>
     <div>
         {%with messages = get_flashed_messages() %}
         {%if messages %}
         {%for message in messages %}
-         {{message}}
+        {{message}}
         {%endfor%}
         {%endif%}
-    {%endwith%}    
-    <div class="section-view">
+        {%endwith%}
+        <!-- <div class="section-view">
     <form method="POST" action="">
         {% for field in form %}
         <tr>
@@ -30,107 +58,137 @@
         </tr>
         {% endfor %}
     </form>
+    </div> -->
+        <br />
+        <!-- <a href="{{url_for('dashboard')}}">Go Back</a> -->
+        <div class="tableCover">
+            <table class="fl-table" border="1">
+                <thead>
+                    <tr>
+                        {%for title in headers%}
+                        <th>{{title}}</th>
+                        {%endfor%}
+                        <th></th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+                {% for value in table %}
+                <tr>
+
+                    {%for item in value%}
+                    <td>
+                        {{item}}
+                    </td>
+
+                    {%endfor%}
+                    {%if user_role == 'admin'%}
+                    <td><a class="ic-view" href="{{url_for('load_doctor',tbl=dbtable,id=value[0])}}"><img
+                                src="./../static/icons8-edit.svg" alt="Edit" width="26" height="26" /></span></a></td>
+                    <td><a class="ic-view" href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><img
+                                src="./../static/icons8-trash.svg" alt="Delete" width="26" height="26" /></span></a>
+                    </td>
+                    {%endif%}
+
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
     </div>
-    <br />
-    <!-- <a href="{{url_for('dashboard')}}">Go Back</a> -->
-    <div class="tableCover">
-        <table class="fl-table" border="1">
-      <thead>
-            <tr>
-            {%for title in headers%}
-            <th>{{title}}</th>
-            {%endfor%}
-            <th></th>
-            <th></th>
-        </tr>
-        
-    </thead>
-        {% for value in table %}
-        <tr>
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
 
-        {%for item in value%}
-            <td>
-        {{item}}
-    </td>
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
 
-        {%endfor%}
-        {%if user_role == 'admin'%}
-        <td><a href="{{url_for('load_doctor',tbl=dbtable,id=value[0])}}"><span class="table-btn-edit">Modifier</span></a></td>
-        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span class="table-btn">Effacer</span></a></td>
-        {%endif%}
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
 
-        </tr>
-        {% endfor %}
-    </table>
-    </div>
+        // When the user clicks the button, open the modal 
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
 
-</div>
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
 
-{%if hasDynamicSelector == True and dbtable == 'payment'%}
-<script>
-    let paymenttype_select = document.getElementById('paiementsType');
-    let paymentname_select = document.getElementById('paiementsNom');
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+    {%if hasDynamicSelector == True and dbtable == 'payment'%}
+    <script>
+        let paymenttype_select = document.getElementById('paiementsType');
+        let paymentname_select = document.getElementById('paiementsNom');
 
-    paymenttype_select.onclick = function(){
-        paymenttype = paymenttype_select.value;
+        paymenttype_select.onclick = function () {
+            paymenttype = paymenttype_select.value;
 
-        fetch('/paymentnames/'+paymenttype).then(function(response){
-            response.json().then(function(data){
-                let optionHTML='';
-                
-                for (let paymentname of data.paymentnames){
-                    optionHTML+= '<option value="'+paymentname.name+'">'+paymentname.name+'</option>';
-                }
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                paymentname_select.innerHTML=optionHTML;
+            fetch('/paymentnames/' + paymenttype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    for (let paymentname of data.paymentnames) {
+                        optionHTML += '<option value="' + paymentname.name + '">' + paymentname.name + '</option>';
+                    }
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    paymentname_select.innerHTML = optionHTML;
+                });
             });
-        });
-    }
-</script>
-{%endif%}
-{%if hasDynamicSelector == True and dbtable == 'facturation'%}
-<script>
-    let facturationtype_select = document.getElementById('facturationType');
-    let facturationname_select = document.getElementById('facturationNom');
+        }
+    </script>
+    {%endif%}
+    {%if hasDynamicSelector == True and dbtable == 'facturation'%}
+    <script>
+        let facturationtype_select = document.getElementById('facturationType');
+        let facturationname_select = document.getElementById('facturationNom');
 
-    facturationtype_select.onclick = function(){
-        facturationtype = facturationtype_select.value;
+        facturationtype_select.onclick = function () {
+            facturationtype = facturationtype_select.value;
 
-        fetch('/facturationnames/'+facturationtype).then(function(response){
-            response.json().then(function(data){
-                let optionHTML='';
-                
-                for (let facturationname of data.facturationnames){
-                    optionHTML+= '<option value="'+facturationname.name+'">'+facturationname.name+'</option>';
-                }
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                facturationname_select.innerHTML=optionHTML;
+            fetch('/facturationnames/' + facturationtype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    for (let facturationname of data.facturationnames) {
+                        optionHTML += '<option value="' + facturationname.name + '">' + facturationname.name + '</option>';
+                    }
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    facturationname_select.innerHTML = optionHTML;
+                });
             });
-        });
-    }
-</script>
-{%endif%}
-{%if hasDynamicSelector == True and dbtable == 'dentisterie'%}
-<script>
-    let dentisterietype_select = document.getElementById('dentisterieType');
-    let dentisteriename_select = document.getElementById('dentisterieNom');
+        }
+    </script>
+    {%endif%}
+    {%if hasDynamicSelector == True and dbtable == 'dentisterie'%}
+    <script>
+        let dentisterietype_select = document.getElementById('dentisterieType');
+        let dentisteriename_select = document.getElementById('dentisterieNom');
 
-    dentisterietype_select.onclick = function(){
-        dentisterietype = dentisterietype_select.value;
+        dentisterietype_select.onclick = function () {
+            dentisterietype = dentisterietype_select.value;
 
-        fetch('/dentisterienames/'+dentisterietype).then(function(response){
-            response.json().then(function(data){
-                let optionHTML='';
-                
-                for (let dentisteriename of data.dentisterienames){
-                    optionHTML+= '<option value="'+dentisteriename.name+'">'+dentisteriename.name+'</option>';
-                }
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                dentisteriename_select.innerHTML=optionHTML;
+            fetch('/dentisterienames/' + dentisterietype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    for (let dentisteriename of data.dentisterienames) {
+                        optionHTML += '<option value="' + dentisteriename.name + '">' + dentisteriename.name + '</option>';
+                    }
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    dentisteriename_select.innerHTML = optionHTML;
+                });
             });
-        });
-    }
-</script>
-{%endif%}
+        }
+    </script>
+    {%endif%}
 </body>
+
 </html>

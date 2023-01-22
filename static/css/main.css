@@ -1,7 +1,7 @@
 * {
   font-family: Arial, sans-serif;
  }
-img {
+.padding img {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -22,11 +22,22 @@ input {
   display: inline-block;
   border-radius: 5px;
 }
-
+.cursor-pointer{
+  cursor: pointer;
+}
+.add-icon-view{
+  display: flex;
+  justify-content: flex-end;
+}
 a:hover,
 a:active,
 input[type=submit]:default {
   background-color: #36013f;
+  color: white;
+  cursor: pointer;
+}
+.ic-view:hover{
+  background-color: transparent;
   color: white;
   cursor: pointer;
 }
@@ -49,7 +60,9 @@ select{
   width: 150px!important;
   margin-top: 10px; 
  }
- 
+ .add-icon-view img{
+  right: 0px;
+ }
  .align-center-div input{width: auto !important;padding-left:8px!important;padding-right:8px!important}
 .section-view input{text-align: left;padding-left:12px;width:30%;border:none;}
 .section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
@@ -87,16 +100,24 @@ select{
   display: inline-block;
   border-radius: 5px;
 }
+.flex-row{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+
 .bg-login{
-  background-color: #F5F5F5;
+  background-color: #e5e5e5;
   height: 85vh;
 }
 .row-view {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100vh;
-  background-color: #f1f1f1;
+  height: max-content;
+  min-height: 100vh;
+  background-color: #e5e5e5;
 }
 .marginleft{
   margin-left: 500px;
@@ -138,7 +159,14 @@ hr{
   background-color: #D5D5D5;
   border: none;
 }
-
+.iconMenu{
+  display: inline-block;
+  padding-right: 10px;
+  vertical-align: top;  
+}
+a:hover{
+  text-decoration: none!important;
+}
 .inneritems {
   display: inline;
 }
@@ -149,6 +177,44 @@ hr{
   background-color: white;
 
 }
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bodyCont{width:calc( 100% - 265px );}
 .header-content{
   background-color: white;
   width: 100%;
@@ -156,11 +222,11 @@ hr{
   display: flex;
   justify-content: space-between; 
   align-items: center;
-  padding:10px ;
+  padding:10px 30px;
   flex-direction: row;
 }
 .dropbtn {
-  background-color: grey;
+  background-color: #36013f;
   color: white;
   padding: 8px;
   font-size: 12px;
@@ -168,13 +234,17 @@ hr{
   cursor: pointer;
   border-radius: 20px;
   margin-left: 10px;
-  margin-right: 20px;
+  margin-right: 0px;
 }
 
-.dropbtn:hover, .dropbtn:focus {
+.dropdown-content a:hover, .dropdown-content a:focus {
   background-color: lightgray;
+  color:#000;
 }
-
+.dash-section{
+  display: flex;
+  justify-content: space-between;
+}
 .dropdown {
   position: relative;
   display: inline-block;
@@ -184,11 +254,13 @@ hr{
   display: none;
   position: absolute;
   background-color: #f1f1f1;
-  min-width: 160px;
+  min-width: 210px;
+  padding: 10px 0;
   overflow: auto;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
   margin-right: 10px;
+  right:0;
 }
 .floatright{
   float: right;
@@ -196,12 +268,10 @@ hr{
 
 .dropdown-content a {
   color: black;
-  padding: 12px 16px;
+  padding: 10px 16px;
   text-decoration: none;
   display: block;
 }
-
-.dropdown a:hover {background-color: #ddd;}
 
 .show {display: block;}
 .container-fluid {
@@ -209,7 +279,7 @@ hr{
   padding-left: 15px;
   margin-right: auto;
   margin-left: auto;
-  background-color: #f1f1f1;
+  background-color: #e5e5e5;
   border-color: white;
 }
 ul {
@@ -221,7 +291,6 @@ ul {
   /* position: fixed; */
   height: 100%;
   overflow: auto;
-  border-top-right-radius: 8px;
 }
 
 li a {
@@ -280,7 +349,7 @@ li a:hover:not(.active) {
   font-weight: bold;
 }
 .header {
-  background-color: white;
+  background-color: #36013f;
   height: 50px;
 }
 /* .navbar-inverse {
@@ -292,7 +361,7 @@ li a:hover:not(.active) {
   color: black;
 }
 .section-view{
-  background-color: #F5F5F5;
+  background-color: #e5e5e5;
   padding: 15px;
   border-radius: 8px;
   width:60%;
@@ -354,7 +423,7 @@ li a:hover:not(.active) {
 
 }
 .grid-item-report{
-  background-color: #F5F5F5;
+  background-color: #e5e5e5;
   border-radius: 5px;
   padding: 10px;
   width: 500px;
@@ -386,11 +455,27 @@ li a:hover:not(.active) {
 }
 .img {
   border-radius: 3px;
-  background-color: #f5f5f5;
+  background-color: #e5e5e5;
 }
 .padding {
   padding: 10px;
 }
+.rapportTab a:hover{
+  background:none;
+  border:1px solid #fff;
+  transition: all ease 0.4s;
+}
+.rapportTab a{
+  padding:10px 20px!important;
+  text-align: center;
+  background:#fff;
+  border-radius: 20px;
+  color:#36013f;
+  border:1px solid #fff;
+  display: inline-block;
+  transition: all ease 0.4s;
+}
+.rapportTab{text-align: center;padding-top:16px;}
 .form {
   position: relative;
   z-index: 1;
@@ -588,7 +673,7 @@ aside {
     top:5px;
     right:5px;
   }*/
-
+  
 /* Style the button that is used to open and close the collapsible content */
 .collapsible {
   background-color: #eee;
@@ -644,7 +729,7 @@ aside {
   font-weight: normal;
   border: none;
   border-collapse: collapse;
-  width: 1500px;
+  width: 1380px;
   white-space: nowrap;
   background-color: white;
 }
@@ -656,7 +741,7 @@ aside {
 }
 
 .fl-table td {
-  border-right: 1px solid #f8f8f8;
+  border-right: 1px solid #ededed;
   font-size: 16px;
 }
 #submit{
@@ -671,7 +756,8 @@ aside {
 }
 .fl-table thead th {
   color: #ffffff;
-  background: #1c1c1c;
+  background: #36013f;
+  border:none;
 }
 .fl-table thead th:first-child{
   border-top-left-radius: 5px;
@@ -684,7 +770,7 @@ aside {
 
 .fl-table thead th:nth-child(odd) {
   color: #ffffff;
-  background: #1c1c1c;
+  background: #36013f;
 }
 
 .fl-table tr:nth-child(even) {
@@ -694,7 +780,7 @@ aside {
 /* Responsive */
 @media (max-width: 1100px) {
   .section-view{
-    background-color: #F5F5F5;
+    background-color: #e5e5e5;
     padding: 15px;
     border-radius: 8px;
     margin-right: 0%;
@@ -708,7 +794,7 @@ aside {
 }
   .grid-item-report {
     display: inline-block;
-    background-color: #F5F5F5;
+    background-color: #e5e5e5;
     border-radius: 5px;
     padding: 10px;
     width: 48%;

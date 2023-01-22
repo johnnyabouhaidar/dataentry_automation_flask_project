@@ -26,7 +26,7 @@
         <!-- <h2>
         Qu'est-ce que tu aimerais faire?
     </h2> -->
-    <div>
+    <div class="allMenu">
         <ul>
             <div class="padding">
                 <img class="img" src="./../static/logo.png" alt="Trulli" width="230" height="auto" />
@@ -34,32 +34,33 @@
             <br />
             {%if user_role == 'admin'%}
             <!-- <li><a href="{{url_for('user')}}"><span class="white">Gestion des Utilisateurs</span></a></li> -->
-            <li> <a href="{{url_for('setup')}}"><span class="white">Configuration des Constantes</span></a></li>
+            <li> <a href="{{url_for('setup')}}"><span class="iconMenu"><img src="./../static/configuration.svg" alt="Configuration" width="20" height="20" /></span><span class="white">Configuration des Constantes</span></a></li>
             {%endif%}
             <hr />
-            <li><a href="{{url_for('doctor')}}"><span class="white">Ajouter des données Docteur</span></a></li>
-            <li><a href="{{url_for('payment')}}"><span class="white">Ajouter des données Paiement</span></a></li>
-            <li><a href="{{url_for('facturation')}}"><span class="white">Ajouter des données Facturation</span></a></li>
-            <li><a href="{{url_for('fraismateriel')}}"><span class="white">Ajouter des données Frais Materiele</span></a></li>
-            <li><a href="{{url_for('dentisterie')}}"><span class="white">Ajouter des données Dentaires</span></a></li>
+            <li><a href="{{url_for('doctor')}}"><span class="iconMenu"><img src="./../static/medecine.svg" alt="Medecine" width="20" height="20" /></span><span class="white">Parametre du Médecin</span></a></li>
+            <li><a href="{{url_for('payment')}}"><span class="iconMenu"><img src="./../static/donnees-paiment.svg" alt="Paiement" width="20" height="20" /></span><span class="white">Données Paiement</span></a></li>
+            <li><a href="{{url_for('facturation')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Facturation" width="20" height="20" /></span><span class="white">Données Facturation</span></a></li>
+            <li><a href="{{url_for('fraismateriel')}}"><span class="iconMenu"><img src="./../static/frais.svg" alt="Frais Matériele" width="20" height="20" /></span><span class="white">Données Frais Matériele</span></a></li>
+            <li><a href="{{url_for('dentisterie')}}"><span class="iconMenu"><img src="./../static/donnees-dentaire.svg" alt="Donnees Dentaire" width="20" height="20" /></span><span class="white">Données des Dentaires</span></a></li>
             <hr />
-            <li><a href="{{url_for('encaissement')}}"><span class="white">Encaissements-Avance</span></a></li>
-            <li><a href="{{url_for('doctorpayment')}}"><span class="white">Paiement Médecin</span></a></li>
-            <li><a href="{{url_for('reporting')}}"><span class="white">Rapport</span></a></li>
+            <li><a href="{{url_for('encaissement')}}"><span class="iconMenu"><img src="./../static/encaissement.svg" alt="Encaissements Avance" width="20" height="20" /></span><span class="white">Encaissements Avance</span></a></li>
+            <li><a href="{{url_for('doctorpayment')}}"><span class="iconMenu"><img src="./../static/paiment-med.svg" alt="Paiement Médecin" width="20" height="20" /></span><span class="white">Paiement Médecin</span></a></li>
+            <hr />
+            <li class="rapportTab"><a href="{{url_for('reporting')}}">Rapport</a></li>
             <!-- <hr /> -->
             <!-- <li><a href="{{url_for('logout')}}"><span class="white">Déconnecter</span></a></li> -->
         </ul>
     </div>
-    <div class="bodyCont container-fluid">
+    <div class="bodyCont">
         <div class="header-content">
           <div class="dash-title">Tableau de Bord</div>
-          <div class="row">
+          <div class="display-flex">
             <span class="glyphicon glyphicon-user"></span>&nbsp; Bienvenu User
             <div class="dropdown">
-                <button onclick="myFunction()" class="dropbtn">Settings <i class="fa fa-caret-down"></i></button>
+                <button onclick="myFunction()" class="dropbtn">Paramètres <i class="fa fa-caret-down"></i></button>
                 <div id="myDropdown" class="dropdown-content">
-                  <a href="{{url_for('user')}}">Gestion des Utilisateurs</a>
-                  <a href="{{url_for('logout')}}">Déconnecter</a>
+                   <a href="{{url_for('user')}}"> <span class="glyphicon glyphicon-th-list"></span>&nbsp; &nbsp;Gestion des Utilisateurs</a>
+                  <a href="{{url_for('logout')}}"> <span class="glyphicon glyphicon-log-in"></span>&nbsp; &nbsp;Déconnecter</a>
                 </div>
               </div>
             </div>
@@ -75,9 +76,8 @@
           </div>
         </nav> -->
         
-        <div class="padding30">
+        <div class="dash-section padding30">
             
-          <div class="row justify-content-around">
             <div class="col-sm-3 single-section">
               <span class="bold-title">P&L</span><span>$180,594.56</span>
             </div>
@@ -93,14 +93,18 @@
               <span class="bold-title">Facturation Total</span
               ><span>$180,594.56</span>
             </div>
-          </div>
         </div>
-        <div class="row col-sm-12">
-          <div class="col-sm-6 chart-view" id="piechart"></div>
-          <div class="col-sm-6 chart-view" id="barchart"></div>
+        <div class="dash-section padding30">
+          <div class="chart-view" id="piechart"></div>
+          <div class="chart-view" id="columnChart"></div>
+        </div>
+        <div class="dash-section padding30">
+          <div class="chart-view" id="areaChart"></div>
+          <div class="chart-view" id="barchart"></div>
         </div>
       </div>
     </div>
+    
     <script
       type="text/javascript"
       src="https://www.gstatic.com/charts/loader.js"
@@ -112,28 +116,43 @@
       google.charts.setOnLoadCallback(drawChart);
 
       // Draw the chart and set the chart values
+      
       function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ["Task", "Hours per Day"],
-          ["Work", 8],
-          ["Eat", 2],
-          ["TV", 4],
-          ["Gym", 2],
-          ["Sleep", 8],
-        ]);
-
+        var encoptions = { title: "Encaissements", width: 550, height: 400 };
+        const encjson = {{ encdf|tojson }}
+        var encdata = google.visualization.arrayToDataTable(
+         
+        encjson   
+          
+      );
+      var payoptions = { title: "Paiments", width: 550, height: 400 };
+      const paymentjson = {{ paymentgrph|tojson }}
+        var paymentdata = google.visualization.arrayToDataTable(
+         
+        paymentjson   
+          
+      );
         // Optional; add a title and set the width and height of the chart
-        var options = { title: "My Average Day", width: 550, height: 400 };
+        
 
         // Display the chart inside the <div> element with id="piechart"
         var piechart = new google.visualization.PieChart(
           document.getElementById("piechart")
         );
-        piechart.draw(data, options);
+        piechart.draw(encdata, encoptions);
+        var columnChart = new google.visualization.ColumnChart(
+          document.getElementById("columnChart")
+        );
+        columnChart.draw(paymentdata, payoptions);
         var barchart = new google.visualization.BarChart(
           document.getElementById("barchart")
         );
-        barchart.draw(data, options);
+        barchart.draw(paymentdata, payoptions);
+        var areaChart = new google.visualization.AreaChart(
+          document.getElementById("areaChart")
+        );
+        areaChart.draw(paymentdata, payoptions);
+
       }
     </script>
     <script>

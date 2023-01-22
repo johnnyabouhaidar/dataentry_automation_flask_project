@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,117 +9,215 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
+
 <body>
     <div><a href="{{url_for('dashboard')}}"><img src="./../static/back-btn.png" class="back-btn"></a> </div>
 
     <h1 class="header">Ajouter Nouveau {{module_name}}</h1>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+
+            {% for form in forms %}
+            <div class="margin-top"></div>
+
+            <div>
+
+                {%set form_id=loop.index0%}
+                <div class="section-view">
+
+                    <form method="POST" action="" id="{{form_id}}">
+                        <tr>
+                            {% for field in form %}
+
+                            <span class="form-titles">{%if field.label.text != 'Submit' and field.label.text !=
+                                "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
+                                endif %}</span>
+                            {{ field(form=form_id) }}<br><br>
+
+
+                            {% endfor %}
+                            <br><br>
+                        </tr>
+                    </form>
+                </div>
+            </div>
+
+            {%endfor%}
+
+        </div>
+
+    </div>
+
     <!-- <a href="{{url_for('dashboard')}}">🠐 BACK</a> -->
-    
+
     {%with messages = get_flashed_messages() %}
     {%if messages %}
     {%for message in messages %}
-     {{message}}
+    {{message}}
     {%endfor%}
     {%endif%}
-{%endwith%} 
+    {%endwith%}
     <div>
- 
 
-    <div >
-        <button type="button" class="collapsible">+ Ajouter Nouveau</button>
-        <div class="content"> 
-        {% for form in forms %}
-        <div class="margin-top"></div>
 
         <div>
+            <!-- <button type="button" class="collapsible">+ Ajouter Nouveau</button> -->
+            <!-- <div class="content">
+                {% for form in forms %}
+                <div class="margin-top"></div>
+
+                <div>
+
+                    {%set form_id=loop.index0%}
+                    <div class="section-view">
+
+                        <form method="POST" action="" id="{{form_id}}">
+                            <tr>
+                                {% for field in form %}
+
+                                <span class="form-titles">{%if field.label.text != 'Submit' and field.label.text !=
+                                    "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
+                                    endif %}</span>
+                                {{ field(form=form_id) }}<br><br>
+
+
+                                {% endfor %}
+                                <br><br>
+                            </tr>
+                        </form>
+                    </div>
+                </div>
+
+                {%endfor%}
+            </div> -->
+            <div class="margin-top"></div>
+
+            <div class="flex-row float-right">
+
+                <div class="add-icon-view">
+                    <img id="myBtn" class="cursor-pointer" src="./../static/add-icon.png" alt="Dialog" width="30"
+                        height="30" />
+                </div>
+                &nbsp;&nbsp;&nbsp;
+                <div>
+                    {%if searchform%}
+                    <form method="POST" action="" id="searchformid">
+                        {{searchform.searchstring}}
+                        {{searchform.searchfilter}}
+                        {{searchform.searchsubmit}}
+
+                        {{searchform.hidden_tag()}}
+                    </form>
+                    {%endif%}
+                </div>
+            </div>
+            <br>
+            <div class="flex-row">
+                {%set form_id=777%}
+                <form method="POST" action="" id="{{form_id}}">
+                
+                {% for field in export_form %}
+                
+                {%if field.label.text != 'Submit' and field.label.text !=
+                    "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
+                    endif %}
+                {{ field(form=form_id) }}<br><br>
             
-            {%set form_id=loop.index0%}
-            <div class="section-view">
-
-    <form method="POST" action="" id="{{form_id}}">
-        <tr>
-        {% for field in form %}
-       
-        <span class="form-titles">{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{% endif %}</span>
-            {{ field(form=form_id) }}<br><br>
             
-        
-        {% endfor %}
-        <br><br>
-    </tr>
-    </form>
-</div>
-</div>
+            
+                {% endfor %}
+                </form>
+            </div>
+            <br />
+            {%if table|length !=0%}
+            <div class="tableCover">
 
-{%endfor%}
-</div>
-<div class="margin-top"></div>
+                <table class="fl-table" border="1">
+                    <thead>
+                        <tr>
+                            {%for title in headers%}
+                            <th>{{title}}</th>
+                            {%endfor%}
+                            <th></th>
+                            <th></th>
+                        </tr>
 
-{%if searchform%}
-<form method="POST" action="" id="searchformid">
-{{searchform.searchstring}}
-{{searchform.searchfilter}}
-{{searchform.searchsubmit}}
+                    </thead>
+                    {% for value in table %}
+                    <tr>
+                        {%for item in value%}
+                        <td>
+                            {{item}}
+                        </td>
+                        {%endfor%}
+                        {%if user_role == 'admin'%}
+                        <td><a class="ic-view" href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}"><span><img
+                                        src="./../static/icons8-edit.svg" alt="Edit" width="26"
+                                        height="26" /></span></a></td>
+                        <td><a class="ic-view" href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span><img
+                                        src="./../static/icons8-trash.svg" alt="Delete" width="26"
+                                        height="26" /></span></a></td>
+                        {%endif%}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
 
-{{searchform.hidden_tag()}}
-</form>
-{%endif%}
-<br/>
-{%if table|length !=0%}
-<div class="tableCover">
+            {%endif%}
+        </div>
 
-        <table class="fl-table" border="1">
-      <thead>
-            <tr>
-            {%for title in headers%}
-            <th>{{title}}</th>
-            {%endfor%}
-            <th></th>
-            <th></th>
-        </tr>
-        
-    </thead>
-        {% for value in table %}
-        <tr>
-        {%for item in value%}
-            <td>
-        {{item}}
-    </td>
-        {%endfor%}
-        {%if user_role == 'admin'%}
-        <td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}"><span class="table-btn-edit">Éditer</span></a></td>
-        <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span class="table-btn">Effacer</span></a></td>
-        {%endif%}
-        </tr>
-        {% endfor %}
-    </table>
-</div>
-    
-    {%endif%}
     </div>
+    </div>
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
 
-</div>
-</div>
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
 
-<div>
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal 
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
     {%if hasDynamicSelector == True and dbtable == 'fraismateriel'%}
     <script>
         let fraismaterieltype_select = document.getElementById('fraismaterieltype');
         let fraismaterielname_select = document.getElementById('fraismaterielnom');
-    
-        fraismaterieltype_select.onclick = function(){
+
+        fraismaterieltype_select.onclick = function () {
             fraismaterieltype = fraismaterieltype_select.value;
-    
-            fetch('/fraismaterielname/'+fraismaterieltype).then(function(response){
-                response.json().then(function(data){
-                    let optionHTML='';
-                    
-                    optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                    for (let fraismateriel of data.fraismaterielnames){
-                        optionHTML+= '<option value="'+fraismateriel.name+'">'+fraismateriel.name+'</option>';
+
+            fetch('/fraismaterielname/' + fraismaterieltype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    for (let fraismateriel of data.fraismaterielnames) {
+                        optionHTML += '<option value="' + fraismateriel.name + '">' + fraismateriel.name + '</option>';
                     }
-                    
-                    fraismaterielname_select.innerHTML=optionHTML;
+
+                    fraismaterielname_select.innerHTML = optionHTML;
                 });
             });
         }
@@ -126,117 +225,118 @@
     {%endif%}
 
     {%if hasDynamicSelector == True and dbtable == 'payment'%}
-<script>
-    let paymenttype_select = document.getElementById('paiementsType');
-    let paymentname_select = document.getElementById('paiementsNom');
-
-    paymenttype_select.onclick = function(){
-        paymenttype = paymenttype_select.value;
-
-        fetch('/paymentnames/'+paymenttype).then(function(response){
-            response.json().then(function(data){
-                let optionHTML='';
-                
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                for (let paymentname of data.paymentnames){
-                    optionHTML+= '<option value="'+paymentname.name+'">'+paymentname.name+'</option>';
-                }
-                
-                paymentname_select.innerHTML=optionHTML;
-            });
-        });
-    }
-</script>
-{%endif%}
-{%if hasDynamicSelector == True and dbtable == 'facturation'%}
-<script>
-    let facturationtype_select = document.getElementById('facturationType');
-    let facturationname_select = document.getElementById('facturationNom');
-
-    facturationtype_select.onclick = function(){
-        facturationtype = facturationtype_select.value;
-
-        fetch('/facturationnames/'+facturationtype).then(function(response){
-            response.json().then(function(data){
-                let optionHTML='';
-                
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                for (let facturationname of data.facturationnames){
-                    optionHTML+= '<option value="'+facturationname.name+'">'+facturationname.name+'</option>';
-                }
-                
-                facturationname_select.innerHTML=optionHTML;
-            });
-        });
-    }
-</script>
-{%endif%}
-{%if hasDynamicSelector == True and dbtable == 'dentisterie'%}
-<script>
-    let dentisterietype_select = document.getElementById('dentisterieType');
-    let dentisteriename_select = document.getElementById('dentisterieNom');
-
-    dentisterietype_select.onclick = function(){
-        dentisterietype = dentisterietype_select.value;
-
-        fetch('/dentisterienames/'+dentisterietype).then(function(response){
-            response.json().then(function(data){
-                let optionHTML='';
-                
-                optionHTML+= "<option value='addnew'>Ajouter nouveau ?</option>";
-                for (let dentisteriename of data.dentisterienames){
-                    optionHTML+= '<option value="'+dentisteriename.name+'">'+dentisteriename.name+'</option>';
-                }
-                
-                dentisteriename_select.innerHTML=optionHTML;
-            });
-        });
-    }
-</script>
-{%endif%}
-
-
-<script>
-var coll = document.getElementsByClassName("collapsible");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
-} 
-</script>
-<style>
-    .content {
-      padding: 0 18px;
-      background-color: white;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.2s ease-out;
-    }
-    </style>
-    
     <script>
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
-    
-    for (i = 0; i < coll.length; i++) {
-      coll[i].addEventListener("click", function() {
-        this.classList.toggle("active");
-        var content = this.nextElementSibling;
-        if (content.style.maxHeight){
-          content.style.maxHeight = null;
-        } else {
-          content.style.maxHeight = content.scrollHeight + "px";
+        let paymenttype_select = document.getElementById('paiementsType');
+        let paymentname_select = document.getElementById('paiementsNom');
+
+        paymenttype_select.onclick = function () {
+            paymenttype = paymenttype_select.value;
+
+            fetch('/paymentnames/' + paymenttype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    for (let paymentname of data.paymentnames) {
+                        optionHTML += '<option value="' + paymentname.name + '">' + paymentname.name + '</option>';
+                    }
+
+                    paymentname_select.innerHTML = optionHTML;
+                });
+            });
         }
-      });
-    }
+    </script>
+    {%endif%}
+    {%if hasDynamicSelector == True and dbtable == 'facturation'%}
+    <script>
+        let facturationtype_select = document.getElementById('facturationType');
+        let facturationname_select = document.getElementById('facturationNom');
+
+        facturationtype_select.onclick = function () {
+            facturationtype = facturationtype_select.value;
+
+            fetch('/facturationnames/' + facturationtype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    for (let facturationname of data.facturationnames) {
+                        optionHTML += '<option value="' + facturationname.name + '">' + facturationname.name + '</option>';
+                    }
+
+                    facturationname_select.innerHTML = optionHTML;
+                });
+            });
+        }
+    </script>
+    {%endif%}
+    {%if hasDynamicSelector == True and dbtable == 'dentisterie'%}
+    <script>
+        let dentisterietype_select = document.getElementById('dentisterieType');
+        let dentisteriename_select = document.getElementById('dentisterieNom');
+
+        dentisterietype_select.onclick = function () {
+            dentisterietype = dentisterietype_select.value;
+
+            fetch('/dentisterienames/' + dentisterietype).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    optionHTML += "<option value='addnew'>Ajouter nouveau ?</option>";
+                    for (let dentisteriename of data.dentisterienames) {
+                        optionHTML += '<option value="' + dentisteriename.name + '">' + dentisteriename.name + '</option>';
+                    }
+
+                    dentisteriename_select.innerHTML = optionHTML;
+                });
+            });
+        }
+    </script>
+    {%endif%}
+
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        } 
+    </script>
+    <style>
+        .content {
+            padding: 0 18px;
+            background-color: white;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+        }
+    </style>
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
     </script>
 </body>
+
 </html>
