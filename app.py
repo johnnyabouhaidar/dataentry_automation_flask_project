@@ -196,19 +196,25 @@ def get_ls_for_dashboard(query):
     encaissementgraphdf=encaissementgraphdf.round(2)
     ls=encaissementgraphdf.values.tolist()
     ls.insert(0,encaissementgraphdf.columns.tolist())
-    
-    return ls
+    total = encaissementgraphdf["somme"].sum()
+    #total = '{:0,.2f}'.format(total)
+
+    return ls,total
 
 
 @app.route('/dashboard',methods=['GET','POST'])
 #@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
 @login_required
 def dashboard():
-    encls = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where YEAR(encaissementDate)={0} group by banque""".format(2022))
-    paymentls = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment group by paiementsType """)
+    encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where YEAR(encaissementDate)={0} group by banque""".format(2022))
+    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment group by paiementsType """)
+    facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation group by facturationType""")
+    pnl=enctotal-paysum
+    paysum = '{:0,.2f}'.format(paysum)
+    pnl= '{:0,.2f}'.format(pnl)
+    facturationsum='{:0,.2f}'.format(facturationsum)
 
-
-    return render_template('dashboard.html',username=current_user.username,user_role=current_user.role,encdf=encls,paymentgrph=paymentls)
+    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationsum=facturationsum)
 
 
 @app.route('/doctorpayment',methods=['GET','POST'])

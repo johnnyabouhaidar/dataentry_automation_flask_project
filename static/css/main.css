@@ -55,6 +55,16 @@ select{
   padding: 8px;
   border-radius: 5px; 
  }
+ .flex-row form label{
+color: white;
+ }
+ #export_submit{
+  background: url("../xls.png") no-repeat left;
+  background-size: 26px;
+  color: #10793F;
+  padding-left: 30px !important;
+  border-color: white;
+ }
  .login-form #submit{
   padding-left: 15px!important;
   width: 150px!important;
@@ -77,7 +87,7 @@ select{
   width: 30px;
   height: 30px;
   position: absolute;
-  top: 25px;
+  top: 23px;
   left: 30px
 }
 .table-btn-edit{

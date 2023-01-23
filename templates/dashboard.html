@@ -55,7 +55,7 @@
         <div class="header-content">
           <div class="dash-title">Tableau de Bord</div>
           <div class="display-flex">
-            <span class="glyphicon glyphicon-user"></span>&nbsp; Bienvenu User
+            <span class="glyphicon glyphicon-user"></span>&nbsp; Bienvenu {{username}}
             <div class="dropdown">
                 <button onclick="myFunction()" class="dropbtn">Paramètres <i class="fa fa-caret-down"></i></button>
                 <div id="myDropdown" class="dropdown-content">
@@ -79,19 +79,19 @@
         <div class="dash-section padding30">
             
             <div class="col-sm-3 single-section">
-              <span class="bold-title">P&L</span><span>$180,594.56</span>
+              <span class="bold-title">P&L</span><span>CHF {{pnl}}</span>
             </div>
             <div class="col-sm-1"></div>
 
             <div class="col-sm-3 single-section">
-              <span class="bold-title">Paiment Total</span
-              ><span>$180,594.56</span>
+              <span class="bold-title">Paiement Total</span
+              ><span>CHF {{paysum}}</span>
             </div>
             <div class="col-sm-1"></div>
 
             <div class="col-sm-3 single-section">
               <span class="bold-title">Facturation Total</span
-              ><span>$180,594.56</span>
+              ><span>CHF {{facturationsum}}</span>
             </div>
         </div>
         <div class="dash-section padding30">
@@ -125,7 +125,7 @@
         encjson   
           
       );
-      var payoptions = { title: "Paiments", width: 550, height: 400 };
+      var payoptions = { title: "Paiements", width: 550, height: 400 };
       const paymentjson = {{ paymentgrph|tojson }}
         var paymentdata = google.visualization.arrayToDataTable(
          

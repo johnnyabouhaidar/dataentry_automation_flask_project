@@ -17,40 +17,29 @@
 
     <!-- The Modal -->
     <div id="myModal" class="modal">
-
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
-
             {% for form in forms %}
             <div class="margin-top"></div>
-
             <div>
-
                 {%set form_id=loop.index0%}
                 <div class="section-view">
-
                     <form method="POST" action="" id="{{form_id}}">
                         <tr>
                             {% for field in form %}
-
                             <span class="form-titles">{%if field.label.text != 'Submit' and field.label.text !=
                                 "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
                                 endif %}</span>
                             {{ field(form=form_id) }}<br><br>
-
-
                             {% endfor %}
                             <br><br>
                         </tr>
                     </form>
                 </div>
             </div>
-
             {%endfor%}
-
         </div>
-
     </div>
 
     <!-- <a href="{{url_for('dashboard')}}">🠐 BACK</a> -->
@@ -98,7 +87,6 @@
             <div class="margin-top"></div>
 
             <div class="flex-row float-right">
-
                 <div class="add-icon-view">
                     <img id="myBtn" class="cursor-pointer" src="./../static/add-icon.png" alt="Dialog" width="30"
                         height="30" />
@@ -118,6 +106,7 @@
             </div>
             <br>
             <div class="flex-row">
+                
                 {%set form_id=777%}
                 <form method="POST" action="" id="{{form_id}}">
                 
@@ -126,7 +115,7 @@
                 {%if field.label.text != 'Submit' and field.label.text !=
                     "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
                     endif %}
-                {{ field(form=form_id) }}<br><br>
+                {{ field(form=form_id) }}
             
             
             
