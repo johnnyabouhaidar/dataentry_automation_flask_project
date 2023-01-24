@@ -99,8 +99,8 @@
           <div class="chart-view" id="columnChart"></div>
         </div>
         <div class="dash-section padding30">
-          <div class="chart-view" id="areaChart"></div>
           <div class="chart-view" id="barchart"></div>
+          <!--<div class="chart-view" id="areaChart"></div>-->
         </div>
       </div>
     </div>
@@ -132,6 +132,13 @@
         paymentjson   
           
       );
+      var facturationoptions = { title: "Facturations", width: 550, height: 400 };
+      const facturationjson = {{ facturationgraph|tojson }}
+        var facturationdata = google.visualization.arrayToDataTable(
+         
+        facturationjson   
+          
+      );      
         // Optional; add a title and set the width and height of the chart
         
 
@@ -147,7 +154,7 @@
         var barchart = new google.visualization.BarChart(
           document.getElementById("barchart")
         );
-        barchart.draw(paymentdata, payoptions);
+        barchart.draw(facturationdata, facturationoptions);
         var areaChart = new google.visualization.AreaChart(
           document.getElementById("areaChart")
         );

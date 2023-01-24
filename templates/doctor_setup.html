@@ -84,9 +84,27 @@
                     {%if user_role == 'admin'%}
                     <td><a class="ic-view" href="{{url_for('load_doctor',tbl=dbtable,id=value[0])}}"><img
                                 src="./../static/icons8-edit.svg" alt="Edit" width="26" height="26" /></span></a></td>
-                    <td><a class="ic-view" href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><img
+                    <td><a onclick="document.getElementById('modal{{value[0]}}').style.display='block'"  class="ic-view"><img
                                 src="./../static/icons8-trash.svg" alt="Delete" width="26" height="26" /></span></a>
                     </td>
+
+                    <div id="modal{{value[0]}}" class="modal">
+                        <div class="modal-content-delete">
+
+                        <span onclick="document.getElementById('modal{{value[0]}}').style.display='none'" class="close" title="Close Modal">&times;</span>
+                        <form action="/action_page.php">
+                          <div class="container_modaldelete">
+                            <h1>Supprimer le compte</h1>
+                            <p>Êtes-vous sûr que vous voulez supprimer?</p>
+                      
+                            <div class="clearfix">
+                              <a onclick="document.getElementById('modal{{value[0]}}').style.display='none'" type="button" class="cancelbtn">Annuler</a>
+                              <a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}" type="button" class="deletebtn">Effacer</a>
+                            </div>
+                          </div>
+                        </form>
+                        </div>
+                      </div>
                     {%endif%}
 
                 </tr>

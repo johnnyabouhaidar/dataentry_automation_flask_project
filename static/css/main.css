@@ -110,6 +110,47 @@ color: white;
   display: inline-block;
   border-radius: 5px;
 }
+.deletebtn{
+  background-color: #d74338;
+  color: white;
+  border: 2px solid #d74338;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+}
+.deletebtn:hover{
+  background-color: #d74338;
+  color: white;
+  border: 2px solid #d74338;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+}
+.cancelbtn{
+  background-color: white;
+  color: black;
+  border: 2px solid grey;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+}
+.cancelbtn:hover{
+  background-color: white;
+  color: black;
+  border: 2px solid grey;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 5px;
+}
+
 .flex-row{
   display: flex;
   flex-direction: row;
@@ -208,6 +249,15 @@ a:hover{
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
+  border-radius: 10px;
+}
+.modal-content-delete {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  border-radius: 10px;
 }
 
 /* The Close Button */
@@ -255,6 +305,7 @@ a:hover{
   display: flex;
   justify-content: space-between;
 }
+
 .dropdown {
   position: relative;
   display: inline-block;
@@ -545,11 +596,12 @@ li a:hover:not(.active) {
   display: none;
 }
 
-.container {
+.container_modaldelete {
   position: relative;
   z-index: 1;
-  max-width: 300px;
+  max-width: max-content;
   margin: 0 auto;
+  text-align: center;
 }
 
 .container:before,
@@ -936,8 +988,8 @@ button:hover {
 
 /* Float cancel and delete buttons and add an equal width */
 .cancelbtn, .deletebtn {
-  float: left;
-  width: 50%;
+  /* float: left; */
+  width: 40%;
 }
 
 /* Add a color to the cancel button */
@@ -949,6 +1001,7 @@ button:hover {
 /* Add a color to the delete button */
 .deletebtn {
   background-color: #f44336;
+  margin-left: 20px;
 }
 
 /* Add padding and center-align text to the container */
@@ -986,18 +1039,18 @@ hr {
 }
 
 /* The Modal Close Button (x) */
-.close {
+/* .close {
   position: absolute;
   right: 35px;
   top: 15px;
   font-size: 40px;
   font-weight: bold;
   color: #f1f1f1;
-}
+} */
 
 .close:hover,
 .close:focus {
-  color: #f44336;
+  color: black;
   cursor: pointer;
 }
 

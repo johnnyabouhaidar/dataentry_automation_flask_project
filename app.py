@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -214,7 +214,7 @@ def dashboard():
     pnl= '{:0,.2f}'.format(pnl)
     facturationsum='{:0,.2f}'.format(facturationsum)
 
-    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationsum=facturationsum)
+    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationgraph=facturationls,facturationsum=facturationsum)
 
 
 @app.route('/doctorpayment',methods=['GET','POST'])
@@ -1089,11 +1089,28 @@ def get_frais_materiel_df(doctorname):
                 index=["Informatique","Assurances","Blanchisserie","Axenita","TelePhonie Internet","Simplify","Conciergerie","Nettoyage","Loyer Surface Commune","Personnel  {0}% 13 Salaires".format(str(dataa["pourcentagesalaire"])),"Charges Sociale {0}%".format(str(dataa["pourcentagechargessociales"])),"Prix du loyer surface m2"])
 
     composite_df=pd.concat([composite_df, temp_df2])
+    fraisannuel_somme= composite_df["Cout Annuel"].sum()
 
-    return composite_df
+    return composite_df,fraisannuel_somme
 
-def get_dr_details(doctorname):
-    search_query="""select SUM(somme) as Summation from facturation where facturationNom = 'Dr Diana' and facturationType='Facturation médecins'"""
+def get_dr_details_right_table(doctorname=None):
+    
+
+    doctors= db.engine.execute("select doctorname from doctor where isActive=1").fetchall()
+    items=[]
+    for doc in doctors:
+        #print(doc[0])
+        fact_query=db.engine.execute("""select SUM(somme) as Summation from facturation where facturationNom = '{0}' and facturationType='Versement honoraires médecins'""".format(doc[0])).fetchall()
+        retro_query=db.engine.execute("""select SUM(somme) as Summation from facturation where facturationNom = '{0}' and facturationType='Versement honoraires médecins'""".format(doc[0])).fetchall()
+        #print(search_query[0][0])
+        df,fraissomme=get_frais_materiel_df(doc[0])
+        #print(fraissomme.round(2))
+        items.append([doc[0],fraissomme.round(2),fact_query[0][0],retro_query[0][0]])
+    df = pd.DataFrame(items,columns=["docteurNom","FraisAnnuel","CA Total","Retrocession"])
+    return df
+
+#get_dr_details_right_table()
+
     
 
 
@@ -1122,7 +1139,7 @@ def reporting():
 
         dfs.append((varying_paymentsdf.fillna(0).round(2),"Paeiment Medcins"))
 
-        composite_df=get_frais_materiel_df(ind_doctor_form.doctorname.data)
+        composite_df,fraisannuel_somme=get_frais_materiel_df(ind_doctor_form.doctorname.data)
         #print(composite_df)
 
         dfs.append((composite_df.fillna(0).round(2),"Charges Mensuel/Annuel"))
@@ -1181,7 +1198,7 @@ from percentageactivity where docteur='{0}'
         paymentdf=convert_list_to_dataframe(paymentslist)
         paymentdf.set_index('paiementsType',inplace=True)
 
-        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where YEAR(date)=2022 group by YEAR(date) , paiementsType""".format(form.year.data))
+        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where YEAR(date)={0} group by YEAR(date) , paiementsType""".format(form.year.data))
         paymentforgraphdf=convert_list_to_dataframe(paymentforgraphlist)
         paymentforgraphdf.set_index('paiementsType',inplace=True)
 
@@ -1275,12 +1292,16 @@ GROUP BY facturationType""".format(form.year.data))
 doctorname as "docteurNom",
 doctorspeciality as Specialite,
 nblocaux as "No local",
-surfacecentremedical as "m2"
+surfacecentremedical as "m2",
+surfacecommunes/surfacecentremedical*100 as "Surface occupee"
 
-from doctor""")
+from doctor where isActive=1""")
 
         maindf=convert_list_to_dataframe(query_for_general_table)
-        maindf.set_index('docteurNom',inplace=True) 
+        rightdf=get_dr_details_right_table()
+        maindf=pd.merge(maindf,rightdf,on="docteurNom")
+
+        maindf.set_index('docteurNom',inplace=True)
         
         current_date=datetime.datetime.now()
 
