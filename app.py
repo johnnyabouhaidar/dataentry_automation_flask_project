@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -211,8 +211,16 @@ def dashboard():
     facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation group by facturationType""")
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
+    '''paysum=paysum.replace('.','|')
+    paysum=paysum.replace(',','.')
+    paysum=paysum.replace('|',',') '''
+
+
     pnl= '{:0,.2f}'.format(pnl)
+
+
     facturationsum='{:0,.2f}'.format(facturationsum)
+
 
     return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationgraph=facturationls,facturationsum=facturationsum)
 
@@ -238,6 +246,18 @@ def doctorpayment(search=""):
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
+    DoctorPaymentitems_disp=[]
+    
+    for item in DoctorPaymentitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        DoctorPaymentitems_disp.append(itemtmp)
+    
+
+
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
             return redirect(url_for('doctorpayment',search=searchform.searchstring.data))
@@ -259,7 +279,7 @@ def doctorpayment(search=""):
         pass
 
     if "paiement_medecin" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role,searchform=searchform,module_name="Paiement Docteur")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems_disp,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role,searchform=searchform,module_name="Paiement Docteur")
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -280,6 +300,17 @@ def encaissement(search=""):
     encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%'  order by encaissementId DESC".format(search))
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
+
+    encaissementitems_disp=[]
+    
+    for item in encaissementitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        encaissementitems_disp.append(itemtmp)
+    
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -311,7 +342,7 @@ def encaissement(search=""):
         return send_file(excel_report_path)
 
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance",export_form=export2excel_frm)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems_disp,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -330,6 +361,17 @@ def dentisterie(search=""):
     dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%'  order by dentisterieId DESC".format(search))
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
+
+    dentisterieitems_disp=[]
+    
+    for item in dentisterieitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        dentisterieitems_disp.append(itemtmp)
+    
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -353,7 +395,7 @@ def dentisterie(search=""):
             flash("Invalid Data. Please re-check and submit again")
     
     if "dentisterie" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role,searchform=searchform,module_name="Dentisterie")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems_disp,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role,searchform=searchform,module_name="Dentisterie")
     else:
         return render_template('NOT_AUTHORIZED.html')    
 
@@ -399,6 +441,17 @@ def facturation(search=""):
     headersfacturations=facturations.keys()
 
     facturationdf=pd.DataFrame(facturationsitems,columns=headersfacturations)
+
+    facturationsitems_disp=[]
+    
+    for item in facturationsitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        facturationsitems_disp.append(itemtmp)
+
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
@@ -430,7 +483,7 @@ def facturation(search=""):
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation",export_form=export2excel_frm)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems_disp,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -458,6 +511,11 @@ def facturationnames(facturationtype):
 
     return jsonify({'facturationnames':Arry})
 
+def change_format_for_displayed_table(df,idcol_name):
+    
+    pass
+
+
 @app.route('/payments',methods=['GET','POST'])
 @app.route('/payments/search=<search>',methods=['GET','POST'])
 @login_required
@@ -480,6 +538,21 @@ def payment(search=""):
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
     payment_dataframe=pd.DataFrame(paymentitems,columns=headerspayments)
+
+    paymentitems_disp=[]
+    
+    for item in paymentitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        paymentitems_disp.append(itemtmp)
+        
+    
+    
+    #print(type(paymentitems_disp[4]))    
+    
     
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -513,7 +586,7 @@ def payment(search=""):
 
     
     if "payments" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=paymentitems,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement",export_form=export2excel_frm)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=paymentitems_disp,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement",export_form=export2excel_frm)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

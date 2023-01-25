@@ -12,12 +12,12 @@ matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 
 def _draw_main_doctor_table(df):
-    alternating_colors = [['white'] * len(df.columns), ['lightgray'] * len(df.columns)] * len(df)
+    alternating_colors = [['lightgray'] * len(df.columns), ['white'] * len(df.columns)] * len(df)
     alternating_colors = alternating_colors[:len(df)]    
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
     #ax[0].axis('tight')
     ax.axis('off')
-    rowcolors=["white","lightgray"]*len(df)
+    rowcolors=["lightgray","white"]*len(df)
     #print(colors)
     
     the_table = ax.table(cellText=df.values,
@@ -46,13 +46,18 @@ def _draw_main_doctor_table(df):
          
             try: # some texts will be strings that are labels, we can't convert them
                 s = '{:0,.2f}'.format(float(text))
-                s=s.replace('.','|')
+                '''s=s.replace('.','|')
                 s=s.replace(',','.')
-                s=s.replace('|',',')
+                s=s.replace('|',',')'''
                 tobj.set_text(s)
                 #print(s)
             except:
                 pass
+    [t.auto_set_font_size(False) for t in [the_table]]
+    #[t.set_fontsize(8) for t in [the_table]]
+    the_table.auto_set_column_width(col=list(range(len(df.columns))))
+    fig.suptitle("Résumé des informations sur le médecin",fontweight="bold")
+
     return fig
 
 
@@ -61,7 +66,7 @@ def _draw_as_table(df, pagesize,title,df2):
 
 
     
-    alternating_colors = [['white'] * len(df.columns), ['lightgray'] * len(df.columns)] * len(df)
+    alternating_colors = [['lightgray'] * len(df.columns), ['white'] * len(df.columns)] * len(df)
     alternating_colors = alternating_colors[:len(df)]
     if title=="Encaissement":
         fig, ax = plt.subplots(1, 2, figsize=(10, 10))
@@ -69,7 +74,7 @@ def _draw_as_table(df, pagesize,title,df2):
         fig, ax = plt.subplots(2, 1, figsize=(10, 10))
     #ax[0].axis('tight')
     ax[0].axis('off')
-    rowcolors=["white","lightgray"]*len(df)
+    rowcolors=["lightgray","white"]*len(df)
     
     
     #print(colors)
@@ -100,9 +105,9 @@ def _draw_as_table(df, pagesize,title,df2):
          
             try: # some texts will be strings that are labels, we can't convert them
                 s = '{:0,.2f}'.format(float(text))
-                s=s.replace('.','|')
+                '''s=s.replace('.','|')
                 s=s.replace(',','.')
-                s=s.replace('|',',')
+                s=s.replace('|',',')'''
                 tobj.set_text(s)
                 #print(s)
             except:
