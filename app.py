@@ -24,8 +24,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -866,6 +866,7 @@ def edit_entry(tbl,id):
             else:    
                 qry.paimentnom=form.paimentnom.data
             qry.doctorpaiementsomme=form.doctorpaiementsomme.data
+            qry.date=form.date.data
             
             #qry=form
             db.session.commit()
@@ -1170,6 +1171,24 @@ def get_frais_materiel_df(doctorname):
 
     return composite_df,fraisannuel_somme
 
+def get_activity_for_doctor(doctorname):
+    percentagelist=db.engine.execute("""
+    select 
+de as DE,
+a as A,
+pourcentages as Pourcentages,
+sum( isNull((a-(de-1000))*(pourcentages/100), 0) ) over (order by de) as "Revenu annuel brut",
+sum( isNull((a-(de-1000))*(pourcentages/100), 0) ) over (order by de)*100/a as "Pourcentage net de charges",
+a-sum( isNull((a-(de-1000))*(pourcentages/100), 0) ) over (order by de) as "Mon Revenu annuel"
+
+
+
+from percentageactivity where docteur='{0}'
+    """.format(doctorname))
+    percentagedf=convert_list_to_dataframe(percentagelist)
+
+    return percentagedf
+
 def get_dr_details_right_table(doctorname=None):
     
 
@@ -1177,13 +1196,16 @@ def get_dr_details_right_table(doctorname=None):
     items=[]
     for doc in doctors:
         #print(doc[0])
-        fact_query=db.engine.execute("""select SUM(somme) as Summation from facturation where facturationNom = '{0}' and facturationType='Versement honoraires médecins'""".format(doc[0])).fetchall()
+        fact_query=db.engine.execute("""select SUM(somme) as Summation from facturation where facturationNom = '{0}' and facturationType='Facturation médecins'""".format(doc[0])).fetchall()
         retro_query=db.engine.execute("""select SUM(somme) as Summation from facturation where facturationNom = '{0}' and facturationType='Versement honoraires médecins'""".format(doc[0])).fetchall()
         #print(search_query[0][0])
         df,fraissomme=get_frais_materiel_df(doc[0])
+        act_df=get_activity_for_doctor(doc[0])
+        rev_centre=act_df["Revenu annuel brut"].max()
+        #print(rev_centre)
         #print(fraissomme.round(2))
-        items.append([doc[0],fraissomme.round(2),fact_query[0][0],retro_query[0][0]])
-    df = pd.DataFrame(items,columns=["docteurNom","FraisAnnuel","CA Total","Retrocession"])
+        items.append([doc[0],fraissomme.round(2),fact_query[0][0],retro_query[0][0],rev_centre])
+    df = pd.DataFrame(items,columns=["docteurNom","FraisAnnuel","CA Total","Retrocession","Revenu Centre"])
     return df
 
 #get_dr_details_right_table()
@@ -1234,20 +1256,8 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
 
         dfs.append((leasingdf.fillna(0).round(2),"Locations(Leasing)"))
 
-        percentagelist=db.engine.execute("""
-        select 
-de as DE,
-a as A,
-pourcentages as Pourcentages,
-sum( isNull((a-(de-1000))*(pourcentages/100), 0) ) over (order by de) as "Revenu annuel brut",
-sum( isNull((a-(de-1000))*(pourcentages/100), 0) ) over (order by de)*100/a as "Pourcentage net de charges",
-a-sum( isNull((a-(de-1000))*(pourcentages/100), 0) ) over (order by de) as "Mon Revenu annuel"
 
-
-
-from percentageactivity where docteur='{0}'
-        """.format(ind_doctor_form.doctorname.data))
-        percentagedf=convert_list_to_dataframe(percentagelist)
+        percentagedf=get_activity_for_doctor(ind_doctor_form.doctorname.data)
         #percentagedf.set_index("LocationNom",inplace=True)
 
         dfs.append((percentagedf.fillna(0).round(2),"Pourcentage D'activite"))        

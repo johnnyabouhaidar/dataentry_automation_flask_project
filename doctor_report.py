@@ -12,32 +12,51 @@ matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 
 def _draw_as_table(df, pagesize,title):
-    alternating_colors = [['white'] * len(df.columns), ['lightgray'] * len(df.columns)] * len(df)
-    alternating_colors = alternating_colors[:len(df)]
-    fig, ax = plt.subplots()
-    ax.axis('tight')
+    alternating_colors = [['lightgray'] * len(df.columns), ['white'] * len(df.columns)] * len(df)
+    alternating_colors = alternating_colors[:len(df)]    
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    #ax[0].axis('tight')
     ax.axis('off')
+    rowcolors=["lightgray","white"]*len(df)
+    #print(colors)
     
     the_table = ax.table(cellText=df.values,
                         rowLabels=df.index,
                         colLabels=df.columns,
-                        rowColours=['lightgreen']*len(df),
-                        colColours=['lightgreen']*len(df.columns),
+                        rowColours=rowcolors,
+                        #colColours=['gray']*len(df.columns),
                         cellColours=alternating_colors,
                         loc='center',
+                        
+                        
                         )
-    
-    rowss=len(df)
-    ax.set_title(title,y=rowss*0.04+0.52)
-    #the_table.set_title("Title Goes Here...")
+    for key, cell in the_table.get_celld().items():
+        cell.set_linewidth(0)
+
+    xtls = ax.get_xticklabels()
+    xtls = [i.get_text() for i in xtls]
+
+    ax.set_xticklabels([])
+
+    t = ax.tables[0]
+    for c in t.get_children():
+        tobj = c.get_text()
+        text = tobj.get_text()
+        if text not in xtls:
+         
+            try: # some texts will be strings that are labels, we can't convert them
+                s = '{:0,.2f}'.format(float(text))
+                '''s=s.replace('.','|')
+                s=s.replace(',','.')
+                s=s.replace('|',',')'''
+                tobj.set_text(s)
+                #print(s)
+            except:
+                pass
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
     the_table.auto_set_column_width(col=list(range(len(df.columns))))
-    #ax.set_title("Your title",  pad=20)
-    #plt.title("test",loc="left")
-    
-    #plt.text(-0.05,0.095,"Encaissement-Avance Totale:",ha='left',va='center',size=15)
-
+    fig.suptitle("Résumé des informations sur le médecin",fontweight="bold")
 
     return fig
 
