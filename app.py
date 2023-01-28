@@ -11,6 +11,8 @@ import datetime
 from report import *
 from doctor_report import *
 import pandas as pd
+from datetime import datetime, timedelta,date
+from dateutil import relativedelta
 
 #from UserClass import *
 
@@ -163,6 +165,9 @@ class Percentageactivity(db.Model):
     pourcentages=db.Column(db.Float,nullable=False)
 
 
+class Setting(db.Model):
+    settingsid=db.Column(db.Integer,primary_key=True)
+    moisavant=db.Column(db.Integer,nullable=False)
 
 
 @app.route('/')
@@ -267,13 +272,22 @@ def doctorpayment(search=""):
         print(searchform.errors)
 
     if form.validate_on_submit():
-        if form.paimentnom.data=="addnew":
-            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnomALT.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:        
+            if form.paimentnom.data=="addnew":
+                new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnomALT.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
+            else:
+                new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
+            if isinstance(form.doctorpaiementsomme.data, int) or isinstance(form.doctorpaiementsomme.data, float) and form.is_submitted():
+                db.session.add(new_doctorpayment)
+                db.session.commit()
+                return redirect(url_for('doctorpayment'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
         else:
-            new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnom.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
-        db.session.add(new_doctorpayment)
-        db.session.commit()
-        return redirect(url_for('doctorpayment'))
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")            
     else:
         #flash("Invalid Data: ",form.errors)
         pass
@@ -321,16 +335,22 @@ def encaissement(search=""):
         print(searchform.errors)
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
-        if form.encaissementNom.data!="addnew":
-            new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.encaissementDate.data.year) * 12 + date.today().month - form.encaissementDate.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:        
+            if form.encaissementNom.data!="addnew":
+                new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
+            else:
+                new_encaissement = Encaissement(encaissementNom=form.encaissementNomALT.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
+            if isinstance(form.montant.data,int) or isinstance(form.montant.data,float):
+                db.session.add(new_encaissement)
+                db.session.commit()
+                return redirect(url_for('encaissement'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
         else:
-            new_encaissement = Encaissement(encaissementNom=form.encaissementNomALT.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
-        if isinstance(form.montant.data,int) or isinstance(form.montant.data,float):
-            db.session.add(new_encaissement)
-            db.session.commit()
-            return redirect(url_for('encaissement'))
-        else:
-            flash("Invalid Data. Please re-check and submit again")
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")        
 
     encaissementdf=pd.DataFrame(encaissementitems,columns=headersencaissement)
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
@@ -382,17 +402,22 @@ def dentisterie(search=""):
         print(searchform.errors)
 
     if form.is_submitted() and request.method=='POST':
-
-        if form.dentisterieNom.data!="addnew":
-            new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNom.data,somme=form.somme.data,date=form.date.data)
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:
+            if form.dentisterieNom.data!="addnew":
+                new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNom.data,somme=form.somme.data,date=form.date.data)
+            else:
+                new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNomALT.data,somme=form.somme.data,date=form.date.data)
+            if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+                db.session.add(new_dentisterie)
+                db.session.commit()
+                return redirect(url_for('dentisterie'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
         else:
-            new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNomALT.data,somme=form.somme.data,date=form.date.data)
-        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
-            db.session.add(new_dentisterie)
-            db.session.commit()
-            return redirect(url_for('dentisterie'))
-        else:
-            flash("Invalid Data. Please re-check and submit again")
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")                
     
     if "dentisterie" in current_user.access or current_user.access=="all":
         return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems_disp,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role,searchform=searchform,module_name="Dentisterie")
@@ -469,17 +494,22 @@ def facturation(search=""):
         print(searchform.errors)
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
-
-        if form.facturationNom.data!="addnew":
-            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:
+            if form.facturationNom.data!="addnew":
+                new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
+            else:
+                new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNomALT.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
+            if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+                db.session.add(new_facturation)
+                db.session.commit()
+                return redirect(url_for('facturation'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
         else:
-            new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNomALT.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
-        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
-            db.session.add(new_facturation)
-            db.session.commit()
-            return redirect(url_for('facturation'))
-        else:
-            flash("Invalid Data. Please re-check and submit again")
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")        
     
 
     if "facturation" in current_user.access or current_user.access=="all":
@@ -564,16 +594,22 @@ def payment(search=""):
    
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
-        if form.paiementsNom.data!="addnew":
-            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:
+            if form.paiementsNom.data!="addnew":
+                new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
+            else:
+                new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
+            if isinstance(form.somme.data, int) or isinstance(form.somme.data, float) and form.is_submitted():
+                db.session.add(new_payment)
+                db.session.commit()
+                return redirect(url_for('payment'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
         else:
-            new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNomALT.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
-        if isinstance(form.somme.data, int) or isinstance(form.somme.data, float) and form.is_submitted():
-            db.session.add(new_payment)
-            db.session.commit()
-            return redirect(url_for('payment'))
-        else:
-            flash("Invalid Data. Please re-check and submit again")
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")
 
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
@@ -669,16 +705,22 @@ def fraismateriel(search=""):
         print(searchform.errors)
 
     if form.is_submitted() and request.method=='POST' and form.submit.data:
-        if form.fraismaterielnom.data!="addnew":
-            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnom.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.fraismaterieldate.data.year) * 12 + date.today().month - form.fraismaterieldate.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:                
+            if form.fraismaterielnom.data!="addnew":
+                new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnom.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
+            else:
+                new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnomALT.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
+            if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float) and form.is_submitted():
+                db.session.add(new_fraismateriel)
+                db.session.commit()
+                return redirect(url_for('fraismateriel'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
         else:
-            new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnomALT.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
-        if isinstance(form.fraismaterielsomme.data, int) or isinstance(form.fraismaterielsomme.data, float) and form.is_submitted():
-            db.session.add(new_fraismateriel)
-            db.session.commit()
-            return redirect(url_for('fraismateriel'))
-        else:
-            flash("Invalid Data. Please re-check and submit again")
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")
     
     fraismaterieldf=pd.DataFrame(fraismaterielitems,columns=headersfraismateriel)
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
@@ -1418,6 +1460,17 @@ def setup():
     paymenttypes=db.engine.execute("select * from paymenttype")
     paymenttypesitems=paymenttypes.fetchall()
     headerspaymenttypes=paymenttypes.keys()
+
+    qry = Setting.query.filter().first()
+    #doc = qry.first()
+    
+    
+    settingsForm = SettingsForm(obj=qry)
+
+
+    if settingsForm.validate_on_submit():
+        qry.moisavant=settingsForm.moisavant.data
+        db.session.commit()
     
     if form1.validate_on_submit():
         new_payment_type =Paymenttype(paiementsType=form1.paymenttype.data)
@@ -1460,7 +1513,7 @@ def setup():
 
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
+        return render_template('setup.html',settingsForms=[settingsForm],forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

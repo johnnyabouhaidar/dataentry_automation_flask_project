@@ -207,4 +207,9 @@ class PercentageactivityForm(FlaskForm):
     submit=SubmitField("Submit")
 
 
+class SettingsForm(FlaskForm):
+    moisavant=IntegerField(label="mois avant la saisie des données",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
+    
+    submit=SubmitField("Submit")
+
 

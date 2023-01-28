@@ -19,6 +19,25 @@
   <!-- <a href="{{url_for('dashboard')}}">Go Back</a> -->
   <!--<div class="grid-container">-->
 
+    <div class="grid-container">
+      {% for form in settingsForms %}
+      <div class="grid-item-report">
+      <label for="div"><b>Settings</b></label><br><br>
+  <form method="POST" action="">
+      {% for field in form %}
+      <tr>
+          <div class="form-titles">
+          <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
+      </div>
+          <span><td>{{ field }}</td></span>
+          <br><br>
+      </tr>
+      {% endfor %}
+  </form>
+  </div>
+  {%endfor%}
+  </div>
+
   {% for form in forms %}
   <button type="button" class="collapsible">{{titles[loop.index0]}}</button>
   <div class="content">
