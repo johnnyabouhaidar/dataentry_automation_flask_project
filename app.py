@@ -11,7 +11,7 @@ import datetime
 from report import *
 from doctor_report import *
 import pandas as pd
-from datetime import datetime, timedelta,date
+from datetime import timedelta,date
 from dateutil import relativedelta
 
 #from UserClass import *
