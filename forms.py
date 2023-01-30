@@ -212,4 +212,11 @@ class SettingsForm(FlaskForm):
     
     submit=SubmitField("Submit")
 
+class StaticItemsForm(FlaskForm):
+    nbdentistehygieniste=IntegerField(label="Nb de dentiste et hygieniste",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
+    nbmedecins=IntegerField(label="Nb de medecins",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
+    nbept=IntegerField(label="Nb de EPT(equivalent plein temps)",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
+    nbemploye=IntegerField(label="Nb d'employes",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
+
+    submit=SubmitField("Submit")
 
