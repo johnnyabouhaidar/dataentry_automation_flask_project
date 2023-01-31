@@ -1,0 +1,60 @@
+select * from constants where year=2023 order by constantsid DESC
+
+
+ALTER TABLE payment
+        ADD Valide nvarchar(50) NULL --Or NOT NULL.
+ 
+    DEFAULT ('pasvalide')--Optional Default-Constraint.
+WITH VALUES --Add if Column is Nullable and you want the Default Value for Existing Records.
+
+
+ALTER TABLE facturation
+        ADD Valide nvarchar(50) NULL --Or NOT NULL.
+ 
+    DEFAULT ('pasvalide')--Optional Default-Constraint.
+WITH VALUES --Add if Column is Nullable and you want the Default Value for Existing Records.
+
+
+
+ALTER TABLE fraismateriel
+        ADD Valide nvarchar(50) NULL --Or NOT NULL.
+ 
+    DEFAULT ('pasvalide')--Optional Default-Constraint.
+WITH VALUES --Add if Column is Nullable and you want the Default Value for Existing Records.
+
+
+
+ALTER TABLE dentisterie
+        ADD Valide nvarchar(50) NULL --Or NOT NULL.
+ 
+    DEFAULT ('pasvalide')--Optional Default-Constraint.
+WITH VALUES --Add if Column is Nullable and you want the Default Value for Existing Records.
+
+
+
+
+ALTER TABLE encaissement
+        ADD Valide nvarchar(50) NULL --Or NOT NULL.
+ 
+    DEFAULT ('pasvalide')--Optional Default-Constraint.
+WITH VALUES --Add if Column is Nullable and you want the Default Value for Existing Records.
+
+
+
+
+ALTER TABLE doctorpayment
+        ADD Valide nvarchar(50) NULL --Or NOT NULL.
+ 
+    DEFAULT ('pasvalide')--Optional Default-Constraint.
+WITH VALUES --Add if Column is Nullable and you want the Default Value for Existing Records.
+
+
+
+
+
+UPDATE payment SET Valide = 'valide';
+UPDATE facturation SET Valide = 'valide';
+UPDATE dentisterie SET Valide = 'valide';
+UPDATE fraismateriel SET Valide = 'valide';
+UPDATE encaissement SET Valide = 'valide';
+UPDATE doctorpayment SET Valide = 'valide';

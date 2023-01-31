@@ -170,6 +170,15 @@ class Setting(db.Model):
     moisavant=db.Column(db.Integer,nullable=False)
 
 
+class Constants(db.Model):
+    constantsid=db.Column(db.Integer,primary_key=True)
+    nbdentistehygieniste=db.Column(db.Float,nullable=False)
+    nbmedecins=db.Column(db.Float,nullable=False)
+    nbept=db.Column(db.Float,nullable=False)
+    nbemployes=db.Column(db.Float,nullable=False)
+    year=db.Column(db.Integer,nullable=False)
+
+
 @app.route('/')
 def home():
     
@@ -212,8 +221,8 @@ def get_ls_for_dashboard(query):
 @login_required
 def dashboard():
     encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where YEAR(encaissementDate)={0} group by banque""".format(2022))
-    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment group by paiementsType """)
-    facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation group by facturationType""")
+    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where YEAR(date)={0} group by paiementsType """.format(2022))
+    facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where YEAR(date)={0} group by facturationType""".format(2022))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
     '''paysum=paysum.replace('.','|')
@@ -1075,6 +1084,13 @@ def delete_entry(tbl,tblid,id):
     else:
         return redirect(url_for(tbl))
 
+@app.route('/validate_entry/tbl=<tbl>/tblid=<tblid>/id=<id>',methods=['GET','POST'])
+@login_required
+def validate_entry(tbl,tblid,id):
+    db.engine.execute("UPDATE \"{0}\" SET Valide ='valide' where {1}={2}".format(tbl,tblid,id))
+    db.session.commit()
+    return redirect(url_for(tbl))
+
 
 
 @app.route('/user',methods=['GET','POST'])
@@ -1462,17 +1478,34 @@ def setup():
     headerspaymenttypes=paymenttypes.keys()
 
     qry = Setting.query.filter().first()
+    staticitemsqry = Constants.query.filter().order_by(Constants.constantsid.desc()).first()
     #doc = qry.first()
     
     
     settingsForm = SettingsForm(obj=qry)
 
-    staticitemsForm=StaticItemsForm()
+    staticitemsForm=StaticItemsForm(obj=staticitemsqry)
 
+    if staticitemsForm.validate_on_submit():
+        try:
+            new_static =Constants(nbdentistehygieniste=staticitemsForm.nbdentistehygieniste.data,nbmedecins=staticitemsForm.nbmedecins.data,nbept=staticitemsForm.nbept.data,nbemployes=staticitemsForm.nbemployes.data,year=datetime.datetime.now().year)
+            db.session.add(new_static)
+            db.session.commit()            
+
+        
+
+        except:
+            pass
+        
 
     if settingsForm.validate_on_submit():
-        qry.moisavant=settingsForm.moisavant.data
-        db.session.commit()
+        try:
+            qry.moisavant=settingsForm.moisavant.data
+            db.session.commit()
+        except:
+            new_setting=Setting(moisavant=settingsForm.moisavant.data)
+            db.session.add(new_setting)
+            db.session.commit()
     
     if form1.validate_on_submit():
         new_payment_type =Paymenttype(paiementsType=form1.paymenttype.data)
@@ -1515,7 +1548,7 @@ def setup():
 
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
+        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

@@ -22,7 +22,7 @@
     <div class="grid-container">
       {% for form in settingsForms %}
       <div class="grid-item-report">
-      <label for="div"><b>Settings</b></label><br><br>
+      <label for="div"><b>{{titlescards[loop.index0]}}</b></label><br><br>
   <form method="POST" action="">
       {% for field in form %}
       <tr>
