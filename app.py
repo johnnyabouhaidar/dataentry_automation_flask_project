@@ -26,8 +26,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -1228,6 +1228,64 @@ def get_frais_materiel_df(doctorname):
     fraisannuel_somme= composite_df["Cout Annuel"].sum()
 
     return composite_df,fraisannuel_somme
+
+def summary_table_main_report(year):
+    constants_current=db.engine.execute("""SELECT TOP 1 * FROM constants where year = {0} ORDER BY constantsid DESC""".format(year))
+    constants_current_df=convert_list_to_dataframe(constants_current)
+    constants_year_prior=db.engine.execute("""SELECT TOP 1 * FROM constants where year = {0} ORDER BY constantsid DESC""".format(year-1))
+    constants_year_prior_df=convert_list_to_dataframe(constants_year_prior)
+    salary_total_curr=db.engine.execute("""select SUM(somme) as somme from payment where paiementsNom LIKE '%salaire%' and Valide='valide' and YEAR(date)={0}""".format(year))
+    salary_total_curr_df=convert_list_to_dataframe(salary_total_curr)
+    salary_total_yearprior=db.engine.execute("""select SUM(somme) as somme from payment where paiementsNom LIKE '%salaire%' and Valide='valide' and YEAR(date)={0}""".format(year-1))
+    salary_total_yearprior_df=convert_list_to_dataframe(salary_total_yearprior)
+    pay_total_curr=db.engine.execute("""select SUM(somme) as somme from payment where paiementsNom NOT LIKE '%salaire%' and Valide='valide' and YEAR(date)={0}""".format(year))
+    pay_total_curr_df=convert_list_to_dataframe(pay_total_curr)
+    pay_total_yearprior=db.engine.execute("""select SUM(somme) as somme from payment where paiementsNom NOT LIKE '%salaire%' and Valide='valide' and YEAR(date)={0}""".format(year-1))
+    pay_total_yearprior_df=convert_list_to_dataframe(pay_total_yearprior)
+    enc_caisse_curr=db.engine.execute("""select SUM(montant) as somme from encaissement where encaissementNom LIKE '%caisse des m%' and Valide='valide' and YEAR(encaissementDate)={0}""".format(year))
+    enc_caisse_curr_df=convert_list_to_dataframe(enc_caisse_curr)
+    enc_caisse_yearprior=db.engine.execute("""select SUM(montant) as somme from encaissement where encaissementNom LIKE '%caisse des m%' and Valide='valide' and YEAR(encaissementDate)={0}""".format(year-1))
+    enc_caisse_yearprior_df=convert_list_to_dataframe(enc_caisse_yearprior)
+
+
+    if len(constants_current_df)>0:
+        nbept_curr=constants_current_df.iloc[0]["nbept"]
+        nbemployes_curr=constants_current_df.iloc[0]["nbemployes"]
+        nbmedecins_curr=constants_current_df.iloc[0]["nbmedecins"]
+        nbdentistehygieniste_curr=constants_current_df.iloc[0]["nbdentistehygieniste"]
+    else:
+        nbept_curr=0
+        nbemployes_curr=0
+        nbmedecins_curr=0
+        nbdentistehygieniste_curr=0
+        
+    if len(constants_year_prior_df)>0:
+        nbept_year_prior=constants_year_prior_df.iloc[0]["nbept"]
+        nbemployes_year_prior=constants_year_prior_df.iloc[0]["nbemployes"]
+        nbmedecins_year_prior=constants_year_prior_df.iloc[0]["nbmedecins"]
+        nbdentistehygieniste_year_prior=constants_year_prior_df.iloc[0]["nbdentistehygieniste"]
+    else:
+        nbept_year_prior=0
+        nbemployes_year_prior=0
+        nbmedecins_year_prior=0
+        nbdentistehygieniste_year_prior=0
+
+    if datetime.datetime.now().year==year:
+        multiplier=12
+    else:
+        multiplier=datetime.datetime.now().month
+
+    
+    temp_df2 = pd.DataFrame({
+                "prior year":[enc_caisse_yearprior_df.iloc[0]["somme"],pay_total_yearprior_df.iloc[0]["somme"],salary_total_yearprior_df.iloc[0]["somme"],nbdentistehygieniste_year_prior,nbmedecins_year_prior,nbept_year_prior,nbemployes_year_prior],
+                "current year": [enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr],
+                "projection": [enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr]},
+                index=["Encaissements Caisse medecins","Paiements","Salaires","Nb de dentiste et hygieniste","Nb de medecins","Nb EPT (equivalent plein temps)","Nb d'employes"])
+    
+    print(temp_df2)
+    
+
+summary_table_main_report(2023)
 
 def get_activity_for_doctor(doctorname):
     percentagelist=db.engine.execute("""
