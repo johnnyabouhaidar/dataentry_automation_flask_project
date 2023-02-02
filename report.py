@@ -11,7 +11,7 @@ matplotlib.use('Agg')
 
 from matplotlib.backends.backend_pdf import PdfPages
 
-def _draw_main_doctor_table(df):
+def _draw_main_doctor_table(df,title):
     alternating_colors = [['lightgray'] * len(df.columns), ['white'] * len(df.columns)] * len(df)
     alternating_colors = alternating_colors[:len(df)]    
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
@@ -56,7 +56,7 @@ def _draw_main_doctor_table(df):
     [t.auto_set_font_size(False) for t in [the_table]]
     #[t.set_fontsize(8) for t in [the_table]]
     the_table.auto_set_column_width(col=list(range(len(df.columns))))
-    fig.suptitle("Résumé des informations sur le médecin",fontweight="bold")
+    fig.suptitle(title,fontweight="bold")
 
     return fig
 
@@ -157,7 +157,7 @@ def addlabels(x,y):
     for i in range(len(x)):
         plt.text(i, y[i], y[i], ha = 'center')
 
-def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot,query_for_general_table, numpages=(1, 1), pagesize=(1, 1)):
+def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot,query_for_general_table,resumedf, numpages=(1, 1), pagesize=(1, 1)):
   with PdfPages(filename) as pdf:
     nh, nv = numpages
 
@@ -229,7 +229,10 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot,query_for_general_tabl
                     pdf.savefig()
                     plt.close()
 
-    figg = _draw_main_doctor_table(query_for_general_table)
+    figg = _draw_main_doctor_table(query_for_general_table,"Résumé des informations sur le médecin")
+    pdf.savefig(figg, bbox_inches='tight')
+
+    figg = _draw_main_doctor_table(resumedf,"Résumé")
     pdf.savefig(figg, bbox_inches='tight')
 
     plt.figure() 

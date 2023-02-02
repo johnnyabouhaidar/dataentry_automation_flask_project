@@ -1246,6 +1246,10 @@ def summary_table_main_report(year):
     enc_caisse_curr_df=convert_list_to_dataframe(enc_caisse_curr)
     enc_caisse_yearprior=db.engine.execute("""select SUM(montant) as somme from encaissement where encaissementNom LIKE '%caisse des m%' and Valide='valide' and YEAR(encaissementDate)={0}""".format(year-1))
     enc_caisse_yearprior_df=convert_list_to_dataframe(enc_caisse_yearprior)
+    enc_divers_curr=db.engine.execute("""select SUM(montant) as somme from encaissement where encaissementNom NOT LIKE '%caisse des m%' and Valide='valide' and YEAR(encaissementDate)={0}""".format(year))
+    enc_divers_curr_df=convert_list_to_dataframe(enc_divers_curr)
+    enc_divers_yearprior=db.engine.execute("""select SUM(montant) as somme from encaissement where encaissementNom NOT LIKE '%caisse des m%' and Valide='valide' and YEAR(encaissementDate)={0}""".format(year-1))
+    enc_divers_yearprior_df=convert_list_to_dataframe(enc_divers_yearprior)
 
 
     if len(constants_current_df)>0:
@@ -1271,21 +1275,35 @@ def summary_table_main_report(year):
         nbdentistehygieniste_year_prior=0
 
     if datetime.datetime.now().year==year:
-        multiplier=12
-    else:
         multiplier=datetime.datetime.now().month
+    else:
+        multiplier=12
+    
+    try:
+        pnl_curr=(enc_divers_curr_df.iloc[0]["somme"]+enc_caisse_curr_df.iloc[0]["somme"])-(pay_total_curr_df.iloc[0]["somme"]+salary_total_curr_df.iloc[0]["somme"])
+    except:
+        pnl_curr=0
+    try:
+        pnl_prior=(enc_divers_yearprior_df.iloc[0]["somme"]+enc_caisse_yearprior_df.iloc[0]["somme"])-(pay_total_yearprior_df.iloc[0]["somme"]+salary_total_yearprior_df.iloc[0]["somme"])
+    except:
+        pnl_prior=0
 
+
+    encdivers_curr=enc_divers_curr_df.iloc[0]["somme"] if enc_divers_curr_df.iloc[0]["somme"]!=None else 0
+    enccaisse_curr=enc_caisse_curr_df.iloc[0]["somme"] if enc_caisse_curr_df.iloc[0]["somme"]!=None else 0
+    salaire_curr=salary_total_curr_df.iloc[0]["somme"] if salary_total_curr_df.iloc[0]["somme"]!=None else 0
+    paiement_curr=pay_total_curr_df.iloc[0]["somme"] if pay_total_curr_df.iloc[0]["somme"]!=None else 0
     
     temp_df2 = pd.DataFrame({
-                "prior year":[enc_caisse_yearprior_df.iloc[0]["somme"],pay_total_yearprior_df.iloc[0]["somme"],salary_total_yearprior_df.iloc[0]["somme"],nbdentistehygieniste_year_prior,nbmedecins_year_prior,nbept_year_prior,nbemployes_year_prior],
-                "current year": [enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr],
-                "projection": [enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr]},
-                index=["Encaissements Caisse medecins","Paiements","Salaires","Nb de dentiste et hygieniste","Nb de medecins","Nb EPT (equivalent plein temps)","Nb d'employes"])
+                "Année précédente":[pnl_prior,enc_divers_yearprior_df.iloc[0]["somme"],enc_caisse_yearprior_df.iloc[0]["somme"],pay_total_yearprior_df.iloc[0]["somme"],salary_total_yearprior_df.iloc[0]["somme"],nbdentistehygieniste_year_prior,nbmedecins_year_prior,nbept_year_prior,nbemployes_year_prior],
+                "Année actuelle": [pnl_curr,enc_divers_curr_df.iloc[0]["somme"],enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr],
+                "Projection": [(pnl_curr/multiplier)*12,(encdivers_curr/multiplier)*12,(enccaisse_curr/multiplier)*12,(paiement_curr/multiplier)*12,(salaire_curr/multiplier)*12,nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr]},
+                index=["PNL","Encaissements divers","Encaissements Caisse medecins","Paiements","Salaires","Nb de dentiste et hygieniste","Nb de medecins","Nb EPT (equivalent plein temps)","Nb d'employes"])
     
-    print(temp_df2)
+    return temp_df2
     
 
-summary_table_main_report(2023)
+#summary_table_main_report(2023)
 
 def get_activity_for_doctor(doctorname):
     percentagelist=db.engine.execute("""
@@ -1511,7 +1529,12 @@ from doctor where isActive=1""")
         current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
         report_filename=r'{0}\reporting_temporary\RAPPORT_{1}.pdf'.format(file_download_location,current_num_timestamp)
         
-        dataframe_to_pdf(dfs,pnl.round(2),form.year.data,report_filename,enctotal.round(2),paymenttotal.round(2),maindf)        
+
+
+        #RESUME
+        resumedf=summary_table_main_report(form.year.data)
+
+        dataframe_to_pdf(dfs,pnl.round(2),form.year.data,report_filename,enctotal.round(2),paymenttotal.round(2),maindf,resumedf)        
 
         return send_file(report_filename)
 
