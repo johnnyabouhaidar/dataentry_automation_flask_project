@@ -234,17 +234,19 @@ def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot,query_for_general_tabl
 
     figg = _draw_main_doctor_table(resumedf,"Résumé")
     pdf.savefig(figg, bbox_inches='tight')
-
+    paytot = '{:0,.2f}'.format(float(paytot))
+    enctot = '{:0,.2f}'.format(float(enctot))
     plt.figure() 
     plt.axis('off')
     plt.text(0.5,0.5,"Encaissement-Avance Totale: {0}".format(enctot),ha='center',va='center',size=15)
     plt.text(0.5,0.4,"-",ha='center',va='center',size=15)
     plt.text(0.5,0.3,"Paiements Totale: {0}".format(paytot),ha='center',va='center',size=15)
     plt.text(0.5,0.2,"-------------------------------------------------------------------",ha='center',va='center',size=15)
+    pnltxt = '{:0,.2f}'.format(float(pnl))
     if pnl<0:
-        plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20,backgroundcolor="red",color="white")
+        plt.text(0.5,0.1,"P&l: {0}".format(pnltxt),ha='center',va='center',size=20,backgroundcolor="red",color="white")
     else:
-        plt.text(0.5,0.1,"P&l: {0}".format(pnl),ha='center',va='center',size=20,backgroundcolor="green",color="Black")
+        plt.text(0.5,0.1,"P&l: {0}".format(pnltxt),ha='center',va='center',size=20,backgroundcolor="green",color="Black")
     pdf.savefig()
     plt.close()
 

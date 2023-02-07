@@ -26,8 +26,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -220,9 +220,9 @@ def get_ls_for_dashboard(query):
 #@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
 @login_required
 def dashboard():
-    encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where YEAR(encaissementDate)={0} group by banque""".format(2022))
-    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where YEAR(date)={0} group by paiementsType """.format(2022))
-    facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where YEAR(date)={0} group by facturationType""".format(2022))
+    encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide'  group by banque""".format(2022))
+    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' group by paiementsType """.format(2022))
+    facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where Valide='valide' group by facturationType""".format(2022))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
     '''paysum=paysum.replace('.','|')
@@ -1250,6 +1250,14 @@ def summary_table_main_report(year):
     enc_divers_curr_df=convert_list_to_dataframe(enc_divers_curr)
     enc_divers_yearprior=db.engine.execute("""select SUM(montant) as somme from encaissement where encaissementNom NOT LIKE '%caisse des m%' and Valide='valide' and YEAR(encaissementDate)={0}""".format(year-1))
     enc_divers_yearprior_df=convert_list_to_dataframe(enc_divers_yearprior)
+    fact_med_curr=db.engine.execute("""select SUM(somme) as somme from facturation where facturationtype LIKE '%facturation m%d%' and Valide='valide' and YEAR(Date)={0}""".format(year))
+    fact_med_curr_df=convert_list_to_dataframe(fact_med_curr)
+    fact_med_yearprior=db.engine.execute("""select SUM(somme) as somme from facturation where facturationtype LIKE '%facturation m%d%' and Valide='valide' and YEAR(Date)={0}""".format(year-1))
+    fact_med_yearprior_df=convert_list_to_dataframe(fact_med_yearprior)
+    fact_dent_curr=db.engine.execute("""select SUM(somme) as somme from facturation where (facturationtype LIKE '%facturation dentiste%' or facturationtype LIKE '%facturation hygi%') and Valide='valide' and YEAR(Date)={0}""".format(year))
+    fact_dent_curr_df=convert_list_to_dataframe(fact_dent_curr)
+    fact_dent_yearprior=db.engine.execute("""select SUM(somme) as somme from facturation where (facturationtype LIKE '%facturation dentiste%' or facturationtype LIKE '%facturation hygi%') and Valide='valide' and YEAR(Date)={0}""".format(year-1))
+    fact_dent_yearprior_df=convert_list_to_dataframe(fact_dent_yearprior)
 
 
     if len(constants_current_df)>0:
@@ -1293,13 +1301,16 @@ def summary_table_main_report(year):
     enccaisse_curr=enc_caisse_curr_df.iloc[0]["somme"] if enc_caisse_curr_df.iloc[0]["somme"]!=None else 0
     salaire_curr=salary_total_curr_df.iloc[0]["somme"] if salary_total_curr_df.iloc[0]["somme"]!=None else 0
     paiement_curr=pay_total_curr_df.iloc[0]["somme"] if pay_total_curr_df.iloc[0]["somme"]!=None else 0
+    fact_med_curr=fact_med_curr_df.iloc[0]["somme"] if fact_med_curr_df.iloc[0]["somme"]!=None else 0
+    fact_dent_curr=fact_dent_curr_df.iloc[0]["somme"] if fact_dent_curr_df.iloc[0]["somme"]!=None else 0
     
     temp_df2 = pd.DataFrame({
-                "Année précédente":[pnl_prior,enc_divers_yearprior_df.iloc[0]["somme"],enc_caisse_yearprior_df.iloc[0]["somme"],pay_total_yearprior_df.iloc[0]["somme"],salary_total_yearprior_df.iloc[0]["somme"],nbdentistehygieniste_year_prior,nbmedecins_year_prior,nbept_year_prior,nbemployes_year_prior],
-                "Année actuelle": [pnl_curr,enc_divers_curr_df.iloc[0]["somme"],enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr],
-                "Projection": [(pnl_curr/multiplier)*12,(encdivers_curr/multiplier)*12,(enccaisse_curr/multiplier)*12,(paiement_curr/multiplier)*12,(salaire_curr/multiplier)*12,nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr]},
-                index=["PNL","Encaissements divers","Encaissements Caisse medecins","Paiements","Salaires","Nb de dentiste et hygieniste","Nb de medecins","Nb EPT (equivalent plein temps)","Nb d'employes"])
+                "Année précédente":[pnl_prior,enc_divers_yearprior_df.iloc[0]["somme"],enc_caisse_yearprior_df.iloc[0]["somme"],pay_total_yearprior_df.iloc[0]["somme"],salary_total_yearprior_df.iloc[0]["somme"],nbdentistehygieniste_year_prior,nbmedecins_year_prior,nbept_year_prior,nbemployes_year_prior,fact_med_yearprior_df.iloc[0]["somme"],fact_dent_yearprior_df.iloc[0]["somme"]],
+                "Année actuelle": [pnl_curr,enc_divers_curr_df.iloc[0]["somme"],enc_caisse_curr_df.iloc[0]["somme"],pay_total_curr_df.iloc[0]["somme"],salary_total_curr_df.iloc[0]["somme"],nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr,fact_med_curr,fact_dent_curr],
+                "Projection": [(pnl_curr/multiplier)*12,(encdivers_curr/multiplier)*12,(enccaisse_curr/multiplier)*12,(paiement_curr/multiplier)*12,(salaire_curr/multiplier)*12,nbdentistehygieniste_curr,nbmedecins_curr,nbept_curr,nbemployes_curr,(fact_med_curr/multiplier)*12,(fact_dent_curr/multiplier)*12]},
+                index=["PNL","Encaissements divers","Encaissements Caisse medecins","Paiements","Salaires","Nb de dentiste et hygieniste","Nb de medecins","Nb EPT (equivalent plein temps)","Nb d'employes","Facturation pole medical","Facturation pole dentiste"])
     
+    temp_df2=temp_df2.fillna(0)
     return temp_df2
     
 
@@ -1414,12 +1425,12 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
     if form.validate_on_submit():
         dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
-        paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month" From payment where YEAR(date)={0} group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
+        paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month" From payment where YEAR(date)={0} and Valide='valide' group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
 
         paymentdf=convert_list_to_dataframe(paymentslist)
         paymentdf.set_index('paiementsType',inplace=True)
 
-        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where YEAR(date)={0} group by YEAR(date) , paiementsType""".format(form.year.data))
+        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where YEAR(date)={0} and Valide='valide' group by YEAR(date) , paiementsType""".format(form.year.data))
         paymentforgraphdf=convert_list_to_dataframe(paymentforgraphlist)
         paymentforgraphdf.set_index('paiementsType',inplace=True)
 
@@ -1440,6 +1451,7 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
 
 FROM payment
 WHERE Year(date)={0}
+and Valide='valide'
 GROUP BY paiementsType""".format(form.year.data))
         paymentforreportdf=convert_list_to_dataframe(paymentforreportlist)
         paymentforreportdf.set_index('PaiementType',inplace=True)        
@@ -1448,13 +1460,13 @@ GROUP BY paiementsType""".format(form.year.data))
         dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2),"Paiements tout au long de l'année"))
 
 
-        encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by encaissementNom,banque""".format(form.year.data))
+        encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} and Valide='valide' group by encaissementNom,banque""".format(form.year.data))
         encaissementdf=convert_list_to_dataframe(encaissementlist)
         encaissementdf.rename(columns = {'montant':'somme'}, inplace = True)
         encaissementdf.set_index('encaissementNom',inplace=True)
         #print(encaissementdf)
 
-        encaissementgraphlist=db.engine.execute("""select SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} group by banque""".format(form.year.data))
+        encaissementgraphlist=db.engine.execute("""select SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} and Valide='valide' group by banque""".format(form.year.data))
         encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
         encaissementgraphdf.set_index('banque',inplace=True)
 
@@ -1471,7 +1483,7 @@ GROUP BY paiementsType""".format(form.year.data))
         
         facturationdf=convert_list_to_dataframe(facturationlist)
         facturationdf.set_index('facturationType',inplace=True)'''
-        facturationgraphlist=db.engine.execute("""select facturationType, SUM(somme) AS somme ,YEAR(date) as "year" From facturation where YEAR(date)={0} group by YEAR(date) , facturationType""".format(form.year.data))
+        facturationgraphlist=db.engine.execute("""select facturationType, SUM(somme) AS somme ,YEAR(date) as "year" From facturation where YEAR(date)={0} and Valide='valide' group by YEAR(date) , facturationType""".format(form.year.data))
         facturationgraphdf=convert_list_to_dataframe(facturationgraphlist)
         facturationgraphdf.set_index('facturationType',inplace=True)
 
@@ -1492,6 +1504,7 @@ GROUP BY paiementsType""".format(form.year.data))
 
 FROM facturation
 WHERE Year(date)={0}
+and Valide='valide'
 GROUP BY facturationType""".format(form.year.data))
         facturationforreportdf=convert_list_to_dataframe(facturationforreportlist)
         facturationforreportdf.set_index('FacturationType',inplace=True) 
