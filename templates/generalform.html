@@ -172,9 +172,8 @@
                                             </div>
                                           </div>
                         {%if value[-1] == 'pasvalide'%}
-                        <td><a class="ic-view" href="{{url_for('validate_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span><img
-                            src="" alt="Valider" width="26"
-                            height="26" /></span></a></td>
+                        <td><a class="table-btn-valider" href="{{url_for('validate_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span>✔ Valider 
+                            </span></a></td>
                         {%endif%}
                         {%endif%}
                     </tr>
