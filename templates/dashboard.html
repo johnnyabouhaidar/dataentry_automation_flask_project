@@ -166,6 +166,7 @@
         encjson   
           
       );
+      try{
       var payoptions = { title: "Paiements", width: 550, height: 400 };
       const paymentjson = {{ paymentgrph|tojson }}
         var paymentdata = google.visualization.arrayToDataTable(
@@ -173,6 +174,11 @@
         paymentjson   
           
       );
+      }
+      catch(err)
+      {
+
+      }
       var facturationoptions = { title: "Facturations", width: 550, height: 400 };
       const facturationjson = {{ facturationgraph|tojson }}
         var facturationdata = google.visualization.arrayToDataTable(
