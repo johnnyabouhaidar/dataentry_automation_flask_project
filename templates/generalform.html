@@ -28,7 +28,7 @@
                     <form method="POST" action="" id="{{form_id}}">
                         <tr>
                             {% for field in form %}
-                            <span class="form-titles">{%if field.label.text != 'Submit' and field.label.text !=
+                            <span class="form-titles">{%if field.label.text != 'Soumettre' and field.label.text !=
                                 "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
                                 endif %}</span>
                             {{ field(form=form_id) }}<br><br>
@@ -112,7 +112,7 @@
                 
                 {% for field in export_form %}
                 
-                {%if field.label.text != 'Submit' and field.label.text !=
+                {%if field.label.text != 'Soumettre' and field.label.text !=
                     "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
                     endif %}
                 {{ field(form=form_id) }}

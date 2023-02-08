@@ -99,6 +99,7 @@ class Payment(db.Model):
 class Facturationtype(db.Model):
     facturationtypeid = db.Column(db.Integer,primary_key=True)
     facturationType = db.Column(db.String(80),nullable=False)
+    EstRetrocession = db.Column(db.String(30),nullable=False)
 
 class Facturation(db.Model):
     facturationId = db.Column(db.Integer,primary_key=True)
@@ -217,12 +218,18 @@ def get_ls_for_dashboard(query):
 
 
 @app.route('/dashboard',methods=['GET','POST'])
-#@app.route('/dashboard/usr=<usr>',methods=['GET','POST'])
+#@app.route('/dashboard/fromdate=<fromdate>/todate=<todate>',methods=['GET','POST'])
 @login_required
 def dashboard():
-    encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide'  group by banque""".format(2022))
-    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' group by paiementsType """.format(2022))
-    facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where Valide='valide' group by facturationType""".format(2022))
+    print(request.args)
+    try:
+        encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and encaissementDate BETWEEN '{0}' and '{1}'  group by banque""".format(request.args["fromdate"],request.args["todate"]))
+        paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and date BETWEEN '{0}' and '{1}' group by paiementsType """.format(request.args["fromdate"],request.args["todate"]))
+        facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where Valide='valide' and date BETWEEN '{0}' and '{1}' group by facturationType""".format(request.args["fromdate"],request.args["todate"]))
+    except:
+        encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide'   group by banque""".format(2022))
+        paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' group by paiementsType """.format(2022))
+        facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where Valide='valide' group by facturationType""".format(2022))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
     '''paysum=paysum.replace('.','|')
@@ -234,9 +241,17 @@ def dashboard():
 
 
     facturationsum='{:0,.2f}'.format(facturationsum)
+    enctotal='{:0,.2f}'.format(enctotal)
+    try:
+        dterngeForm=DateRangeForm(startdate=datetime.datetime.strptime(request.args["fromdate"],'%Y-%m-%d'),enddate=datetime.datetime.strptime(request.args["todate"],'%Y-%m-%d'))
+    except:
+        dterngeForm=DateRangeForm()
+
+    if dterngeForm.validate_on_submit():
+        return redirect(url_for('dashboard',fromdate=dterngeForm.startdate.data,todate=dterngeForm.enddate.data))
 
 
-    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationgraph=facturationls,facturationsum=facturationsum)
+    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationgraph=facturationls,facturationsum=facturationsum,enctotal=enctotal,dterngeForm=dterngeForm)
 
 
 @app.route('/doctorpayment',methods=['GET','POST'])
@@ -1613,7 +1628,7 @@ def setup():
     headersfacturationtypes=facturationtypes.keys()
     
     if form2.validate_on_submit():
-        new_facturation_type =Facturationtype(facturationType=form2.facturationtype.data)
+        new_facturation_type =Facturationtype(facturationType=form2.facturationtype.data,EstRetrocession=form2.isretrocession.data)
         db.session.add(new_facturation_type)
         db.session.commit()
         return redirect(url_for('setup'))
@@ -1635,6 +1650,7 @@ def setup():
     headersfraismaterieltypes=fraismaterieltypes.keys()
 
     if form4.validate_on_submit():
+        
         new_fraismateriel_type=Fraismaterieltype(fraismaterieltype=form4.fraismaterieltype.data)
         db.session.add(new_fraismateriel_type)
         db.session.commit()

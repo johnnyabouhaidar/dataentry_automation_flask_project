@@ -58,3 +58,14 @@ UPDATE dentisterie SET Valide = 'valide';
 UPDATE fraismateriel SET Valide = 'valide';
 UPDATE encaissement SET Valide = 'valide';
 UPDATE doctorpayment SET Valide = 'valide';
+
+
+
+1 	Facturation dentiste 	Edit
+2 	Facturation médecins 	Edit
+3 	Facturation hygiéniste 	Edit
+4 	Facturation centre et covid 	Edit
+5 	Rétrocession dentiste 	Edit
+6 	Rétrocession hygiéniste 	Edit
+8 	Rétrocession laborteam / test covid 	Edit
+9 	Versement honoraires médecins 

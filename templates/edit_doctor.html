@@ -30,7 +30,7 @@
             <br><br><br>
             {%endif%}
             
-            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+            <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
             <td>{{ field }}</td><br><br>
         </div>
         
@@ -51,7 +51,7 @@
     {% for field in perc_act_form%}
     <tr>
       <span class="form-titles">
-        <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+        <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
       </span>
         <td>{{ field }}</td><br><br>
     </tr>
@@ -102,7 +102,7 @@
         {% for field in leasingform%}
         <tr>
           <span class="form-titles">
-            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+            <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
           </span>
             <td>{{ field }}</td><br><br>
         </tr>

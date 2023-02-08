@@ -24,7 +24,7 @@
         {% for field in form %}
         <tr>
             <span class="form-titles-items">
-            <th>{%if  field.label.text != 'Submit' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
+            <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
             </span>
             <td>{{ field }}</td><br><br>
         </tr>

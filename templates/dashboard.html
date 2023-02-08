@@ -29,7 +29,7 @@
     <div class="allMenu">
         <ul>
             <div class="padding">
-                <img class="img" src="./../static/logo.png" alt="Trulli" width="230" height="auto" />
+                <a href="{{url_for('dashboard')}}" ><img class="img" src="./../static/logo.png" alt="Trulli" width="230" height="auto" /></a>
             </div>
             <br />
             {%if user_role == 'admin'%}
@@ -75,13 +75,25 @@
             </ul>
           </div>
         </nav> -->
-        
+        <div class="padding30">
+        <form method="POST" action="" id="0">
+                
+          {% for field in dterngeForm %}
+          
+          {%if field.label.text != 'Filtre' and field.label.text !=
+              "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
+              endif %}
+          {{ field(form=0) }}
+      
+      
+      
+          {% endfor %}
+          </form>
+          </div>
         <div class="dash-section padding30">
             
-            <div class="col-sm-3 single-section">
-              <span class="bold-title">P&L</span><span>CHF {{pnl}}</span>
-            </div>
-            <div class="col-sm-1"></div>
+
+
 
             <div class="col-sm-3 single-section">
               <span class="bold-title">Paiement Total</span
@@ -93,7 +105,36 @@
               <span class="bold-title">Facturation Total</span
               ><span>CHF {{facturationsum}}</span>
             </div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">P&L</span><span>CHF {{pnl}}</span>
+            </div>
+
+            
         </div>
+        <div class="dash-section padding30">
+            
+
+
+
+          <div class="col-sm-3 single-section">
+            <span class="bold-title">Retrocession Total</span
+            ><span>CHF 0</span>
+          </div>
+          <div class="col-sm-1"></div>
+
+          <div class="col-sm-3 single-section">
+            <span class="bold-title">Encaissement Total</span
+            ><span>CHF {{enctotal}}</span>
+          </div>
+          <div class="col-sm-1"></div>
+          <div class="col-sm-3 single-section">
+            <span class="bold-title">Frais Materièl Total</span
+              ><span>CHF 0</span>
+          </div>
+
+          
+      </div>        
         <div class="dash-section padding30">
           <div class="chart-view" id="piechart"></div>
           <div class="chart-view" id="columnChart"></div>

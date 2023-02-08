@@ -51,7 +51,7 @@ class AddDoctorForm(FlaskForm):
     isActive = BooleanField('Active?')
     conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 class AddDoctorConstantsForm(FlaskForm):
     doctorname=StringField(label="Docteur Nom ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
@@ -82,7 +82,7 @@ class AddDoctorConstantsForm(FlaskForm):
     Apprentie=FloatField(label="Apprentie de 2eme annee")
     simplify=FloatField(label="Simplify")
     steriswiss=FloatField(label="Steriswiss")
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 
 class AddDoctorPaymentForm(FlaskForm):
@@ -93,12 +93,12 @@ class AddDoctorPaymentForm(FlaskForm):
     
     doctorpaiementsomme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
 
-    submit=SubmitField("Submit")
+    submit=SubmitField("Soumettre")
 
 class Addpaymenttype(FlaskForm):
     paymenttype=StringField(label="Paiement Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Charges Fixes...)"})
 
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 
 class AddPaymentForm(FlaskForm):
@@ -111,12 +111,12 @@ class AddPaymentForm(FlaskForm):
 
     comment=StringField('Comment',widget=TextArea())
 
-    submit = SubmitField("Submit")
+    submit = SubmitField("Soumettre")
 
 class AddDentistrytype(FlaskForm):
     dentisterieType=StringField(label='Dentisterie Type',validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation hygiéniste...)"})
 
-    submit=SubmitField("Submit")
+    submit=SubmitField("Soumettre")
 
 class AddDentistryInfoForm(FlaskForm):
     dentisterieType=SelectField('DentisterieType',choices=[],validators=[InputRequired()])
@@ -126,12 +126,13 @@ class AddDentistryInfoForm(FlaskForm):
     somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
     date=DateField(label="Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
 
-    submit=SubmitField("Submit")
+    submit=SubmitField("Soumettre")
 
 class AddFacturationtype(FlaskForm):
     facturationtype=StringField(label="Facturation Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
+    isretrocession = BooleanField('Est-ce de type Rétrocession ?')
 
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 class AddFacturationForm(FlaskForm):
     facturationType= SelectField('FacturationType',choices=[],validators=[InputRequired()])
@@ -142,12 +143,12 @@ class AddFacturationForm(FlaskForm):
     date = DateField(label="Facturation Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
     comment=StringField('Comment',widget=TextArea())
 
-    submit = SubmitField("Submit")
+    submit = SubmitField("Soumettre")
 
 class AddFraismaterieltype(FlaskForm):
     fraismaterieltype=StringField(label="Frais Meteriel Type ",validators=[InputRequired()],render_kw={"placeholder":"Type"})
 
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 class AddFraismaterielForm(FlaskForm):
     fraismaterieltype=SelectField('Frais Materiel Type',choices=[],validators=[InputRequired()])
@@ -157,7 +158,7 @@ class AddFraismaterielForm(FlaskForm):
     fraismaterieldate=DateField('Date',validators=[InputRequired()])
     comment=StringField('Comment',widget=TextArea())
 
-    submit = SubmitField("Submit")
+    submit = SubmitField("Soumettre")
 
 class AddEncaissementForm(FlaskForm):
     encaissementNom=SelectField('Encaissement Nom',choices=[])
@@ -167,17 +168,17 @@ class AddEncaissementForm(FlaskForm):
     banque=SelectField('Banque',choices=[('UBS','UBS'),('Postfinance ','Postfinance')])
     comment=StringField('Comment',widget=TextArea())
 
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 class MainReportForm(FlaskForm):
     year = IntegerField(label="An",validators=[InputRequired()],render_kw={"placeholder":"Year"})
-    submit =SubmitField("Submit")
+    submit =SubmitField("Soumettre")
 
 class IndividualDoctorReportForm(FlaskForm):
     doctorname=SelectField('Nom du médecin',choices=[])
     year = IntegerField(label="An",validators=[InputRequired()],render_kw={"placeholder":"Year"})
 
-    doctor_submit=SubmitField("Submit")
+    doctor_submit=SubmitField("Soumettre")
     
 class Export_to_excel(FlaskForm):
 
@@ -190,7 +191,7 @@ class LeasingForm(FlaskForm):
     paiement=FloatField(label="Paiement",validators=[InputRequired()])
     paiementinitial=FloatField(label="Paiement Initial",validators=[InputRequired()])
 
-    leasesubmit=SubmitField("Submit")
+    leasesubmit=SubmitField("Soumettre")
 
 class SearchForm(FlaskForm):
     searchstring=SearchField()
@@ -204,13 +205,13 @@ class PercentageactivityForm(FlaskForm):
     a=IntegerField(label="A",validators=[InputRequired()],render_kw={"placeholder":"e.g. 200000"})
     pourcentages=FloatField(label="Pourcentages",validators=[InputRequired()])
 
-    submit=SubmitField("Submit")
+    submit=SubmitField("Soumettre")
 
 
 class SettingsForm(FlaskForm):
     moisavant=IntegerField(label="mois avant la saisie des données",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
     
-    submit=SubmitField("Submit")
+    submit=SubmitField("Soumettre")
 
 class StaticItemsForm(FlaskForm):
     nbdentistehygieniste=FloatField(label="Nb de dentiste et hygieniste",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
@@ -218,5 +219,15 @@ class StaticItemsForm(FlaskForm):
     nbept=FloatField(label="Nb de EPT(equivalent plein temps)",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
     nbemployes=FloatField(label="Nb d'employes",validators=[InputRequired()],render_kw={"placeholder":"e.g. 2"})
 
-    submit=SubmitField("Submit")
+    submit=SubmitField("Soumettre")
 
+class DateRangeForm(FlaskForm):
+    startdate=DateField(label="Depuis",validators=[InputRequired()])
+    enddate=DateField(label="Pour",validators=[InputRequired()])
+    
+    submit=SubmitField("Filtre")
+
+class FilterNonValidItemsForm(FlaskForm):
+    validity=SelectField(choices=[('valide','Valide'),('pasvalide','Pas Valide')])
+
+    submit=SubmitField("Soumettre")
