@@ -222,20 +222,25 @@ def get_ls_for_dashboard(query):
 @login_required
 def dashboard():
     print(request.args)
+    '''fromm=request.args["fromdate"]
+    too=request.args["todate"]'''
     try:
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and encaissementDate BETWEEN '{0}' and '{1}'  group by banque""".format(request.args["fromdate"],request.args["todate"]))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and date BETWEEN '{0}' and '{1}' group by paiementsType """.format(request.args["fromdate"],request.args["todate"]))
         facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where Valide='valide' and date BETWEEN '{0}' and '{1}' group by facturationType""".format(request.args["fromdate"],request.args["todate"]))
+        fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and fraismaterieldate BETWEEN '{0}' and '{1}' group by fraismaterielType""".format(request.args["fromdate"],request.args["todate"]))
+        
     except:
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide'   group by banque""".format(2022))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' group by paiementsType """.format(2022))
         facturationls,facturationsum = get_ls_for_dashboard("""Select facturationtype as FacturationType, SUM(somme)  as somme from facturation where Valide='valide' group by facturationType""".format(2022))
+        fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' group by fraismaterielType""".format(2022))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
     '''paysum=paysum.replace('.','|')
     paysum=paysum.replace(',','.')
     paysum=paysum.replace('|',',') '''
-
+    fraissum='{:0,.2f}'.format(fraissum)
 
     pnl= '{:0,.2f}'.format(pnl)
 
@@ -251,7 +256,7 @@ def dashboard():
         return redirect(url_for('dashboard',fromdate=dterngeForm.startdate.data,todate=dterngeForm.enddate.data))
 
 
-    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationgraph=facturationls,facturationsum=facturationsum,enctotal=enctotal,dterngeForm=dterngeForm)
+    return render_template('dashboard.html',username=(current_user.username).title(),user_role=current_user.role,encdf=encls,paymentgrph=paymentls,paysum=paysum,pnl=pnl,facturationgraph=facturationls,facturationsum=facturationsum,enctotal=enctotal,fraissum=fraissum,dterngeForm=dterngeForm)
 
 
 @app.route('/doctorpayment',methods=['GET','POST'])
