@@ -228,6 +228,6 @@ class DateRangeForm(FlaskForm):
     submit=SubmitField("Filtre")
 
 class FilterNonValidItemsForm(FlaskForm):
-    validity=SelectField(choices=[('valide','Valide'),('pasvalide','Pas Valide')])
+    validity=SelectField(label="Montrer seulement",choices=[('valide','Valide'),('pasvalide','Pas Valide')])
 
     submit=SubmitField("Soumettre")
