@@ -85,14 +85,52 @@
                 {%endfor%}
             </div> -->
             <div class="margin-top"></div>
+            <div class="">
+                
+                
+                {%if filtervalid_form%}
+                <div class="section-view">
+                <form method="POST" action="" id="filtervalidformid" class="validformfilter">
+                    
+                    {{filtervalid_form.validity(class="validdropdown")}} {{filtervalid_form.submit}}
+                    {{filtervalid_form.hidden_tag()}}
+          
+                    
+                </form>
+            </div>
+                {%endif%}
+            
+            
+        </div>
 
+        <div class="flex-row">
+                
+            {%set form_id=777%}
+            <form method="POST" action="" id="{{form_id}}">
+            
+            {% for field in export_form %}
+            
+            {%if field.label.text != 'Soumettre' and field.label.text !=
+                "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
+                endif %}
+            {{ field(form=form_id) }}
+        
+        
+        
+            {% endfor %}
+            </form>
+        </div>
+        <br>
             <div class="flex-row float-right">
+
                 <div class="add-icon-view">
                     <img id="myBtn" class="cursor-pointer" src="./../static/add-icon.png" alt="Dialog" width="30"
                         height="30" />
                 </div>
                 &nbsp;&nbsp;&nbsp;
+
                 <div>
+
                     {%if searchform%}
                     <form method="POST" action="" id="searchformid">
                         {{searchform.searchstring}}
@@ -102,27 +140,14 @@
                         {{searchform.hidden_tag()}}
                     </form>
                     {%endif%}
-                </div>
+                </div><br>
+
             </div>
-            <br>
-            <div class="flex-row">
-                
-                {%set form_id=777%}
-                <form method="POST" action="" id="{{form_id}}">
-                
-                {% for field in export_form %}
-                
-                {%if field.label.text != 'Soumettre' and field.label.text !=
-                    "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
-                    endif %}
-                {{ field(form=form_id) }}
+
             
+
+
             
-            
-                {% endfor %}
-                </form>
-            </div>
-            <br />
             {%if table|length !=0%}
             <div class="tableCover">
 

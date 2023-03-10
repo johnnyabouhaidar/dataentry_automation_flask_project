@@ -55,6 +55,15 @@ select{
   padding: 8px;
   border-radius: 5px; 
  }
+.validdropdown{
+  width: 80%;
+  outline:#330e0e;
+  padding: 8px;
+  border-radius: 5px; 
+}
+.validformfilter{
+  width: 50%;
+}
  .flex-row form label{
 color: white;
  }
@@ -346,6 +355,7 @@ a:hover{
 }
 .floatright{
   float: right;
+  
 }
 
 .dropdown-content a {
@@ -566,6 +576,11 @@ li a:hover:not(.active) {
   transition: all ease 0.4s;
 }
 .rapportTab{text-align: center;padding-top:16px;}
+.validformfilter{
+  width:35%;
+  padding-right: 50px;
+  display: inline-block;
+}
 .form {
   position: relative;
   z-index: 1;
