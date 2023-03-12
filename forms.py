@@ -129,7 +129,7 @@ class AddDentistryInfoForm(FlaskForm):
     submit=SubmitField("Soumettre")
 
 class AddFacturationtype(FlaskForm):
-    facturationtype=StringField(label="Facturation Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
+    facturationtype=StringField(label="Facturation/Retrocession Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
     isretrocession = BooleanField('Est-ce de type Rétrocession ?')
 
     submit =SubmitField("Soumettre")
