@@ -26,8 +26,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -209,6 +209,10 @@ def get_ls_for_dashboard(query):
     encaissementgraphlist=db.engine.execute(query)
     encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
     encaissementgraphdf=encaissementgraphdf.round(2)
+    
+    if len(encaissementgraphdf)==0:
+        encaissementgraphdf = pd.DataFrame(data=[["Pas de données disponibles",0]], columns=['Pas de données disponibles', 'somme'])
+
     ls=encaissementgraphdf.values.tolist()
     ls.insert(0,encaissementgraphdf.columns.tolist())
     total = encaissementgraphdf["somme"].sum()
