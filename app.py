@@ -211,7 +211,7 @@ def get_ls_for_dashboard(query):
     encaissementgraphdf=encaissementgraphdf.round(2)
     
     if len(encaissementgraphdf)==0:
-        encaissementgraphdf = pd.DataFrame(data=[["Pas de données disponibles",0]], columns=['Pas de données disponibles', 'somme'])
+        encaissementgraphdf = pd.DataFrame(data=[["Pas de données disponibles".upper(),0.000001]], columns=['Pas de données disponibles', 'somme'])
 
     ls=encaissementgraphdf.values.tolist()
     ls.insert(0,encaissementgraphdf.columns.tolist())
@@ -583,13 +583,18 @@ def change_format_for_displayed_table(df,idcol_name):
 
 @app.route('/payments',methods=['GET','POST'])
 @app.route('/payments/search=<search>',methods=['GET','POST'])
-@app.route('/payments/validfilter=<validfilter>',methods=['GET','POST'])
+#@app.route('/payments/validfilter=<validfilter>',methods=['GET','POST'])
 @login_required
 def payment(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""
     form=AddPaymentForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
-    filtervalid_form=FilterNonValidItemsForm()
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)
     
     choices=[]
     choices.append(("---","---"))
@@ -600,7 +605,7 @@ def payment(search=""):
     form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
     #searchform.searchfilter.choices=[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
 
-    payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' order by paiementsId DESC".format(search))
+    payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' order by paiementsId DESC".format(search,validfilter_var))
     #payments=db.engine.execute("select * from payment  order by paiementsId DESC")
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
@@ -629,7 +634,7 @@ def payment(search=""):
     else:
         print(searchform.errors)
    
-
+    
     if form.is_submitted() and request.method=='POST' and form.submit.data:
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
@@ -654,12 +659,15 @@ def payment(search=""):
         excel_report_path=r"{0}\reporting_temporary\PAIEMENTS_{1}.xlsx".format(file_download_location,current_num_timestamp)
         payment_dataframe.to_excel(excel_report_path,index=False)
 
-        return send_file(excel_report_path)             
+        return send_file(excel_report_path)   
+
+    if filtervalid_form.validate_on_submit() and filtervalid_form.submit.data:
+        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data))              
     
 
     
     if "payments" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=paymentitems_disp,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement",export_form=export2excel_frm,filtervalid_form=None)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=paymentitems_disp,headers=headerspayments,dbtable="payment",dbtableid="paiementsId",user_role=current_user.role,searchform=searchform,module_name="Paiement",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
