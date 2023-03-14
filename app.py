@@ -26,8 +26,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -624,7 +624,10 @@ def payment(search=""):
     
     
     #print(type(paymentitems_disp[4]))    
-    
+
+    if filtervalid_form.is_submitted() and filtervalid_form.submit.data:
+        print(request)
+        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data))          
     
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -660,9 +663,7 @@ def payment(search=""):
         payment_dataframe.to_excel(excel_report_path,index=False)
 
         return send_file(excel_report_path)   
-
-    if filtervalid_form.validate_on_submit() and filtervalid_form.submit.data:
-        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data))              
+        
     
 
     
