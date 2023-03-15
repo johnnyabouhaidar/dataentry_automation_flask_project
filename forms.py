@@ -18,7 +18,7 @@ class RegisterForm(FlaskForm):
     access = SelectMultipleField('Roles (Utilisez "Ctrl" pour plusieurs rôles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Docteurs'),('payments','Paiements'),('facturation','Facturations'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
-    submit =SubmitField("Register")
+    submit =SubmitField("Enregistrer")
 
     def validate_username(self,username):
         existing_user_username = User.query.filter_by(
@@ -230,4 +230,4 @@ class DateRangeForm(FlaskForm):
 class FilterNonValidItemsForm(FlaskForm):
     validity=SelectField(label="Montrer seulement",choices=[('',''),('valide','Valide'),('pasvalide','Pas Valide')])
 
-    submit=SubmitField("Filtre")
+    sub=SubmitField("Filtre")

@@ -26,8 +26,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -269,6 +269,12 @@ def dashboard():
 @app.route('/doctorpayment/search=<search>',methods=['GET','POST'])
 @login_required
 def doctorpayment(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""    
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)    
     form=AddDoctorPaymentForm()
     searchform=SearchForm(searchstring=search)
     choices=[]
@@ -282,7 +288,7 @@ def doctorpayment(search=""):
     form.paimentnom.choices=paymentchoices
 
 
-    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' order by doctorpaiementId DESC".format(search))
+    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' and Valide LIKE '{1}%' order by doctorpaiementId DESC".format(search,validfilter_var))
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
@@ -296,6 +302,10 @@ def doctorpayment(search=""):
         itemtmp[3]=s
         DoctorPaymentitems_disp.append(itemtmp)
     
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('doctorpayment',validfilter=filtervalid_form.validity.data))          
+
 
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
@@ -328,7 +338,7 @@ def doctorpayment(search=""):
         pass
 
     if "paiement_medecin" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems_disp,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role,searchform=searchform,module_name="Paiement Docteur")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=False,table=DoctorPaymentitems_disp,headers=headersDoctorPayment,dbtable="doctorpayment",dbtableid="doctorpaiementId",user_role=current_user.role,searchform=searchform,module_name="Paiement Docteur",filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -336,6 +346,12 @@ def doctorpayment(search=""):
 @app.route('/encaissement/search=<search>',methods=['GET','POST'])
 @login_required
 def encaissement(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""    
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)      
     form = AddEncaissementForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
@@ -346,7 +362,7 @@ def encaissement(search=""):
             encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
 
     form.encaissementNom.choices = encaissementnameschoices
-    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%'  order by encaissementId DESC".format(search))
+    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%' and Valide LIKE '{1}%'  order by encaissementId DESC".format(search,validfilter_var))
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
 
@@ -360,6 +376,12 @@ def encaissement(search=""):
         itemtmp[3]=s
         encaissementitems_disp.append(itemtmp)
     
+
+
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('encaissement',validfilter=filtervalid_form.validity.data))          
+        
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -397,7 +419,7 @@ def encaissement(search=""):
         return send_file(excel_report_path)
 
     if "encaissement" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems_disp,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance",export_form=export2excel_frm)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=encaissementitems_disp,headers=headersencaissement,dbtable="encaissement",dbtableid="encaissementId",user_role=current_user.role,searchform=searchform,module_name="Encaissement-Avance",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -406,6 +428,12 @@ def encaissement(search=""):
 @app.route('/dentisterie/search=<search>',methods=['GET','POST'])
 @login_required
 def dentisterie(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""    
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)    
     form=AddDentistryInfoForm()
     searchform=SearchForm(searchstring=search)
     choices=[]
@@ -413,7 +441,7 @@ def dentisterie(search=""):
     choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
     form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
-    dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%'  order by dentisterieId DESC".format(search))
+    dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%'  order by dentisterieId DESC".format(search,validfilter_var))
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
 
@@ -427,6 +455,13 @@ def dentisterie(search=""):
         itemtmp[3]=s
         dentisterieitems_disp.append(itemtmp)
     
+
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('dentisterie',validfilter=filtervalid_form.validity.data))          
+    
+
+
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -455,7 +490,7 @@ def dentisterie(search=""):
             flash("Vous ne pouvez pas entrer de données à partir de cette date!")                
     
     if "dentisterie" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems_disp,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role,searchform=searchform,module_name="Dentisterie")
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=dentisterieitems_disp,headers=headersdentisterie,dbtable="dentisterie",dbtableid="dentisterieId",user_role=current_user.role,searchform=searchform,module_name="Dentisterie",filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')    
 
@@ -488,6 +523,12 @@ def dentisterienames(dentisterietype):
 @app.route('/facturation/search=<search>',methods=['GET','POST'])
 @login_required
 def facturation(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""    
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)    
     form = AddFacturationForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
@@ -496,7 +537,7 @@ def facturation(search=""):
     choices=choices+[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
     form.facturationType.choices = choices
     form.facturationNom.choices= [(factname.facturationId,factname.facturationNom) for factname in Facturation.query.filter_by(facturationType='---').all()]
-    facturations=db.engine.execute("select * from facturation where facturationnom LIKE '%{0}%' order by facturationId DESC".format(search))
+    facturations=db.engine.execute("select * from facturation where facturationnom LIKE '%{0}%' and Valide LIKE '{1}%' order by facturationId DESC".format(search,validfilter_var))
     facturationsitems=facturations.fetchall()
     headersfacturations=facturations.keys()
 
@@ -511,6 +552,11 @@ def facturation(search=""):
         
         itemtmp[3]=s
         facturationsitems_disp.append(itemtmp)
+
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('facturation',validfilter=filtervalid_form.validity.data))          
+        
 
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
         current_date=datetime.datetime.now()
@@ -548,7 +594,7 @@ def facturation(search=""):
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems_disp,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation",export_form=export2excel_frm)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems_disp,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -625,10 +671,11 @@ def payment(search=""):
     
     #print(type(paymentitems_disp[4]))    
 
-    if filtervalid_form.is_submitted() and filtervalid_form.submit.data:
-        print(request)
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
         return redirect(url_for('payment',validfilter=filtervalid_form.validity.data))          
     
+
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
             return redirect(url_for('payment',search=searchform.searchstring.data))
@@ -727,10 +774,17 @@ def doctor():
 @app.route('/fraismateriel/search=<search>',methods=['GET','POST'])
 @login_required
 def fraismateriel(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""    
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)
     form =AddFraismaterielForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
-    fraismateriel=db.engine.execute("select * from fraismateriel where fraismaterielnom LIKE '%{0}%' order by fraismaterielId DESC".format(search))
+    
+    fraismateriel=db.engine.execute("select * from fraismateriel where fraismaterielnom LIKE '%{0}%' and Valide LIKE '{1}%' order by fraismaterielId DESC".format(search,validfilter_var))
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
 
@@ -741,6 +795,10 @@ def fraismateriel(search=""):
     
     form.fraismaterieltype.choices = choices
     form.fraismaterielnom.choices= [(fraisname.fraismaterielId,fraisname.fraismaterielnom) for fraisname in Fraismateriel.query.filter_by(fraismaterieltype='---').all()]
+
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('fraismateriel',validfilter=filtervalid_form.validity.data))   
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -778,7 +836,7 @@ def fraismateriel(search=""):
         return send_file(excel_report_path)
 
     if "fraismateriel" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role,searchform=searchform,module_name="Frais Materiel",export_form=export2excel_frm)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=fraismaterielitems,headers=headersfraismateriel,dbtable="fraismateriel",dbtableid="fraismaterielId",user_role=current_user.role,searchform=searchform,module_name="Frais Materiel",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
@@ -1133,7 +1191,7 @@ def validate_entry(tbl,tblid,id):
 @app.route('/user',methods=['GET','POST'])
 def user():
     form=RegisterForm()
-    userlslist=db.engine.execute("select id,username,role,access from \"user\"")
+    userlslist=db.engine.execute("select id as ID,username as Utilisateur ,role ,access as accès from \"user\"")
     userlslistitems=userlslist.fetchall()
     headersuserlslist=userlslist.keys()
     if form.validate_on_submit():
@@ -1694,4 +1752,4 @@ def logout():
 
 
 if __name__=='__main__':
-    app.run(debug=True,host="0.0.0.0")
+    app.run(debug=False,host="0.0.0.0")

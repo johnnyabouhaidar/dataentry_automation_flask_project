@@ -855,6 +855,11 @@ aside {
    padding-left:8px!important;
    padding-right:8px!important;
 }
+#sub{
+  width:auto!important;
+  padding-left:8px!important;
+  padding-right:8px!important;
+}
 .setupPage input{
   width: 250px;
   text-align: left;
