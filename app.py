@@ -26,8 +26,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -594,7 +594,7 @@ def facturation(search=""):
     
 
     if "facturation" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems_disp,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=facturationsitems_disp,headers=headersfacturations,dbtable="facturation",dbtableid="facturationId",user_role=current_user.role,searchform=searchform,module_name="Facturation Et Retrocession",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
     else:
         return render_template('NOT_AUTHORIZED.html')
 
