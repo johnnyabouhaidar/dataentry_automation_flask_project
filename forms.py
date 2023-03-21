@@ -229,5 +229,7 @@ class DateRangeForm(FlaskForm):
 
 class FilterNonValidItemsForm(FlaskForm):
     validity=SelectField(label="Montrer seulement",choices=[('','Valide/Pas Valide'),('valide','Valide'),('pasvalide','Pas Valide')])
+    fromdate=DateField(label="Depuis",validators=[InputRequired()])
+    todate=DateField(label="Pour",validators=[InputRequired()])
 
     sub=SubmitField("Filtre")
