@@ -62,7 +62,7 @@ select{
   border-radius: 5px; 
 }
 .validformfilter{
-  width: 50%;
+  width: 100%;
 }
  .flex-row form label{
 color: white;
@@ -85,6 +85,8 @@ color: white;
  .align-center-div input{width: auto !important;padding-left:8px!important;padding-right:8px!important}
 .section-view input{text-align: left;padding-left:12px;width:30%;border:none;}
 .section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
+.filter-section-view input{text-align: left;padding-left:12px;width:50%;border:none;}
+.filter-section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
 .header {
   padding: 15px;
   text-align: center;
@@ -453,6 +455,13 @@ li a:hover:not(.active) {
   color: black;
 }
 .section-view{
+  background-color: #e5e5e5;
+  padding: 15px;
+  border-radius: 8px;
+  width:60%;
+  margin:auto;
+}
+.filter-section-view{
   background-color: #e5e5e5;
   padding: 15px;
   border-radius: 8px;
