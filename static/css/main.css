@@ -56,7 +56,7 @@ select{
   border-radius: 5px; 
  }
 .validdropdown{
-  width: 80%;
+  width: 150px;
   outline:#330e0e;
   padding: 8px;
   border-radius: 5px; 
@@ -85,7 +85,7 @@ color: white;
  .align-center-div input{width: auto !important;padding-left:8px!important;padding-right:8px!important}
 .section-view input{text-align: left;padding-left:12px;width:30%;border:none;}
 .section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
-.filter-section-view input{text-align: left;padding-left:12px;width:50%;border:none;}
+.filter-section-view input{text-align: left;padding-left:12px;width:15%;border:none;}
 .filter-section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
 .header {
   padding: 15px;
@@ -586,7 +586,7 @@ li a:hover:not(.active) {
 }
 .rapportTab{text-align: center;padding-top:16px;}
 .validformfilter{
-  width:35%;
+  width:100%;
   padding-right: 50px;
   display: inline-block;
 }

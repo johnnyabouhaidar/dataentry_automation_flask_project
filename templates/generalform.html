@@ -92,12 +92,13 @@
                 <div class="filter-section-view">
                 <form method="POST" action="" id="filtervalidformid" class="validformfilter">
                     
-                    {{filtervalid_form.validity(class="validdropdown")}}
                     
+                    {{filtervalid_form.validity(class="validdropdown")}}
+                    &emsp;&emsp;&emsp;
                     {{filtervalid_form.fromdate.label}}
-                    {{filtervalid_form.fromdate(class="validdropdown")}}
+                    {{filtervalid_form.fromdate(class="")}}
                     {{filtervalid_form.todate.label}}
-                    {{filtervalid_form.todate(class="validdropdown")}}
+                    {{filtervalid_form.todate(class="")}}
                     {{filtervalid_form.sub()}}
                     {{filtervalid_form.hidden_tag()}}
           
