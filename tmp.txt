@@ -1,0 +1,4 @@
+                    {{filtervalid_form.fromdate.label}}
+                    {{filtervalid_form.fromdate(class="")}}
+                    {{filtervalid_form.todate.label}}
+                    {{filtervalid_form.todate(class="")}}

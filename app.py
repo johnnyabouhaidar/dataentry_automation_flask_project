@@ -13,11 +13,17 @@ from doctor_report import *
 import pandas as pd
 from datetime import timedelta,date
 from dateutil import relativedelta
+import urllib.parse
+
+
+
 
 #from UserClass import *
 
 
 app = Flask(__name__)
+
+
 
 file_download_location= r"C:\Users\Public\Documents"
 
@@ -26,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -496,7 +502,8 @@ def dentisterie(search=""):
 
 @app.route('/dentisterienames/<dentisterietype>')
 def dentisterienames(dentisterietype):
-    dentisterienames = Dentisterie.query.filter_by(dentisterieType=dentisterietype).all()
+    dentisterieType_dec= urllib.parse.unquote(dentisterietype.replace("*","%"))
+    dentisterienames = Dentisterie.query.filter_by(dentisterieType=dentisterieType_dec).all()
     doctornames=Doctor.query.all()
     
     Arry=[]
@@ -600,7 +607,8 @@ def facturation(search=""):
 
 @app.route('/facturationnames/<facturationtype>')
 def facturationnames(facturationtype):
-    facturationnames = Facturation.query.filter_by(facturationType=facturationtype).all()
+    facturationtype_dec= urllib.parse.unquote(facturationtype.replace("*","%"))
+    facturationnames = Facturation.query.filter_by(facturationType=facturationtype_dec).all()
     doctornames=Doctor.query.all()
     
     Arry=[]
@@ -637,10 +645,22 @@ def payment(search=""):
         validfilter_var=request.args["validfilter"]
     except:
         validfilter_var=""
+    try:
+        fromdate_var=request.args["fromdate"]
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+    
+    try:
+        todate_var=request.args["todate"]
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+
     form=AddPaymentForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=fromdate_var)
     
     choices=[]
     choices.append(("---","---"))
@@ -651,7 +671,8 @@ def payment(search=""):
     form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
     #searchform.searchfilter.choices=[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
 
-    payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' order by paiementsId DESC".format(search,validfilter_var))
+    payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by paiementsId DESC".format(search,validfilter_var,str(fromdate_var),str(todate_var)))
+    print("select * from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by paiementsId DESC".format(search,validfilter_var,str(fromdate_var),str(todate_var)))
     #payments=db.engine.execute("select * from payment  order by paiementsId DESC")
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
@@ -673,7 +694,7 @@ def payment(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate))          
+        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
     
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
@@ -721,7 +742,8 @@ def payment(search=""):
 
 @app.route('/paymentnames/<paymenttype>')
 def paymentnames(paymenttype):
-    paymentnames = Payment.query.filter_by(paiementsType=paymenttype).all()
+    paymenttype_dec= urllib.parse.unquote(paymenttype.replace("*","%"))
+    paymentnames = Payment.query.filter_by(paiementsType=paymenttype_dec).all()
     doctornames = Doctor.query.all()
     
     Arry=[]
@@ -841,9 +863,13 @@ def fraismateriel(search=""):
         return render_template('NOT_AUTHORIZED.html')
 
 
+
 @app.route('/fraismaterielname/<fraismaterieltype>')
 def fraismaterielnames(fraismaterieltype):
-    fraismaterielnames = Fraismateriel.query.filter_by(fraismaterieltype=fraismaterieltype).all()
+    #print(fraismaterieltype.replace("*","%"))
+    fraismateriel_dec= urllib.parse.unquote(fraismaterieltype.replace("*","%"))
+    #print(fraismateriel_dec)
+    fraismaterielnames = Fraismateriel.query.filter_by(fraismaterieltype=fraismateriel_dec).all()
     doctornames = Doctor.query.all()
     
     Arry=[]
@@ -862,7 +888,11 @@ def fraismaterielnames(fraismaterieltype):
                 docObj['id']=doctor.doctorid
                 docObj['name']=doctor.doctorname
                 Arry.append(docObj)
-            
+                
+    docObj={}
+    docObj['test']=fraismaterieltype
+    
+    Arry.append(docObj)
 
     return jsonify({'fraismaterielnames':Arry})
 

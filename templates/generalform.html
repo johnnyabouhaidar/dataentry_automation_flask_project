@@ -95,10 +95,7 @@
                     
                     {{filtervalid_form.validity(class="validdropdown")}}
                     &emsp;&emsp;&emsp;
-                    {{filtervalid_form.fromdate.label}}
-                    {{filtervalid_form.fromdate(class="")}}
-                    {{filtervalid_form.todate.label}}
-                    {{filtervalid_form.todate(class="")}}
+
                     {{filtervalid_form.sub()}}
                     {{filtervalid_form.hidden_tag()}}
           
@@ -252,8 +249,8 @@
 
         fraismaterieltype_select.onclick = function () {
             fraismaterieltype = fraismaterieltype_select.value;
-
-            fetch('/fraismaterielname/' + fraismaterieltype).then(function (response) {
+            
+            fetch('/fraismaterielname/' + encodeURI(fraismaterieltype.trim()).toString().replaceAll('%','*')).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '';
 
@@ -277,7 +274,7 @@
         paymenttype_select.onclick = function () {
             paymenttype = paymenttype_select.value;
 
-            fetch('/paymentnames/' + paymenttype).then(function (response) {
+            fetch('/paymentnames/' + encodeURI(paymenttype.trim()).toString().replaceAll('%','*')).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '';
 
@@ -300,7 +297,7 @@
         facturationtype_select.onclick = function () {
             facturationtype = facturationtype_select.value;
 
-            fetch('/facturationnames/' + facturationtype).then(function (response) {
+            fetch('/facturationnames/' + encodeURI(facturationtype.trim()).toString().replaceAll('%','*')).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '';
 
@@ -323,7 +320,7 @@
         dentisterietype_select.onclick = function () {
             dentisterietype = dentisterietype_select.value;
 
-            fetch('/dentisterienames/' + dentisterietype).then(function (response) {
+            fetch('/dentisterienames/' + encodeURI(dentisterietype.trim()).toString().replaceAll('%','*')).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '';
 

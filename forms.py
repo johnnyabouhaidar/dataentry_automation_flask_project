@@ -19,7 +19,7 @@ class RegisterForm(FlaskForm):
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Enregistrer")
-
+'''
     def validate_username(self,username):
         existing_user_username = User.query.filter_by(
             username=username.data
@@ -27,7 +27,7 @@ class RegisterForm(FlaskForm):
         if existing_user_username:
             raise ValidationError(
                 "That username already exists. Please choose a different one."
-            )
+            )'''
 class EditRegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
