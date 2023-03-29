@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informations sur le médecin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+  <div><a href="{{url_for('dashboard')}}"><img src="../../static/back-btn.png" class="back-btn"></a> </div>
+    <h1 class="header">Informations sur le médecin</h1>
+    <div>
+        {%with messages = get_flashed_messages() %}
+        {%if messages %}
+        {%for message in messages %}
+         {{message}}
+        {%endfor%}
+        {%endif%}
+    {%endwith%}         
+    <div class="update-doctor-container">
+    <form method="POST" action="">
+        <div class="grid-container-doctor">
+        
+        {% for field in form %}
+        
+        <div class="grid-item-doctor">
+            {%if loop.index>5%}
+            <br><br><br>
+            {%endif%}
+            
+            <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+            <td>{{ field }}</td><br><br>
+        </div>
+        
+        {% endfor %}
+        
+    </div>
+    </form>
+
+
+    <div class="grid-item">
+        <button type="button" class="collapsible">Pourcentage d'activité</button>
+        <div class="content"> 
+        </br>
+          <div class="section-view">
+
+    <form method="POST" action="">
+
+    {% for field in perc_act_form%}
+    <tr>
+      <span class="form-titles">
+        <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+      </span>
+        <td>{{ field }}</td><br><br>
+    </tr>
+    
+    {%endfor%}
+    </form>
+  </div>
+</br>
+  
+    
+        <table class="fl-table" border="1">
+      <thead>
+            <tr>
+            {%for title in headersperc_act_data%}
+            <th>{{title}}</th>
+            {%endfor%}
+            <th></th>
+        </tr>
+        
+    </thead>
+        {% for value in perc_act_dataitems %}
+        <tr>
+        {%for item in value%}
+            <td>
+        {{item}}
+    </td>
+        {%endfor%}
+        {%if user_role == 'admin'%}
+        <!--<td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}">Edit</a></td>-->
+        <td><a href="{{url_for('delete_entry',tbl=perc_act_dbtable,tblid=perc_act_id,id=value[0])}}"><span><img src="../../static/icons8-trash.svg" alt="Delete" width="26" height="26" /></span></a></td>
+        {%endif%}
+        </tr>
+        {% endfor %}
+    </table>
+  </br>
+    </div>
+</div>
+
+
+
+        <div class="grid-item">
+            <button type="button" class="collapsible">Leasing(Location)</button>
+            <div class="content"> 
+            </br>
+            <div class="section-view">
+        <form method="POST" action="">
+
+        {% for field in leasingform%}
+        <tr>
+          <span class="form-titles">
+            <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th><br>
+          </span>
+            <td>{{ field }}</td><br><br>
+        </tr>
+        
+        {%endfor%}
+        </form>
+      </div>
+    </br>
+            <table class="fl-table" border="1">
+          <thead>
+                <tr>
+                {%for title in headers%}
+                <th>{{title}}</th>
+                {%endfor%}
+                <th></th>
+            </tr>
+            
+        </thead>
+            {% for value in table %}
+            <tr>
+            {%for item in value%}
+                <td>
+            {{item}}
+        </td>
+            {%endfor%}
+            {%if user_role == 'admin'%}
+            <!--<td><a href="{{url_for('edit_entry',tbl=dbtable,id=value[0])}}">Edit</a></td>-->
+            <td><a href="{{url_for('delete_entry',tbl=dbtable,tblid=dbtableid,id=value[0])}}"><span><img src="../../static/icons8-trash.svg" alt="Delete" width="26" height="26" /></span></a></td>
+            {%endif%}
+            </tr>
+            {% endfor %}
+        </table>
+        </div>
+</div>
+        </div>
+        <br>
+
+
+    <!-- <a href="{{url_for('doctor')}}">Go Back</a> -->
+</div>
+</body>
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+    
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      });
+    } 
+    </script>
+    <style>
+        .content {
+          padding: 0 18px;
+          background-color: white;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.2s ease-out;
+        }
+        </style>
+        
+        <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
+        </script>
+
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Item</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <div><a href="{{url_for(tbl)}}"><img src="../../static/back-btn.png" class="back-btn"></a> </div>
+    <h1 class="header">Edit Item</h1>
+    <div>
+        {%with messages = get_flashed_messages() %}
+        {%if messages %}
+        {%for message in messages %}
+         {{message}}
+        {%endfor%}
+        {%endif%}
+    {%endwith%} 
+    <div class="section-view">
+    <form method="POST" action="">
+        {% for field in form %}
+        <tr>
+            <span class="form-titles-items">
+            <th>{%if  field.label.text != 'Soumettre' and field.label.text != "CSRF Token" %}{{ field.label }}{%endif%} {% if field.flags.required %}*{% endif %}</th>
+            </span>
+            <td>{{ field }}</td><br><br>
+        </tr>
+        {% endfor %}
+    </form>
+</div>
+    <!-- <a href="{{url_for(tbl)}}">Go Back</a> -->
+</div>
+</body>
+</html>

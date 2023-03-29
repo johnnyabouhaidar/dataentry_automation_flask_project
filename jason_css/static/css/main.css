@@ -10,8 +10,7 @@
 
 .white{
   color:white;
-
-  font-size: 14px 
+  font-size: 14px
 }
 a:visited,
 input {
@@ -58,14 +57,14 @@ select{
   border-radius: 5px; 
  }
 .validdropdown{
-  width: 150px;
+  width: 80%;
   outline:#330e0e;
   padding: 8px;
   border-radius: 5px; 
-  /*background-color: #e5e5e5;*/
+  background-color: #e5e5e5;
 }
 .validformfilter{
-  width: 100%;
+  width: 50%;
 }
  .flex-row form label{
 color: white;
@@ -75,7 +74,7 @@ color: white;
   background-size: 26px;
   color: #10793F;
   padding-left: 30px !important;
-  border-color: white;
+  border-color: transparent;
  }
  .login-form #submit{
   padding-left: 15px!important;
@@ -88,8 +87,6 @@ color: white;
  .align-center-div input{width: auto !important;padding-left:8px!important;padding-right:8px!important}
 .section-view input{text-align: left;padding-left:12px;width:30%;border:none;}
 .section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
-.filter-section-view input{text-align: left;padding-left:12px;width:15%;border:none;}
-.filter-section-view textarea{text-align: left;padding-left:12px;padding-top:5px;height:100px;resize:none;padding-right:12px;width:30%;border:none;border-radius:5px;}
 .header {
   padding: 15px;
   text-align: center;
@@ -264,8 +261,8 @@ a:hover{
 
 }
 .padding10px{
-  padding: 10px;
-  } 
+padding: 10px;
+}
 
 .modal {
   display: none; /* Hidden by default */
@@ -418,7 +415,7 @@ li a:hover:not(.active) {
 }
 .margin-top-20 {
   margin-top: 20px;
-} 
+}
 .margin-top15 {
   margin-top: 15px;
 }
@@ -465,13 +462,6 @@ li a:hover:not(.active) {
   color: black;
 }
 .section-view{
-  background-color: #e5e5e5;
-  padding: 15px;
-  border-radius: 8px;
-  width:60%;
-  margin:auto;
-}
-.filter-section-view{
   background-color: #e5e5e5;
   padding: 15px;
   border-radius: 8px;
@@ -529,17 +519,16 @@ li a:hover:not(.active) {
 }
 .grid-item-report select{width:40%!important;}
 #year{text-align:left;padding-left:8px;border:2px solid #e5e5e5;width: 40%;}
-#doctorname{border:2px solid #e5e5e5 !important;} 
+#doctorname{border:2px solid #e5e5e5 !important;}
 .grid-item {
   /* border:2px solid rgb(23, 192, 178); */
 
 }
 
 .flex-row form label {
-
   color: #e5e5e5;
+}
 
-} 
 .grid-item-report{
   background-color: #e5e5e5;
   border-radius: 5px;
@@ -549,51 +538,32 @@ li a:hover:not(.active) {
   padding: 20px;
 }
 .grid-item-report-setup{
-  background-color: #e5e5e5;
+  background-color: white;
   border-radius: 5px;
   padding: 10px;
-  width: 700px;
+  width: 600px;
   text-align: left;
   padding: 20px;
 }
 
 .margintop20{
-
   margin-top: 20px;
-
 }
-
 .bgWhite{
-
   background-color: white;
-
 }
-
 .bgGrey{
-
   background-color: #e5e5e5;
-
 }
 
 #access{
-
     border: 2px solid #e5e5e5 !important;
-
   }
-
-	
-
 #username{
-
       border: 2px solid #e5e5e5 !important;
-
 }
-
-
 #password{
-
       border: 2px solid #e5e5e5 !important;
-
 }
 
 .grid-container-doctor {
@@ -642,7 +612,7 @@ li a:hover:not(.active) {
 }
 .rapportTab{text-align: center;padding-top:16px;}
 .validformfilter{
-  width:100%;
+  width:45%;
   padding-right: 50px;
   display: inline-block;
 }
@@ -747,13 +717,12 @@ li a:hover:not(.active) {
   color: #EF3B3A;
 }
 .margin0{
-
   margin: 0px;
-
-} 
+}
 
 body {
-  /*background: #76b852;
+/*  margin: 0px;
+*/  /*background: #76b852;
   background: -webkit-linear-gradient(right, #76b852, #8DC26F);
   background: -moz-linear-gradient(right, #76b852, #8DC26F);
   background: -o-linear-gradient(right, #76b852, #8DC26F);

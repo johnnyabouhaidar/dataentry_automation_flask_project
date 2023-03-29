@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permission Required</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <h1 class="header">Vous n'êtes pas autorisé</h1>
+    Autorisation requise pour accéder à la ressource suivante. Veuillez contacter l'administrateur.<br>
+
+    <img src="{{ url_for('static', filename='unauth_icon.jpg') }}" alt="UNAUTHORIZED!!!"  width="220" height="220">
+
+
+    <br><a href="{{url_for('dashboard')}}">Go Back</a>
+</body>
+</html>

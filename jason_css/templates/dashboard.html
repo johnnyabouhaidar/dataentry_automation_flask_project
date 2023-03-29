@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+</head>
+
+<body>
+    <!-- <h1 class="header">
+        Content de te Revoir {{username}}!
+</h1> -->
+    <div class="row-view">
+
+        <!-- <h2>
+        Qu'est-ce que tu aimerais faire?
+    </h2> -->
+    <div class="allMenu">
+        <ul>
+            <div class="padding">
+                <a href="{{url_for('dashboard')}}" ><img class="img" src="./../static/logo.png" alt="Trulli" width="230" height="auto" /></a>
+            </div>
+            <br />
+            {%if user_role == 'admin'%}
+            <!-- <li><a href="{{url_for('user')}}"><span class="white">Gestion des Utilisateurs</span></a></li> -->
+            <li> <a href="{{url_for('setup')}}"><span class="iconMenu"><img src="./../static/configuration.svg" alt="Configuration" width="20" height="20" /></span><span class="white">Configuration des Constantes</span></a></li>
+            {%endif%}
+            <li><a href="{{url_for('doctor')}}"><span class="iconMenu"><img src="./../static/medecine.svg" alt="Medecine" width="20" height="20" /></span><span class="white">Paramètre du Médecin</span></a></li>
+              <hr />
+            <li><a href="{{url_for('payment')}}"><span class="iconMenu"><img src="./../static/donnees-paiment.svg" alt="Paiement" width="20" height="20" /></span><span class="white">Données de Paiement</span></a></li>
+            <li><a href="{{url_for('facturation')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Facturation" width="20" height="20" /></span><span class="white">Facturation et Retrocession</span></a></li>
+            <li><a href="{{url_for('fraismateriel')}}"><span class="iconMenu"><img src="./../static/frais.svg" alt="Frais Matériele" width="20" height="20" /></span><span class="white">Données des Frais Materièl</span></a></li>
+            <li><a href="{{url_for('dentisterie')}}"><span class="iconMenu"><img src="./../static/donnees-dentaire.svg" alt="Donnees Dentaire" width="20" height="20" /></span><span class="white">Données des Dentaires</span></a></li>
+            <hr />
+            <li><a href="{{url_for('encaissement')}}"><span class="iconMenu"><img src="./../static/encaissement.svg" alt="Encaissements Avance" width="20" height="20" /></span><span class="white">Encaissements Avance</span></a></li>
+            <li><a href="{{url_for('doctorpayment')}}"><span class="iconMenu"><img src="./../static/paiment-med.svg" alt="Paiement Médecin" width="20" height="20" /></span><span class="white">Paiement Médecin</span></a></li>
+            <hr />
+            <li class="rapportTab"><a href="{{url_for('reporting')}}">Génération de Rapports</a></li>
+            <!-- <hr /> -->
+            <!-- <li><a href="{{url_for('logout')}}"><span class="white">Déconnecter</span></a></li> -->
+        </ul>
+    </div>
+    <div class="bodyCont">
+        <div class="header-content">
+          <div class="dash-title">Tableau de Bord</div>
+          <div class="display-flex">
+            <span class="glyphicon glyphicon-user"></span>&nbsp; Bienvenu {{username}}
+            <div class="dropdown">
+                <button onclick="myFunction()" class="dropbtn">Paramètres <i class="fa fa-caret-down"></i></button>
+                <div id="myDropdown" class="dropdown-content">
+                   <a href="{{url_for('user')}}"> <span class="glyphicon glyphicon-th-list"></span>&nbsp; &nbsp;Gestion des Utilisateurs</a>
+                  <a href="{{url_for('logout')}}"> <span class="glyphicon glyphicon-log-in"></span>&nbsp; &nbsp;Déconnecter</a>
+                </div>
+              </div>
+            </div>
+        </div>
+       
+        <!-- <nav class="navbar">
+          <div>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="margin-top15">
+                <span class="glyphicon glyphicon-user"></span> Bienvenu User
+              </li>
+            </ul>
+          </div>
+        </nav> -->
+        <div class="padding30">
+        <form method="POST" action="" id="0">
+                
+          {% for field in dterngeForm %}
+          
+          {%if field.label.text != 'Filtre' and field.label.text !=
+              "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
+              endif %}
+          {{ field(form=0) }}
+      
+      
+      
+          {% endfor %}
+          </form>
+          </div>
+        <div class="dash-section padding30">
+            
+
+
+
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">Paiement Total</span
+              ><span>CHF {{paysum}}</span>
+            </div>
+            <div class="col-sm-1"></div>
+
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">Facturation Total</span
+              ><span>CHF {{facturationsum}}</span>
+            </div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-3 single-section">
+              <span class="bold-title">P&L</span><span>CHF {{pnl}}</span>
+            </div>
+
+            
+        </div>
+        <div class="dash-section padding30">
+            
+
+
+
+          <div class="col-sm-3 single-section">
+            <span class="bold-title">Retrocession Total</span
+            ><span>CHF {{retrocessionsum}}</span>
+          </div>
+          <div class="col-sm-1"></div>
+
+          <div class="col-sm-3 single-section">
+            <span class="bold-title">Encaissement Total</span
+            ><span>CHF {{enctotal}}</span>
+          </div>
+          <div class="col-sm-1"></div>
+          <div class="col-sm-3 single-section">
+            <span class="bold-title">Frais Materièl Total</span
+              ><span>CHF {{fraissum}}</span>
+          </div>
+
+          
+      </div>        
+        <div class="dash-section padding30">
+          <div class="chart-view" id="piechart"></div>
+          <div class="chart-view" id="columnChart"></div>
+        </div>
+        <div class="dash-section padding30">
+          <div class="chart-view" id="barchart"></div>
+          <!--<div class="chart-view" id="areaChart"></div>-->
+        </div>
+      </div>
+    </div>
+    
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+
+    <script type="text/javascript">
+      // Load google charts
+      google.charts.load("current", { packages: ["corechart"] });
+      google.charts.setOnLoadCallback(drawChart);
+
+      // Draw the chart and set the chart values
+      
+      function drawChart() {
+        var encoptions = { title: "Encaissements", width: 550, height: 400 };
+        const encjson = {{ encdf|tojson }}
+        var encdata = google.visualization.arrayToDataTable(
+         
+        encjson   
+          
+      );
+
+      var payoptions = { title: "Paiements", width: 550, height: 400 };
+      const paymentjson = {{ paymentgrph|tojson }}
+        var paymentdata = google.visualization.arrayToDataTable(
+         
+        paymentjson   
+          
+      );
+
+      var facturationoptions = { title: "Facturations", width: 550, height: 400 };
+      const facturationjson = {{ facturationgraph|tojson }}
+        var facturationdata = google.visualization.arrayToDataTable(
+         
+        facturationjson   
+          
+      );      
+        // Optional; add a title and set the width and height of the chart
+        
+
+        // Display the chart inside the <div> element with id="piechart"
+        var piechart = new google.visualization.PieChart(
+          document.getElementById("piechart")
+        );
+        piechart.draw(encdata, encoptions);
+
+        try{
+        var columnChart = new google.visualization.ColumnChart(
+          document.getElementById("columnChart")
+        );
+
+        columnChart.draw(paymentdata, payoptions);
+        }
+        catch(err)
+        {
+
+        }
+
+        var barchart = new google.visualization.BarChart(
+          document.getElementById("barchart")
+        );
+
+        barchart.draw(facturationdata, facturationoptions);
+        var areaChart = new google.visualization.AreaChart(
+          document.getElementById("areaChart")
+        );
+        areaChart.draw(paymentdata, payoptions);
+
+      }
+    </script>
+    <script>
+        /* When the user clicks on the button, 
+        toggle between hiding and showing the dropdown content */
+        function myFunction() {
+          document.getElementById("myDropdown").classList.toggle("show");
+        }
+        
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+          if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+              var openDropdown = dropdowns[i];
+              if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+              }
+            }
+          }
+        }
+        </script>
+        
+</body>
+
+</html>
