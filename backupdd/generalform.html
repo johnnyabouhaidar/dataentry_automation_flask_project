@@ -10,48 +10,11 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
-<body class="margin0">
-  <!--   <div><a href="{{url_for('dashboard')}}"><img src="./../static/back-btn.png" class="back-btn"></a> </div>
+<body>
+    <div><a href="{{url_for('dashboard')}}"><img src="./../static/back-btn.png" class="back-btn"></a> </div>
 
-    <h1 class="header">Ajouter Nouveau {{module_name}}</h1> -->
+    <h1 class="header">Ajouter Nouveau {{module_name}}</h1>
 
-
- <div class="row-view">
-
-        <!-- <h2>
-        Qu'est-ce que tu aimerais faire?
-    </h2> -->
-    <div class="allMenu">
-        <ul>
-            <div class="padding">
-                <a href="{{url_for('dashboard')}}" ><img class="img" src="./../static/logo.png" alt="Trulli" width="230" height="auto" /></a>
-            </div>
-            <br />
-            {%if user_role == 'admin'%}
-            <!-- <li><a href="{{url_for('user')}}"><span class="white">Gestion des Utilisateurs</span></a></li> -->
-            <li> <a href="{{url_for('setup')}}"><span class="iconMenu"><img src="./../static/configuration.svg" alt="Configuration" width="20" height="20" /></span><span class="white">Configuration des Constantes</span></a></li>
-            {%endif%}
-            <li><a href="{{url_for('doctor')}}"><span class="iconMenu"><img src="./../static/medecine.svg" alt="Medecine" width="20" height="20" /></span><span class="white">Paramètre du Médecin</span></a></li>
-              <hr />
-            <li><a href="{{url_for('payment')}}"><span class="iconMenu"><img src="./../static/donnees-paiment.svg" alt="Paiement" width="20" height="20" /></span><span class="white">Données de Paiement</span></a></li>
-            <li><a href="{{url_for('facturation')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Facturation" width="20" height="20" /></span><span class="white">Facturation et Retrocession</span></a></li>
-            <li><a href="{{url_for('fraismateriel')}}"><span class="iconMenu"><img src="./../static/frais.svg" alt="Frais Matériele" width="20" height="20" /></span><span class="white">Données des Frais Materièl</span></a></li>
-            <li><a href="{{url_for('dentisterie')}}"><span class="iconMenu"><img src="./../static/donnees-dentaire.svg" alt="Donnees Dentaire" width="20" height="20" /></span><span class="white">Données des Dentaires</span></a></li>
-            <hr />
-            <li><a href="{{url_for('encaissement')}}"><span class="iconMenu"><img src="./../static/encaissement.svg" alt="Encaissements Avance" width="20" height="20" /></span><span class="white">Encaissements Avance</span></a></li>
-            <li><a href="{{url_for('doctorpayment')}}"><span class="iconMenu"><img src="./../static/paiment-med.svg" alt="Paiement Médecin" width="20" height="20" /></span><span class="white">Paiement Médecin</span></a></li>
-            <hr />
-            <li class="rapportTab"><a href="{{url_for('reporting')}}">Génération de Rapports</a></li>
-              <li class="rapportTab"><a href="{{url_for('dashboard')}}">Retour au tableau de bord</a></li>
-             <br />
-            <!-- <hr /> -->
-            <!-- <li><a href="{{url_for('logout')}}"><span class="white">Déconnecter</span></a></li> -->
-        </ul>
-    </div>
-        <div class="bodyCont padding10px bgGrey">
- <div class="header-content">
-          <div class="dash-title">Ajouter Nouveau {{module_name}}</div>
-        </div>
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <!-- Modal content -->
@@ -122,30 +85,27 @@
                 {%endfor%}
             </div> -->
             <div class="margin-top"></div>
-            <div class="">
+           
                 
                 
                 {%if filtervalid_form%}
                 <div class="filter-section-view">
-                    <form method="POST" action="" id="filtervalidformid" class="validformfilter">
-                        
-                        
-                        {{filtervalid_form.validity(class="validdropdown")}}
-                        &emsp;&emsp;&emsp;
-                        {{filtervalid_form.fromdate.label}}
-                        {{filtervalid_form.fromdate(class="")}}
-                        {{filtervalid_form.todate.label}}
-                        {{filtervalid_form.todate(class="")}}                        
-    
-                        {{filtervalid_form.sub()}}
-                        {{filtervalid_form.hidden_tag()}}
+                <form method="POST" action="" id="filtervalidformid" class="validformfilter">
+                    
+                    
+                    {{filtervalid_form.validity(class="validdropdown")}}
+                    &emsp;&emsp;&emsp;
+
+                    {{filtervalid_form.sub()}}
+                    {{filtervalid_form.hidden_tag()}}
+          
                     
                 </form>
             </div>
                 {%endif%}
             
             
-        </div>
+        
 
         <div class="flex-row">
                 
@@ -255,8 +215,6 @@
 
     </div>
     </div>
-    </div>
-</div>
     <script>
         // Get the modal
         var modal = document.getElementById("myModal");
@@ -283,7 +241,7 @@
                 modal.style.display = "none";
             }
         }
-   </script>
+    </script>
     {%if hasDynamicSelector == True and dbtable == 'fraismateriel'%}
     <script>
         let fraismaterieltype_select = document.getElementById('fraismaterieltype');
@@ -420,7 +378,7 @@
                 }
             });
         }
-    </script> 
+    </script>
 </body>
 
 </html>

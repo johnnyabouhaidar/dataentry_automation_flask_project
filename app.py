@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -645,22 +645,28 @@ def payment(search=""):
         validfilter_var=request.args["validfilter"]
     except:
         validfilter_var=""
+        
     try:
         fromdate_var=request.args["fromdate"]
+        fromdte=True
         #print(fromdate_var)
     except:
         fromdate_var="1990-1-1"
+        fromdte=False
     
     try:
         todate_var=request.args["todate"]
+        todte=True
     except:
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False
 
     form=AddPaymentForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=fromdate_var)
+    
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)
     
     choices=[]
     choices.append(("---","---"))
