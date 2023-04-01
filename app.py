@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -280,7 +280,22 @@ def doctorpayment(search=""):
         validfilter_var=request.args["validfilter"]
     except:
         validfilter_var=""    
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)    
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False        
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
     form=AddDoctorPaymentForm()
     searchform=SearchForm(searchstring=search)
     choices=[]
@@ -294,7 +309,7 @@ def doctorpayment(search=""):
     form.paimentnom.choices=paymentchoices
 
 
-    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' and Valide LIKE '{1}%' order by doctorpaiementId DESC".format(search,validfilter_var))
+    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by doctorpaiementId DESC".format(search,validfilter_var,fromdate_var,todate_var))
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
@@ -310,7 +325,7 @@ def doctorpayment(search=""):
     
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('doctorpayment',validfilter=filtervalid_form.validity.data))          
+        return redirect(url_for('doctorpayment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
 
 
 
@@ -357,7 +372,22 @@ def encaissement(search=""):
         validfilter_var=request.args["validfilter"]
     except:
         validfilter_var=""    
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)      
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False        
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)      
     form = AddEncaissementForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
@@ -368,7 +398,7 @@ def encaissement(search=""):
             encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
 
     form.encaissementNom.choices = encaissementnameschoices
-    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%' and Valide LIKE '{1}%'  order by encaissementId DESC".format(search,validfilter_var))
+    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%' and Valide LIKE '{1}%' and encaissementDate BETWEEN '{2}' and '{3}'  order by encaissementId DESC".format(search,validfilter_var,fromdate_var,todate_var))
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
 
@@ -386,7 +416,7 @@ def encaissement(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('encaissement',validfilter=filtervalid_form.validity.data))          
+        return redirect(url_for('encaissement',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
         
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
@@ -438,8 +468,23 @@ def dentisterie(search=""):
         #print(request.args["validfilter"])
         validfilter_var=request.args["validfilter"]
     except:
-        validfilter_var=""    
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)    
+        validfilter_var=""  
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False          
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
     form=AddDentistryInfoForm()
     searchform=SearchForm(searchstring=search)
     choices=[]
@@ -447,7 +492,7 @@ def dentisterie(search=""):
     choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
     form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
-    dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%'  order by dentisterieId DESC".format(search,validfilter_var))
+    dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  order by dentisterieId DESC".format(search,validfilter_var,fromdate_var,todate_var))
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
 
@@ -464,7 +509,7 @@ def dentisterie(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('dentisterie',validfilter=filtervalid_form.validity.data))          
+        return redirect(url_for('dentisterie',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
     
 
 
@@ -534,8 +579,23 @@ def facturation(search=""):
         #print(request.args["validfilter"])
         validfilter_var=request.args["validfilter"]
     except:
-        validfilter_var=""    
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)    
+        validfilter_var=""  
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False  
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
     form = AddFacturationForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
@@ -544,7 +604,7 @@ def facturation(search=""):
     choices=choices+[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
     form.facturationType.choices = choices
     form.facturationNom.choices= [(factname.facturationId,factname.facturationNom) for factname in Facturation.query.filter_by(facturationType='---').all()]
-    facturations=db.engine.execute("select * from facturation where facturationnom LIKE '%{0}%' and Valide LIKE '{1}%' order by facturationId DESC".format(search,validfilter_var))
+    facturations=db.engine.execute("select * from facturation where facturationnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by facturationId DESC".format(search,validfilter_var,fromdate_var,todate_var))
     facturationsitems=facturations.fetchall()
     headersfacturations=facturations.keys()
 
@@ -562,7 +622,7 @@ def facturation(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('facturation',validfilter=filtervalid_form.validity.data))          
+        return redirect(url_for('facturation',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
         
 
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
@@ -807,12 +867,27 @@ def fraismateriel(search=""):
         validfilter_var=request.args["validfilter"]
     except:
         validfilter_var=""    
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var)
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False        
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)
     form =AddFraismaterielForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
     
-    fraismateriel=db.engine.execute("select * from fraismateriel where fraismaterielnom LIKE '%{0}%' and Valide LIKE '{1}%' order by fraismaterielId DESC".format(search,validfilter_var))
+    fraismateriel=db.engine.execute("select * from fraismateriel where fraismaterielnom LIKE '%{0}%' and Valide LIKE '{1}%' and fraismaterieldate BETWEEN '{2}' and '{3}' order by fraismaterielId DESC".format(search,validfilter_var,fromdate_var,todate_var))
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
 
@@ -826,7 +901,7 @@ def fraismateriel(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('fraismateriel',validfilter=filtervalid_form.validity.data))   
+        return redirect(url_for('fraismateriel',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))   
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
