@@ -145,6 +145,22 @@ class AddFacturationForm(FlaskForm):
 
     submit = SubmitField("Soumettre")
 
+class AddRetrocessiontype(FlaskForm):
+    retrocessiontype=StringField(label="Retrocession Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Retrocession dentiste...)"})    
+
+    submit =SubmitField("Soumettre") 
+
+class AddRetrocessionForm(FlaskForm):
+    retrocessionType= SelectField('RetrocessionType',choices=[],validators=[InputRequired()])
+    retrocessionNom = SelectField('RetrocessionNom',choices=[],validators=[InputRequired()])
+
+    retrocessionNomALT = StringField(label="Nouveau retrocession ?",render_kw={"placeholder":"RetrocessionNom"})
+    somme = FloatField(label="Somme",validators=[InputRequired()],render_kw={"placeholder":"Somme"})
+    date = DateField(label="Retrocession Date",validators=[InputRequired()],render_kw={"placeholder":"Date"})
+    comment=StringField('Comment',widget=TextArea())
+
+    submit = SubmitField("Soumettre")   
+
 class AddFraismaterieltype(FlaskForm):
     fraismaterieltype=StringField(label="Frais Meteriel Type ",validators=[InputRequired()],render_kw={"placeholder":"Type"})
 
