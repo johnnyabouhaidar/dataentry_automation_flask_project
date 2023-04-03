@@ -909,7 +909,7 @@ aside {
   white-space: nowrap;
   background-color: white;
 }
-.tableCover{width:auto;overflow-x:auto;}
+.tableCover{width:auto;overflow-x:auto;height: calc(100vh - 250px) !important;margin-top: 5px}
 .fl-table td,
 .fl-table th {
   text-align: center;

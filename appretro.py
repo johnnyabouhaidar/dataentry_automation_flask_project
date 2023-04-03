@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -703,6 +703,128 @@ def facturationnames(facturationtype):
             
 
     return jsonify({'facturationnames':Arry})
+
+@app.route('/retrocession',methods=['GET','POST'])
+@app.route('/retrocession/search=<search>',methods=['GET','POST'])
+@login_required
+def retrocession(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""  
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False  
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
+    form = AddRetrocessionForm()
+    export2excel_frm=Export_to_excel()
+    searchform=SearchForm(searchstring=search)
+    choices=[]
+    choices.append(("---","---"))
+    choices=choices+[(facttype.retrocessionType,facttype.retrocessionType)for facttype in db.engine.execute("select * from retrocessiontype").fetchall()]
+    form.retrocessionType.choices = choices
+    form.retrocessionNom.choices= [(factname.retrocessionId,factname.retrocessionNom) for factname in Retrocession.query.filter_by(retrocessionType='---').all()]
+    retrocessions=db.engine.execute("select * from retrocession where retrocessionnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by retrocessionId DESC".format(search,validfilter_var,fromdate_var,todate_var))
+    retrocessionsitems=retrocessions.fetchall()
+    headersretrocessions=retrocessions.keys()
+
+    retrocessiondf=pd.DataFrame(retrocessionsitems,columns=headersretrocessions)
+
+    retrocessionsitems_disp=[]
+    
+    for item in retrocessionsitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        retrocessionsitems_disp.append(itemtmp)
+
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('retrocession',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
+        
+
+    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"{0}\reporting_temporary\RETROCESSION_{1}.xlsx".format(file_download_location,current_num_timestamp)
+        retrocessiondf.to_excel(excel_report_path,index=False)
+
+        return send_file(excel_report_path)
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('retrocession',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('retrocession'))    
+    else:
+        print(searchform.errors)
+
+    if form.is_submitted() and request.method=='POST' and form.submit.data:
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:
+            if form.retrocessionNom.data!="addnew":
+                new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
+            else:
+                new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNomALT.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
+            if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+                db.session.add(new_retrocession)
+                db.session.commit()
+                return redirect(url_for('retrocession'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
+        else:
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")        
+    
+
+    if "retrocession" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=retrocessionsitems_disp,headers=headersretrocessions,dbtable="retrocession",dbtableid="retrocessionId",user_role=current_user.role,searchform=searchform,module_name="Retrocession",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
+
+
+
+
+@app.route('/retrocessionnames/<retrocessiontype>')
+def retrocessionnames(retrocessiontype):
+    retrocessiontype_dec= urllib.parse.unquote(retrocessiontype.replace("*","%"))
+    retrocessionnames = Retrocession.query.filter_by(retrocessionType=retrocessiontype_dec).all()
+    doctornames=Doctor.query.all()
+    
+    Arry=[]
+    for retrocession in retrocessionnames:
+        
+        if not any(obj['name'] == retrocession.retrocessionNom for obj in Arry):
+            
+            retrocessionObj={}
+            retrocessionObj['id']=retrocession.retrocessionId
+            retrocessionObj['name']=retrocession.retrocessionNom
+            Arry.append(retrocessionObj)
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
+            
+
+    return jsonify({'retrocessionnames':Arry})
 
 def change_format_for_displayed_table(df,idcol_name):
     

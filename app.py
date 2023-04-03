@@ -690,6 +690,8 @@ def facturationnames(facturationtype):
 
     return jsonify({'facturationnames':Arry})
 
+
+
 def change_format_for_displayed_table(df,idcol_name):
     
     pass
