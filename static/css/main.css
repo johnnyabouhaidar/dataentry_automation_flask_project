@@ -475,7 +475,7 @@ li a:hover:not(.active) {
   background-color: #e5e5e5;
   padding: 15px;
   border-radius: 8px;
-  width:60%;
+  width:80%;
   margin:auto;
 }
 #isActive{width:auto;}

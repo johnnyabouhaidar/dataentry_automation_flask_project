@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -252,14 +252,16 @@ def dashboard():
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and encaissementDate BETWEEN '{0}' and '{1}'  group by banque""".format(request.args["fromdate"],request.args["todate"]))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and date BETWEEN '{0}' and '{1}' group by paiementsType """.format(request.args["fromdate"],request.args["todate"]))
         facturationls,facturationsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=0 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
-        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=1 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
+        #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=1 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
+        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and date BETWEEN '{0}' and '{1}' group by retrocession.retrocessionType""".format(request.args["fromdate"],request.args["todate"]))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and fraismaterieldate BETWEEN '{0}' and '{1}' group by fraismaterielType""".format(request.args["fromdate"],request.args["todate"]))
         
     except:
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and YEAR(encaissementDate)={0}  group by banque""".format(datetime.datetime.now().year))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and YEAR(date)={0} group by paiementsType """.format(datetime.datetime.now().year))
         facturationls,facturationsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=0 group by facturation.facturationType""".format(datetime.datetime.now().year))
-        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
+        #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
+        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and YEAR(date)={0}  group by retrocession.retrocessionType""".format(datetime.datetime.now().year))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and YEAR(fraismaterieldate)={0} group by fraismaterielType""".format(datetime.datetime.now().year))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)

@@ -247,5 +247,7 @@ class FilterNonValidItemsForm(FlaskForm):
     validity=SelectField(label="Montrer seulement",choices=[('','Valide/Pas Valide'),('valide','Valide'),('pasvalide','Pas Valide')])
     fromdate=DateField(label="Depuis")#,validators=[InputRequired()])
     todate=DateField(label="Pour")#,validators=[InputRequired()])
+    amountfrom=FloatField(label="Montant de",render_kw={"placeholder":"e.g. 255.5"})
+    amountto=FloatField(label="Montant à",render_kw={"placeholder":"e.g. 3500.5"})
 
     sub=SubmitField("Filtre")

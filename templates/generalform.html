@@ -35,7 +35,7 @@
               <hr />
             <li><a href="{{url_for('payment')}}"><span class="iconMenu"><img src="./../static/donnees-paiment.svg" alt="Paiement" width="20" height="20" /></span><span class="white">Données de Paiement</span></a></li>
             <li><a href="{{url_for('facturation')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Facturation" width="20" height="20" /></span><span class="white">Facturation et Retrocession</span></a></li>
-            <li><a href=""><span class="iconMenu"><img src="./../static/facturation.svg" alt="Retrocession" width="20" height="20" /></span><span class="white">Données Retrocession(TESTING)</span></a></li>
+            <li><a href="{{url_for('retrocession')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Retrocession" width="20" height="20" /></span><span class="white">Données Retrocession(TESTING)</span></a></li>
             <li><a href="{{url_for('fraismateriel')}}"><span class="iconMenu"><img src="./../static/frais.svg" alt="Frais Matériele" width="20" height="20" /></span><span class="white">Données des Frais Materièl</span></a></li>
             <li><a href="{{url_for('dentisterie')}}"><span class="iconMenu"><img src="./../static/donnees-dentaire.svg" alt="Donnees Dentaire" width="20" height="20" /></span><span class="white">Données des Dentaires</span></a></li>
             <hr />
@@ -136,7 +136,14 @@
                         {{filtervalid_form.fromdate.label}}
                         {{filtervalid_form.fromdate(class="")}}
                         {{filtervalid_form.todate.label}}
-                        {{filtervalid_form.todate(class="")}}                        
+                        {{filtervalid_form.todate(class="")}}
+                        <br>
+                        <br>
+                        {{filtervalid_form.amountfrom.label}}
+                        {{filtervalid_form.amountfrom(class="")}}
+                        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+                        {{filtervalid_form.amountto.label}}
+                        {{filtervalid_form.amountto(class="")}}                                                
     
                         {{filtervalid_form.sub()}}
                         {{filtervalid_form.hidden_tag()}}
