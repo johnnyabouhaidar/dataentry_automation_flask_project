@@ -115,20 +115,6 @@ class Facturation(db.Model):
     comment = db.Column(db.String(250))
     date = db.Column(db.Date,nullable=False)
 
-class Retrocessiontype(db.Model):
-    retrocessiontypeid = db.Column(db.Integer,primary_key=True)
-    retrocessionType = db.Column(db.String(80),nullable=False)
-    
-
-class Retrocession(db.Model):
-    retrocessionId = db.Column(db.Integer,primary_key=True)
-    retrocessionType = db.Column(db.String(80),nullable=False)
-    retrocessionNom = db.Column(db.String(80),nullable=False)
-    somme = db.Column(db.Float,nullable=False)
-    comment = db.Column(db.String(250))
-    date = db.Column(db.Date,nullable=False)  
-    Valide= db.Column(db.String(30),nullable=False)  
-
 
 class Dentisterietype(db.Model):
     dentisterietypeId=db.Column(db.Integer,primary_key=True)
@@ -252,16 +238,14 @@ def dashboard():
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and encaissementDate BETWEEN '{0}' and '{1}'  group by banque""".format(request.args["fromdate"],request.args["todate"]))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and date BETWEEN '{0}' and '{1}' group by paiementsType """.format(request.args["fromdate"],request.args["todate"]))
         facturationls,facturationsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=0 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
-        #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=1 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
-        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and date BETWEEN '{0}' and '{1}' group by retrocession.retrocessionType""".format(request.args["fromdate"],request.args["todate"]))
+        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=1 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and fraismaterieldate BETWEEN '{0}' and '{1}' group by fraismaterielType""".format(request.args["fromdate"],request.args["todate"]))
         
     except:
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and YEAR(encaissementDate)={0}  group by banque""".format(datetime.datetime.now().year))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and YEAR(date)={0} group by paiementsType """.format(datetime.datetime.now().year))
         facturationls,facturationsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=0 group by facturation.facturationType""".format(datetime.datetime.now().year))
-        #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
-        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and YEAR(date)={0}  group by retrocession.retrocessionType""".format(datetime.datetime.now().year))
+        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and YEAR(fraismaterieldate)={0} group by fraismaterielType""".format(datetime.datetime.now().year))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
@@ -706,127 +690,7 @@ def facturationnames(facturationtype):
 
     return jsonify({'facturationnames':Arry})
 
-@app.route('/retrocession',methods=['GET','POST'])
-@app.route('/retrocession/search=<search>',methods=['GET','POST'])
-@login_required
-def retrocession(search=""):
-    try:
-        #print(request.args["validfilter"])
-        validfilter_var=request.args["validfilter"]
-    except:
-        validfilter_var=""  
-    try:
-        fromdate_var=request.args["fromdate"]
-        fromdte=True
-        #print(fromdate_var)
-    except:
-        fromdate_var="1990-1-1"
-        fromdte=False
-    
-    try:
-        todate_var=request.args["todate"]
-        todte=True
-    except:
-        curryear=datetime.datetime.now().year
-        todate_var="{0}-1-1".format(str(curryear+200))
-        todte=False  
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
-    form = AddRetrocessionForm()
-    export2excel_frm=Export_to_excel()
-    searchform=SearchForm(searchstring=search)
-    choices=[]
-    choices.append(("---","---"))
-    choices=choices+[(facttype.retrocessionType,facttype.retrocessionType)for facttype in db.engine.execute("select * from retrocessiontype").fetchall()]
-    form.retrocessionType.choices = choices
-    form.retrocessionNom.choices= [(factname.retrocessionId,factname.retrocessionNom) for factname in Retrocession.query.filter_by(retrocessionType='---').all()]
-    retrocessions=db.engine.execute("select * from retrocession where retrocessionnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by retrocessionId DESC".format(search,validfilter_var,fromdate_var,todate_var))
-    retrocessionsitems=retrocessions.fetchall()
-    headersretrocessions=retrocessions.keys()
 
-    retrocessiondf=pd.DataFrame(retrocessionsitems,columns=headersretrocessions)
-
-    retrocessionsitems_disp=[]
-    
-    for item in retrocessionsitems:
-        itemtmp=list(item)
-        s = '{:0,.2f}'.format(float(item[3]))
-
-        
-        itemtmp[3]=s
-        retrocessionsitems_disp.append(itemtmp)
-
-    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
-        
-        return redirect(url_for('retrocession',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
-        
-
-    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
-        current_date=datetime.datetime.now()
-        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
-        excel_report_path=r"{0}\reporting_temporary\RETROCESSION_{1}.xlsx".format(file_download_location,current_num_timestamp)
-        retrocessiondf.to_excel(excel_report_path,index=False)
-
-        return send_file(excel_report_path)
-
-    if searchform.validate_on_submit() and searchform.searchsubmit.data:
-        if searchform.searchstring.data !="":
-            return redirect(url_for('retrocession',search=searchform.searchstring.data))
-        else:
-            return redirect(url_for('retrocession'))    
-    else:
-        print(searchform.errors)
-
-    if form.is_submitted() and request.method=='POST' and form.submit.data:
-        qry = Setting.query.filter().first()
-        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
-        print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:
-            if form.retrocessionNom.data!="addnew":
-                new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
-            else:
-                new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNomALT.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
-            if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
-                db.session.add(new_retrocession)
-                db.session.commit()
-                return redirect(url_for('retrocession'))
-            else:
-                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
-        else:
-            flash("Vous ne pouvez pas entrer de données à partir de cette date!")        
-    
-
-    if "retrocession" in current_user.access or current_user.access=="all":
-        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=retrocessionsitems_disp,headers=headersretrocessions,dbtable="retrocession",dbtableid="retrocessionId",user_role=current_user.role,searchform=searchform,module_name="Retrocession",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
-    else:
-        return render_template('NOT_AUTHORIZED.html')
-
-
-
-
-@app.route('/retrocessionnames/<retrocessiontype>')
-def retrocessionnames(retrocessiontype):
-    retrocessiontype_dec= urllib.parse.unquote(retrocessiontype.replace("*","%"))
-    retrocessionnames = Retrocession.query.filter_by(retrocessionType=retrocessiontype_dec).all()
-    doctornames=Doctor.query.all()
-    
-    Arry=[]
-    for retrocession in retrocessionnames:
-        
-        if not any(obj['name'] == retrocession.retrocessionNom for obj in Arry):
-            
-            retrocessionObj={}
-            retrocessionObj['id']=retrocession.retrocessionId
-            retrocessionObj['name']=retrocession.retrocessionNom
-            Arry.append(retrocessionObj)
-    for doctor in doctornames:
-            if not any(obj['name'] == doctor.doctorname for obj in Arry):
-                docObj={}
-                docObj['id']=doctor.doctorid
-                docObj['name']=doctor.doctorname
-                Arry.append(docObj)
-            
-
-    return jsonify({'retrocessionnames':Arry})
 
 def change_format_for_displayed_table(df,idcol_name):
     
@@ -1962,9 +1826,6 @@ def setup():
         db.session.commit()
         return redirect(url_for('setup'))
 
-        
-    
-
     form3 = AddDentistrytype()
     dentisterietypes=db.engine.execute("select * from Dentisterietype")
     dentisterietypesitems=dentisterietypes.fetchall()
@@ -1987,21 +1848,10 @@ def setup():
         db.session.add(new_fraismateriel_type)
         db.session.commit()
         return redirect(url_for('setup'))
-    
-    formretro=AddRetrocessiontype()
-    retrocessiontypes=db.engine.execute("select * from retrocessiontype")
-    retrocessiontypesitems=retrocessiontypes.fetchall()
-    headersretrocessiontypes=retrocessiontypes.keys()
-    
-    if formretro.validate_on_submit():
-        new_retrocession_type =Retrocessiontype(retrocessionType=formretro.retrocessiontype.data)
-        db.session.add(new_retrocession_type)
-        db.session.commit()
-        return redirect(url_for('setup'))
 
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,formretro,form3,form4],table=[paymenttypesitems,facturationtypesitems,retrocessiontypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersretrocessiontypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","retrocessiontype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","retrocessiontypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Retrocession Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
+        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation/Retrocession Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -114,6 +114,20 @@ class Facturation(db.Model):
     somme = db.Column(db.Float,nullable=False)
     comment = db.Column(db.String(250))
     date = db.Column(db.Date,nullable=False)
+
+class Retrocessiontype(db.Model):
+    retrocessiontypeid = db.Column(db.Integer,primary_key=True)
+    retrocessionType = db.Column(db.String(80),nullable=False)
+    
+
+class Retrocession(db.Model):
+    retrocessionId = db.Column(db.Integer,primary_key=True)
+    retrocessionType = db.Column(db.String(80),nullable=False)
+    retrocessionNom = db.Column(db.String(80),nullable=False)
+    somme = db.Column(db.Float,nullable=False)
+    comment = db.Column(db.String(250))
+    date = db.Column(db.Date,nullable=False)  
+    Valide= db.Column(db.String(30),nullable=False)  
 
 
 class Dentisterietype(db.Model):
@@ -238,14 +252,16 @@ def dashboard():
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and encaissementDate BETWEEN '{0}' and '{1}'  group by banque""".format(request.args["fromdate"],request.args["todate"]))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and date BETWEEN '{0}' and '{1}' group by paiementsType """.format(request.args["fromdate"],request.args["todate"]))
         facturationls,facturationsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=0 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
-        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=1 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
+        #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and EstRetrocession=1 and date BETWEEN '{0}' and '{1}' group by facturation.facturationType""".format(request.args["fromdate"],request.args["todate"]))
+        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and date BETWEEN '{0}' and '{1}' group by retrocession.retrocessionType""".format(request.args["fromdate"],request.args["todate"]))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and fraismaterieldate BETWEEN '{0}' and '{1}' group by fraismaterielType""".format(request.args["fromdate"],request.args["todate"]))
         
     except:
         encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and YEAR(encaissementDate)={0}  group by banque""".format(datetime.datetime.now().year))
         paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and YEAR(date)={0} group by paiementsType """.format(datetime.datetime.now().year))
         facturationls,facturationsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=0 group by facturation.facturationType""".format(datetime.datetime.now().year))
-        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
+        #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
+        retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and YEAR(date)={0}  group by retrocession.retrocessionType""".format(datetime.datetime.now().year))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and YEAR(fraismaterieldate)={0} group by fraismaterielType""".format(datetime.datetime.now().year))
     pnl=enctotal-paysum
     paysum = '{:0,.2f}'.format(paysum)
@@ -294,8 +310,16 @@ def doctorpayment(search=""):
     except:
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
-        todte=False        
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
+        todte=False    
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None            
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)    
     form=AddDoctorPaymentForm()
     searchform=SearchForm(searchstring=search)
     choices=[]
@@ -309,7 +333,7 @@ def doctorpayment(search=""):
     form.paimentnom.choices=paymentchoices
 
 
-    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by doctorpaiementId DESC".format(search,validfilter_var,fromdate_var,todate_var))
+    DoctorPayments=db.engine.execute("select * from DoctorPayment where paimentnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  and doctorpaiementsomme BETWEEN '{4}' and '{5}' order by doctorpaiementId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
     DoctorPaymentitems=DoctorPayments.fetchall()
     headersDoctorPayment=DoctorPayments.keys()
 
@@ -325,7 +349,7 @@ def doctorpayment(search=""):
     
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('doctorpayment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
+        return redirect(url_for('doctorpayment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))          
 
 
 
@@ -386,8 +410,16 @@ def encaissement(search=""):
     except:
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
-        todte=False        
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)      
+        todte=False     
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None           
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)      
     form = AddEncaissementForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
@@ -398,7 +430,7 @@ def encaissement(search=""):
             encaissementnameschoices.append((encname.encaissementNom,encname.encaissementNom))
 
     form.encaissementNom.choices = encaissementnameschoices
-    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%' and Valide LIKE '{1}%' and encaissementDate BETWEEN '{2}' and '{3}'  order by encaissementId DESC".format(search,validfilter_var,fromdate_var,todate_var))
+    encaissements=db.engine.execute("select * from encaissement where encaissementNom LIKE '%{0}%' and Valide LIKE '{1}%' and encaissementDate BETWEEN '{2}' and '{3}'  and montant BETWEEN '{4}' and '{5}'  order by encaissementId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
     encaissementitems=encaissements.fetchall()
     headersencaissement=encaissements.keys()
 
@@ -416,7 +448,7 @@ def encaissement(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('encaissement',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
+        return redirect(url_for('encaissement',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))          
         
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
@@ -484,7 +516,15 @@ def dentisterie(search=""):
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
         todte=False          
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None        
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)    
     form=AddDentistryInfoForm()
     searchform=SearchForm(searchstring=search)
     choices=[]
@@ -492,7 +532,7 @@ def dentisterie(search=""):
     choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
     form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
-    dentisterie=db.engine.execute("select * from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  order by dentisterieId DESC".format(search,validfilter_var,fromdate_var,todate_var))
+    dentisterie=db.engine.execute("select dentisterieId as ID,dentisterieType as Type,dentisterieNom as Nom,somme as Somme,date as Date,Comment as Comment,Valide as Valide from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  and somme BETWEEN '{4}' and '{5}' order by dentisterieId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
 
@@ -509,7 +549,7 @@ def dentisterie(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('dentisterie',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
+        return redirect(url_for('dentisterie',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))          
     
 
 
@@ -595,7 +635,16 @@ def facturation(search=""):
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
         todte=False  
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)    
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None
+
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)    
     form = AddFacturationForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
@@ -604,7 +653,7 @@ def facturation(search=""):
     choices=choices+[(facttype.facturationType,facttype.facturationType)for facttype in db.engine.execute("select * from facturationtype").fetchall()]
     form.facturationType.choices = choices
     form.facturationNom.choices= [(factname.facturationId,factname.facturationNom) for factname in Facturation.query.filter_by(facturationType='---').all()]
-    facturations=db.engine.execute("select * from facturation where facturationnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by facturationId DESC".format(search,validfilter_var,fromdate_var,todate_var))
+    facturations=db.engine.execute("select facturationId as ID,facturationType as Type,facturationNom as Nom,somme as Somme,date as Date,comment as Comment,Valide as Valide from facturation where facturationnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  and somme BETWEEN '{4}' and '{5}' order by facturationId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
     facturationsitems=facturations.fetchall()
     headersfacturations=facturations.keys()
 
@@ -622,7 +671,7 @@ def facturation(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('facturation',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
+        return redirect(url_for('facturation',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))          
         
 
     if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
@@ -690,7 +739,135 @@ def facturationnames(facturationtype):
 
     return jsonify({'facturationnames':Arry})
 
+@app.route('/retrocession',methods=['GET','POST'])
+@app.route('/retrocession/search=<search>',methods=['GET','POST'])
+@login_required
+def retrocession(search=""):
+    try:
+        #print(request.args["validfilter"])
+        validfilter_var=request.args["validfilter"]
+    except:
+        validfilter_var=""  
+    try:
+        fromdate_var=request.args["fromdate"]
+        fromdte=True
+        #print(fromdate_var)
+    except:
+        fromdate_var="1990-1-1"
+        fromdte=False
+    
+    try:
+        todate_var=request.args["todate"]
+        todte=True
+    except:
+        curryear=datetime.datetime.now().year
+        todate_var="{0}-1-1".format(str(curryear+200))
+        todte=False  
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None        
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)    
+    form = AddRetrocessionForm()
+    export2excel_frm=Export_to_excel()
+    searchform=SearchForm(searchstring=search)
+    choices=[]
+    choices.append(("---","---"))
+    choices=choices+[(facttype.retrocessionType,facttype.retrocessionType)for facttype in db.engine.execute("select * from retrocessiontype").fetchall()]
+    form.retrocessionType.choices = choices
+    form.retrocessionNom.choices= [(factname.retrocessionId,factname.retrocessionNom) for factname in Retrocession.query.filter_by(retrocessionType='---').all()]
+    retrocessions=db.engine.execute("select retrocessionId as ID,retrocessionType as Type,retrocessionNom as Nom,somme as Somme,date as Date,comment as Comment,Valide as Valide from retrocession where retrocessionnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  and somme BETWEEN '{4}' and '{5}' order by retrocessionId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
+    retrocessionsitems=retrocessions.fetchall()
+    headersretrocessions=retrocessions.keys()
 
+    retrocessiondf=pd.DataFrame(retrocessionsitems,columns=headersretrocessions)
+
+    retrocessionsitems_disp=[]
+    
+    for item in retrocessionsitems:
+        itemtmp=list(item)
+        s = '{:0,.2f}'.format(float(item[3]))
+
+        
+        itemtmp[3]=s
+        retrocessionsitems_disp.append(itemtmp)
+
+    if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
+        
+        return redirect(url_for('retrocession',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))          
+        
+
+    if export2excel_frm.validate_on_submit() and export2excel_frm.export_submit.data:
+        current_date=datetime.datetime.now()
+        current_num_timestamp="{0}{1}{2}_{3}{4}{5}".format(current_date.year,current_date.month,current_date.day,current_date.hour,current_date.minute,current_date.second)
+        excel_report_path=r"{0}\reporting_temporary\RETROCESSION_{1}.xlsx".format(file_download_location,current_num_timestamp)
+        retrocessiondf.to_excel(excel_report_path,index=False)
+
+        return send_file(excel_report_path)
+
+    if searchform.validate_on_submit() and searchform.searchsubmit.data:
+        if searchform.searchstring.data !="":
+            return redirect(url_for('retrocession',search=searchform.searchstring.data))
+        else:
+            return redirect(url_for('retrocession'))    
+    else:
+        print(searchform.errors)
+
+    if form.is_submitted() and request.method=='POST' and form.submit.data:
+        qry = Setting.query.filter().first()
+        monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
+        print(monthdelta,qry.moisavant)
+        if monthdelta<qry.moisavant:
+            if form.retrocessionNom.data!="addnew":
+                new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
+            else:
+                new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNomALT.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
+            if isinstance(form.somme.data, int) or isinstance(form.somme.data, float):
+                db.session.add(new_retrocession)
+                db.session.commit()
+                return redirect(url_for('retrocession'))
+            else:
+                flash("Données invalides. Veuillez revérifier et soumettre à nouveau")
+        else:
+            flash("Vous ne pouvez pas entrer de données à partir de cette date!")        
+    
+
+    if "retrocession" in current_user.access or current_user.access=="all":
+        return render_template('generalform.html',forms=[form],hasDynamicSelector=True,table=retrocessionsitems_disp,headers=headersretrocessions,dbtable="retrocession",dbtableid="retrocessionId",user_role=current_user.role,searchform=searchform,module_name="Retrocession",export_form=export2excel_frm,filtervalid_form=filtervalid_form)
+    else:
+        return render_template('NOT_AUTHORIZED.html')
+
+
+
+
+@app.route('/retrocessionnames/<retrocessiontype>')
+def retrocessionnames(retrocessiontype):
+    retrocessiontype_dec= urllib.parse.unquote(retrocessiontype.replace("*","%"))
+    retrocessionnames = Retrocession.query.filter_by(retrocessionType=retrocessiontype_dec).all()
+    doctornames=Doctor.query.all()
+    
+    Arry=[]
+    for retrocession in retrocessionnames:
+        
+        if not any(obj['name'] == retrocession.retrocessionNom for obj in Arry):
+            
+            retrocessionObj={}
+            retrocessionObj['id']=retrocession.retrocessionId
+            retrocessionObj['name']=retrocession.retrocessionNom
+            Arry.append(retrocessionObj)
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
+            
+
+    return jsonify({'retrocessionnames':Arry})
 
 def change_format_for_displayed_table(df,idcol_name):
     
@@ -723,12 +900,20 @@ def payment(search=""):
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
         todte=False
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None
 
     form=AddPaymentForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
     
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)
     
     choices=[]
     choices.append(("---","---"))
@@ -739,8 +924,10 @@ def payment(search=""):
     form.paiementsNom.choices= [(payname.paiementsId,payname.paiementsNom) for payname in Payment.query.filter_by(paiementsType='---').all()]
     #searchform.searchfilter.choices=[(paytype.paiementsType,paytype.paiementsType)for paytype in db.engine.execute("select * from paymenttype").fetchall()]
 
-    payments=db.engine.execute("select * from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by paiementsId DESC".format(search,validfilter_var,str(fromdate_var),str(todate_var)))
-    print("select * from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' order by paiementsId DESC".format(search,validfilter_var,str(fromdate_var),str(todate_var)))
+
+    payments=db.engine.execute("select paiementsId as ID,paiementsType as Type, paiementsNom as Nom,somme as Somme,date as Date,comment as Comment,Valide as Valide from payment where paiementsnom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}' and somme BETWEEN '{4}' and '{5}' order by paiementsId DESC".format(search,validfilter_var,str(fromdate_var),str(todate_var),0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
+
+    print("select * from payment where Nom LIKE '%{0}%' and Valide LIKE '{1}%' and Date BETWEEN '{2}' and '{3}'and Somme BETWEEN '{4}'and'{5}' order by ID DESC".format(search,validfilter_var,str(fromdate_var),str(todate_var),amountfrom_var,amountto_var))
     #payments=db.engine.execute("select * from payment  order by paiementsId DESC")
     paymentitems=payments.fetchall()
     headerspayments=payments.keys()
@@ -762,7 +949,7 @@ def payment(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))          
+        return redirect(url_for('payment',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))          
     
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
@@ -883,13 +1070,21 @@ def fraismateriel(search=""):
     except:
         curryear=datetime.datetime.now().year
         todate_var="{0}-1-1".format(str(curryear+200))
-        todte=False        
-    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None)
+        todte=False      
+    try:
+        amountfrom_var=request.args["amountfrom"]
+    except:
+        amountfrom_var=None
+    try:
+        amountto_var=request.args["amountto"]
+    except:
+        amountto_var=None          
+    filtervalid_form=FilterNonValidItemsForm(validity=validfilter_var,fromdate=datetime.datetime.strptime(fromdate_var,'%Y-%m-%d') if fromdte!=False else None,todate=datetime.datetime.strptime(todate_var,'%Y-%m-%d') if todte!=False else None,amountfrom=amountfrom_var,amountto=amountto_var)
     form =AddFraismaterielForm()
     export2excel_frm=Export_to_excel()
     searchform=SearchForm(searchstring=search)
     
-    fraismateriel=db.engine.execute("select * from fraismateriel where fraismaterielnom LIKE '%{0}%' and Valide LIKE '{1}%' and fraismaterieldate BETWEEN '{2}' and '{3}' order by fraismaterielId DESC".format(search,validfilter_var,fromdate_var,todate_var))
+    fraismateriel=db.engine.execute("select fraismaterielId as ID,fraismaterielType as Type,fraismaterielNom as Nom,fraismaterielsomme as Somme,fraismaterieldate as Date,comment as Comment,Valide as Valide from fraismateriel where fraismaterielnom LIKE '%{0}%' and Valide LIKE '{1}%' and fraismaterieldate BETWEEN '{2}' and '{3}'  and fraismaterielsomme BETWEEN '{4}' and '{5}' order by fraismaterielId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
     fraismaterielitems=fraismateriel.fetchall()
     headersfraismateriel=fraismateriel.keys()
 
@@ -903,7 +1098,7 @@ def fraismateriel(search=""):
 
     if filtervalid_form.is_submitted() and filtervalid_form.sub.data:
         
-        return redirect(url_for('fraismateriel',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data))   
+        return redirect(url_for('fraismateriel',validfilter=filtervalid_form.validity.data,fromdate=filtervalid_form.fromdate.data,todate=filtervalid_form.todate.data,amountfrom=filtervalid_form.amountfrom.data,amountto=filtervalid_form.amountto.data))   
 
     if searchform.validate_on_submit() and searchform.searchsubmit.data:
         if searchform.searchstring.data !="":
@@ -1816,15 +2011,18 @@ def setup():
         return redirect(url_for('setup'))
 
     form2 =AddFacturationtype()
-    facturationtypes=db.engine.execute("select * from facturationtype")
+    facturationtypes=db.engine.execute("select facturationtypeid,facturationType from facturationtype")
     facturationtypesitems=facturationtypes.fetchall()
     headersfacturationtypes=facturationtypes.keys()
     
     if form2.validate_on_submit():
-        new_facturation_type =Facturationtype(facturationType=form2.facturationtype.data,EstRetrocession=form2.isretrocession.data)
+        new_facturation_type =Facturationtype(facturationType=form2.facturationtype.data,EstRetrocession=0)
         db.session.add(new_facturation_type)
         db.session.commit()
         return redirect(url_for('setup'))
+
+        
+    
 
     form3 = AddDentistrytype()
     dentisterietypes=db.engine.execute("select * from Dentisterietype")
@@ -1848,10 +2046,21 @@ def setup():
         db.session.add(new_fraismateriel_type)
         db.session.commit()
         return redirect(url_for('setup'))
+    
+    formretro=AddRetrocessiontype()
+    retrocessiontypes=db.engine.execute("select * from retrocessiontype")
+    retrocessiontypesitems=retrocessiontypes.fetchall()
+    headersretrocessiontypes=retrocessiontypes.keys()
+    
+    if formretro.validate_on_submit():
+        new_retrocession_type =Retrocessiontype(retrocessionType=formretro.retrocessiontype.data)
+        db.session.add(new_retrocession_type)
+        db.session.commit()
+        return redirect(url_for('setup'))
 
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,form3,form4],table=[paymenttypesitems,facturationtypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation/Retrocession Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
+        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,formretro,form3,form4],table=[paymenttypesitems,facturationtypesitems,retrocessiontypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersretrocessiontypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","retrocessiontype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","retrocessiontypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Retrocession Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

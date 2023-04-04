@@ -15,7 +15,7 @@ from app import *
 class RegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=PasswordField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Utilisez "Ctrl" pour plusieurs rôles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Docteurs'),('payments','Paiements'),('facturation','Facturations'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Utilisez "Ctrl" pour plusieurs rôles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Docteurs'),('payments','Paiements'),('facturation','Facturations'),('retrocession','Retrocessions'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Enregistrer")
@@ -31,7 +31,7 @@ class RegisterForm(FlaskForm):
 class EditRegisterForm(FlaskForm):
     username=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Username"})
     password=StringField(validators=[InputRequired(),Length(min=4,max=20)],render_kw={"placeholder":"Password"})
-    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Docteurs'),('payments','Paiements'),('facturation','Facturations'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
+    access = SelectMultipleField('Roles (Use Ctrl for multiple roles)',validators=[InputRequired()], choices=[('setup','Setup'),('doctors','Docteurs'),('payments','Paiements'),('facturation','Facturations'),('retrocession','Retrocessions'),('dentisterie','Dentisterie'),('encaissement','Encaissement'),('fraismateriel','Frais Materiel'),('paiement_medecin','Paiement du médecin'),('reports','Reports Generation')])
     isAdmin = BooleanField('Admin?')
 
     submit =SubmitField("Register")
@@ -129,8 +129,8 @@ class AddDentistryInfoForm(FlaskForm):
     submit=SubmitField("Soumettre")
 
 class AddFacturationtype(FlaskForm):
-    facturationtype=StringField(label="Facturation/Retrocession Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
-    isretrocession = BooleanField('Est-ce de type Rétrocession ?')
+    facturationtype=StringField(label="Facturation Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Facturation dentiste...)"})
+    #isretrocession = BooleanField('Est-ce de type Rétrocession ?')
 
     submit =SubmitField("Soumettre")
 
