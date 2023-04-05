@@ -1381,6 +1381,33 @@ def edit_entry(tbl,id):
             return redirect(url_for('facturation'))
         elif form.is_submitted():
             flash("Invalid Data. Please re-check and submit again!")
+    if tbl=='retrocession':
+        qry = Retrocession.query.filter(
+            Retrocession.retrocessionId==id).first()
+        #doc = qry.first()
+        
+        form=AddRetrocessionForm(obj=qry)
+        choices=[(rettype.retrocessionType,rettype.retrocessionType)for rettype in db.engine.execute("select * from retrocessiontype").fetchall()]
+        form.retrocessionType.choices = choices
+        
+        form.retrocessionNom.choices=[(qry.retrocessionNom,qry.retrocessionNom)]
+        
+        if form.validate_on_submit():
+            #qry.doctorid = form.doctorid.data
+            qry.retrocessionType=form.retrocessionType.data
+            if form.retrocessionNomALT.data=="":
+                qry.retrocessionNom = form.retrocessionNom.data
+            else:
+                qry.retrocessionNom = form.retrocessionNomALT.data
+            qry.somme=form.somme.data
+            qry.date=form.date.data
+            qry.comment=form.comment.data
+            
+            #qry=form
+            db.session.commit()
+            return redirect(url_for('retrocession'))
+        elif form.is_submitted():
+            flash("Invalid Data. Please re-check and submit again!")            
     if tbl=='dentisterie':
         qry = Dentisterie.query.filter(
             Dentisterie.dentisterieId==id).first()
