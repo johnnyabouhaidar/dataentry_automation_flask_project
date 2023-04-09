@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -189,6 +189,7 @@ class Percentageactivity(db.Model):
 class Setting(db.Model):
     settingsid=db.Column(db.Integer,primary_key=True)
     moisavant=db.Column(db.Integer,nullable=False)
+    moislimit=db.Column(db.Integer,nullable=False)
 
 
 class Constants(db.Model):
@@ -365,7 +366,7 @@ def doctorpayment(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:        
+        if monthdelta<qry.moisavant  and monthdelta>qry.moislimit*-1:        
             if form.paimentnom.data=="addnew":
                 new_doctorpayment = Doctorpayment(doctorname=form.doctorname.data,paimentnom=form.paimentnomALT.data,doctorpaiementsomme=form.doctorpaiementsomme.data,date=form.date.data)
             else:
@@ -463,7 +464,7 @@ def encaissement(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.encaissementDate.data.year) * 12 + date.today().month - form.encaissementDate.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:        
+        if monthdelta<qry.moisavant  and monthdelta>qry.moislimit*-1:        
             if form.encaissementNom.data!="addnew":
                 new_encaissement = Encaissement(encaissementNom=form.encaissementNom.data,encaissementDate=form.encaissementDate.data,montant=form.montant.data,banque=form.banque.data,comment=form.comment.data) 
             else:
@@ -532,7 +533,7 @@ def dentisterie(search=""):
     choices=choices+[(denttype.dentisterietype,denttype.dentisterietype)for denttype in db.engine.execute("select * from dentisterietype").fetchall()]   
     form.dentisterieType.choices=choices
     form.dentisterieNom.choices= [(dentname.dentisterieId,dentname.dentisterieNom) for dentname in Dentisterie.query.filter_by(dentisterieType='---').all()]
-    dentisterie=db.engine.execute("select dentisterieId as ID,dentisterieType as Type,dentisterieNom as Nom,somme as Somme,date as Date,Comment as Comment,Valide as Valide from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  and somme BETWEEN '{4}' and '{5}' order by dentisterieId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
+    dentisterie=db.engine.execute("select dentisterieId as ID,dentisterieType as Type,dentisterieNom as Nom,somme as Somme,date as Date,Valide as Valide from dentisterie where dentisterieNom LIKE '%{0}%' and Valide LIKE '{1}%' and date BETWEEN '{2}' and '{3}'  and somme BETWEEN '{4}' and '{5}' order by dentisterieId DESC".format(search,validfilter_var,fromdate_var,todate_var,0 if amountfrom_var==None else amountfrom_var,99999999 if amountto_var==None else amountto_var))
     dentisterieitems=dentisterie.fetchall()
     headersdentisterie=dentisterie.keys()
 
@@ -566,7 +567,7 @@ def dentisterie(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:
+        if monthdelta<qry.moisavant  and monthdelta>qry.moislimit*-1:
             if form.dentisterieNom.data!="addnew":
                 new_dentisterie =Dentisterie(dentisterieType=form.dentisterieType.data,dentisterieNom=form.dentisterieNom.data,somme=form.somme.data,date=form.date.data)
             else:
@@ -694,7 +695,7 @@ def facturation(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:
+        if monthdelta<qry.moisavant  and monthdelta>qry.moislimit*-1:
             if form.facturationNom.data!="addnew":
                 new_facturation =Facturation(facturationType=form.facturationType.data,facturationNom=form.facturationNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data)
             else:
@@ -821,7 +822,7 @@ def retrocession(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:
+        if monthdelta<qry.moisavant  and monthdelta>qry.moislimit*-1:
             if form.retrocessionNom.data!="addnew":
                 new_retrocession =Retrocession(retrocessionType=form.retrocessionType.data,retrocessionNom=form.retrocessionNom.data,somme=form.somme.data,comment=form.comment.data,date=form.date.data,Valide="pasvalide")
             else:
@@ -965,7 +966,7 @@ def payment(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.date.data.year) * 12 + date.today().month - form.date.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:
+        if monthdelta<qry.moisavant and monthdelta>qry.moislimit*-1:
             if form.paiementsNom.data!="addnew":
                 new_payment =Payment(paiementsType=form.paiementsType.data,paiementsNom=form.paiementsNom.data,somme=form.somme.data,date=form.date.data,comment=form.comment.data)
             else:
@@ -1010,13 +1011,15 @@ def paymentnames(paymenttype):
             paymentObj['id']=payment.paiementsId
             paymentObj['name']=payment.paiementsNom
             Arry.append(paymentObj)
-    
+    '''
     for doctor in doctornames:
             if not any(obj['name'] == doctor.doctorname for obj in Arry):
                 docObj={}
                 docObj['id']=doctor.doctorid
                 docObj['name']=doctor.doctorname
                 Arry.append(docObj)
+                '''
+                
             
 
     return jsonify({'paymentnames':Arry})
@@ -1112,7 +1115,7 @@ def fraismateriel(search=""):
         qry = Setting.query.filter().first()
         monthdelta=(date.today().year - form.fraismaterieldate.data.year) * 12 + date.today().month - form.fraismaterieldate.data.month
         print(monthdelta,qry.moisavant)
-        if monthdelta<qry.moisavant:                
+        if monthdelta<qry.moisavant  and monthdelta>qry.moislimit*-1:                
             if form.fraismaterielnom.data!="addnew":
                 new_fraismateriel =Fraismateriel(fraismaterieltype=form.fraismaterieltype.data,fraismaterielnom=form.fraismaterielnom.data,fraismaterielsomme=form.fraismaterielsomme.data,fraismaterieldate=form.fraismaterieldate.data,comment=form.comment.data)
             else:
@@ -2025,9 +2028,10 @@ def setup():
     if settingsForm.validate_on_submit():
         try:
             qry.moisavant=settingsForm.moisavant.data
+            qry.moislimit=settingsForm.moislimit.data
             db.session.commit()
         except:
-            new_setting=Setting(moisavant=settingsForm.moisavant.data)
+            new_setting=Setting(moisavant=settingsForm.moisavant.data,moislimit=settingsForm.moislimit.data)
             db.session.add(new_setting)
             db.session.commit()
     
