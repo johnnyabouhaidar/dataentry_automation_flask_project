@@ -158,9 +158,11 @@ def addlabels(x,y):
         plt.text(i, y[i], y[i], ha = 'center')
 
 def dataframe_to_pdf(dfs,pnl,year, filename,enctot,paytot,query_for_general_table,resumedf, numpages=(1, 1), pagesize=(1, 1)):
+
   with PdfPages(filename) as pdf:
     nh, nv = numpages
 
+    
     
     plt.figure() 
     plt.axis('off')
