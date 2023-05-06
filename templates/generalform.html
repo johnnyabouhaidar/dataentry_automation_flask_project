@@ -393,7 +393,7 @@
         retrocessiontype_select.onclick = function () {
             retrocessiontype = retrocessiontype_select.value;
 
-            fetch('/retrocessionnames/' + encodeURI(retrocessiontype.trim()).toString().replaceAll('%','*')).then(function (response) {
+            fetch('/retrocessionnames/' + encodeURI(retrocessiontype.trim()).toString().replaceAll('%','*').replaceAll('/','~')).then(function (response) {
                 response.json().then(function (data) {
                     let optionHTML = '';
 

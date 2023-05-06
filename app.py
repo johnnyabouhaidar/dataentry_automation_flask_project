@@ -264,7 +264,7 @@ def dashboard():
         #retrocessionls,retrocessionsum = get_ls_for_dashboard("""select facturation.facturationtype as FacturationType, Sum(somme) as somme from facturation inner join facturationtype on facturation.facturationtype=facturationtype.facturationtype where Valide='valide' and YEAR(date)={0} and EstRetrocession=1 group by facturation.facturationType""".format(datetime.datetime.now().year))
         retrocessionls,retrocessionsum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  where Valide='valide' and YEAR(date)={0}  group by retrocession.retrocessionType""".format(datetime.datetime.now().year))
         fraisls,fraissum = get_ls_for_dashboard("""Select fraismaterieltype as FraisMaterielType, SUM(fraismaterielsomme)  as somme from fraismateriel where Valide='valide' and YEAR(fraismaterieldate)={0} group by fraismaterielType""".format(datetime.datetime.now().year))
-    pnl=enctotal-paysum
+    pnl=enctotal-(paysum+retrocessionsum)
     paysum = '{:0,.2f}'.format(paysum)
     '''paysum=paysum.replace('.','|')
     paysum=paysum.replace(',','.')
@@ -847,7 +847,7 @@ def retrocession(search=""):
 
 @app.route('/retrocessionnames/<retrocessiontype>')
 def retrocessionnames(retrocessiontype):
-    retrocessiontype_dec= urllib.parse.unquote(retrocessiontype.replace("*","%"))
+    retrocessiontype_dec= urllib.parse.unquote(retrocessiontype.replace("*","%").replace("~","/"))
     retrocessionnames = Retrocession.query.filter_by(retrocessionType=retrocessiontype_dec).all()
     doctornames=Doctor.query.all()
     
