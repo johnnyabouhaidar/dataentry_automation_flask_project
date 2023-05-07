@@ -188,6 +188,9 @@ class AddEncaissementForm(FlaskForm):
 
 class MainReportForm(FlaskForm):
     year = IntegerField(label="An",validators=[InputRequired()],render_kw={"placeholder":"Year"})
+    fromdate = DateField('De',validators=[InputRequired()])
+    todate = DateField('A',validators=[InputRequired()])
+
     submit =SubmitField("Soumettre")
 
 class IndividualDoctorReportForm(FlaskForm):
