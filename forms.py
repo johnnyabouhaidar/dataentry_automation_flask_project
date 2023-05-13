@@ -147,6 +147,7 @@ class AddFacturationForm(FlaskForm):
 
 class AddRetrocessiontype(FlaskForm):
     retrocessiontype=StringField(label="Retrocession Type ",validators=[InputRequired()],render_kw={"placeholder":"(i.e: Retrocession dentiste...)"})    
+    pnl_included=BooleanField('Inclure dans PnL')
 
     submit =SubmitField("Soumettre") 
 

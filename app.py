@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -118,6 +118,7 @@ class Facturation(db.Model):
 class Retrocessiontype(db.Model):
     retrocessiontypeid = db.Column(db.Integer,primary_key=True)
     retrocessionType = db.Column(db.String(80),nullable=False)
+    pnl_included = db.Column(db.String(80),nullable=True)
     
 
 class Retrocession(db.Model):
@@ -2079,12 +2080,12 @@ def setup():
         return redirect(url_for('setup'))
     
     formretro=AddRetrocessiontype()
-    retrocessiontypes=db.engine.execute("select * from retrocessiontype")
+    retrocessiontypes=db.engine.execute("select retrocessiontypeid as ID, retrocessiontype as Type, pnl_included as 'Inclure dans PnL' from retrocessiontype")
     retrocessiontypesitems=retrocessiontypes.fetchall()
     headersretrocessiontypes=retrocessiontypes.keys()
     
     if formretro.validate_on_submit():
-        new_retrocession_type =Retrocessiontype(retrocessionType=formretro.retrocessiontype.data)
+        new_retrocession_type =Retrocessiontype(retrocessionType=formretro.retrocessiontype.data,pnl_included=formretro.pnl_included.data)
         db.session.add(new_retrocession_type)
         db.session.commit()
         return redirect(url_for('setup'))
