@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -1861,12 +1861,12 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
     if form.validate_on_submit():
         dfs=[]
         #paymentslist=db.engine.execute("""SELECT paiementsNom,SUM(somme) AS somme FROM payment GROUP BY paiementsNom;""")
-        paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month" From payment where YEAR(date)={0} and Valide='valide' group by YEAR(date),MONTH(date) , paiementsType """.format(form.year.data))
+        paymentslist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,MONTH(date) AS "month" From payment where date BETWEEN '{0}' and '{1}' and Valide='valide' group by YEAR(date),MONTH(date) , paiementsType """.format(form.fromdate.data,form.todate.data))
 
         paymentdf=convert_list_to_dataframe(paymentslist)
         paymentdf.set_index('paiementsType',inplace=True)
 
-        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where YEAR(date)={0} and Valide='valide' group by YEAR(date) , paiementsType""".format(form.year.data))
+        paymentforgraphlist=db.engine.execute("""select paiementsType, SUM(somme) AS somme ,YEAR(date) as "year" From payment where date BETWEEN '{0}' and '{1}' and Valide='valide' group by YEAR(date) , paiementsType""".format(form.fromdate.data,form.todate.data))
         paymentforgraphdf=convert_list_to_dataframe(paymentforgraphlist)
         paymentforgraphdf.set_index('paiementsType',inplace=True)
 
@@ -1886,23 +1886,23 @@ where docteur='{0}'""".format(ind_doctor_form.doctorname.data))
     SUM (somme) AS TOTAL
 
 FROM payment
-WHERE Year(date)={0}
+WHERE date BETWEEN '{0}' and '{1}'
 and Valide='valide'
-GROUP BY paiementsType""".format(form.year.data))
+GROUP BY paiementsType""".format(form.fromdate.data,form.todate.data))
         paymentforreportdf=convert_list_to_dataframe(paymentforreportlist)
         paymentforreportdf.set_index('PaiementType',inplace=True)        
 
 
-        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2),"Paiements tout au long de l'année"))
+        dfs.append((paymentforreportdf.fillna(0).round(2),paymentforgraphdf.fillna(0).round(2),"Paiements"))
 
 
-        encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} and Valide='valide' group by encaissementNom,banque""".format(form.year.data))
+        encaissementlist=db.engine.execute("""select encaissementNom,SUM(montant) AS somme,banque from encaissement where encaissementDate BETWEEN '{0}' and '{1}' and Valide='valide' group by encaissementNom,banque""".format(form.fromdate.data,form.todate.data))
         encaissementdf=convert_list_to_dataframe(encaissementlist)
         encaissementdf.rename(columns = {'montant':'somme'}, inplace = True)
         encaissementdf.set_index('encaissementNom',inplace=True)
         #print(encaissementdf)
 
-        encaissementgraphlist=db.engine.execute("""select SUM(montant) AS somme,banque from encaissement where YEAR(encaissementDate)={0} and Valide='valide' group by banque""".format(form.year.data))
+        encaissementgraphlist=db.engine.execute("""select SUM(montant) AS somme,banque from encaissement where encaissementDate BETWEEN '{0}' and '{1}' and Valide='valide' group by banque""".format(form.fromdate.data,form.todate.data))
         encaissementgraphdf=convert_list_to_dataframe(encaissementgraphlist)
         encaissementgraphdf.set_index('banque',inplace=True)
 
@@ -1919,7 +1919,7 @@ GROUP BY paiementsType""".format(form.year.data))
         
         facturationdf=convert_list_to_dataframe(facturationlist)
         facturationdf.set_index('facturationType',inplace=True)'''
-        facturationgraphlist=db.engine.execute("""select facturationType, SUM(somme) AS somme ,YEAR(date) as "year" From facturation where YEAR(date)={0} and Valide='valide' group by YEAR(date) , facturationType""".format(form.year.data))
+        facturationgraphlist=db.engine.execute("""select facturationType, SUM(somme) AS somme ,YEAR(date) as "year" From facturation where date BETWEEN '{0}' and '{1}' and Valide='valide' group by YEAR(date) , facturationType""".format(form.fromdate.data,form.todate.data))
         facturationgraphdf=convert_list_to_dataframe(facturationgraphlist)
         facturationgraphdf.set_index('facturationType',inplace=True)
 
@@ -1939,9 +1939,9 @@ GROUP BY paiementsType""".format(form.year.data))
     SUM (somme) AS TOTAL
 
 FROM facturation
-WHERE Year(date)={0}
+WHERE date BETWEEN '{0}' and '{1}'
 and Valide='valide'
-GROUP BY facturationType""".format(form.year.data))
+GROUP BY facturationType""".format(form.fromdate.data,form.todate.data))
         facturationforreportdf=convert_list_to_dataframe(facturationforreportlist)
         facturationforreportdf.set_index('FacturationType',inplace=True) 
 
