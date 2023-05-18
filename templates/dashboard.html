@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
 </head>
@@ -76,6 +78,7 @@
             </ul>
           </div>
         </nav> -->
+        <div id="report2get">
         <div class="padding30">
         <form method="POST" action="" id="0">
                 
@@ -91,10 +94,11 @@
           {% endfor %}
           </form>
           </div>
+          <button type="button" onclick="generatePDF()" class="btn-sm btn-danger pull-right">Export to PDF</button>
         <div class="dash-section padding30">
             
 
-
+          
 
             <div class="col-sm-3 single-section">
               <span class="bold-title">Paiement Total</span
@@ -237,7 +241,26 @@
           }
         }
         </script>
-        
+        <script type="text/javascript">
+          function generatePDF() {
+                
+                // Choose the element id which you want to export.
+                var element = document.getElementById('report2get');
+                //element.style.width = '1000px';
+                //element.style.height = '1000px';
+                var opt = {
+                    margin:       0.5,
+                    filename:     'myfile.pdf',
+                    image:        { type: 'jpeg', quality: 1 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'cm', format: 'A4', orientation: 'landscape',precision: '10' },
+                    
+                  };
+                
+                // choose the element and pass it to html2pdf() function and call the save() on it to save as pdf.
+                html2pdf().set(opt).from(element).save();
+              }
+        </script>
 </body>
 
 </html>
