@@ -646,6 +646,9 @@ li a:hover:not(.active) {
   padding-right: 50px;
   display: inline-block;
 }
+.dashboardform{
+  width:50%;
+}
 .form {
   position: relative;
   z-index: 1;
@@ -1095,7 +1098,22 @@ aside {
 
 * {box-sizing: border-box}
 
+.exportreport-btn{
+  
+  background: url("../pdfreport.png") no-repeat left;
+  width:auto;
+  background-size: 25px;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  float:right;
+  opacity: 0.9;
+}
+
 /* Set a style for all buttons */
+
 button {
   background-color: #04AA6D;
   color: white;

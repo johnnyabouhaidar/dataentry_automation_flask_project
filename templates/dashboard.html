@@ -78,6 +78,7 @@
             </ul>
           </div>
         </nav> -->
+        
         <div id="report2get">
         <div class="padding30">
         <form method="POST" action="" id="0">
@@ -92,9 +93,11 @@
       
       
           {% endfor %}
+          <button type="button" onclick="generatePDF()" class="exportreport-btn"></button>
           </form>
+          
           </div>
-          <button type="button" onclick="generatePDF()" class="btn-sm btn-danger pull-right">Export to PDF</button>
+          
         <div class="dash-section padding30">
             
 
@@ -251,8 +254,8 @@
                 var opt = {
                     margin:       0.5,
                     filename:     'myfile.pdf',
-                    image:        { type: 'jpeg', quality: 1 },
-                    html2canvas:  { scale: 2 },
+                    image:        { type: 'jpeg', quality: 0.99 },
+                    html2canvas:  { scale: 1 },
                     jsPDF:        { unit: 'cm', format: 'A4', orientation: 'landscape',precision: '10' },
                     
                   };
