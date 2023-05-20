@@ -249,14 +249,19 @@
                 
                 // Choose the element id which you want to export.
                 var element = document.getElementById('report2get');
+                var title_element = document.createElement('h1')
+                //title_element.innerText="Report Title"
+                //element.insertBefore(title_element,element.firstChild)
+                console.log(element)
                 //element.style.width = '1000px';
                 //element.style.height = '1000px';
                 var opt = {
                     margin:       0.5,
-                    filename:     'myfile.pdf',
-                    image:        { type: 'jpeg', quality: 0.99 },
+                    filename:     'TableauDeBordRapport.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { scale: 1 },
-                    jsPDF:        { unit: 'cm', format: 'A4', orientation: 'landscape',precision: '10' },
+                    jsPDF:        { unit: 'mm', format: 'A4', orientation: 'landscape'},
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
                     
                   };
                 

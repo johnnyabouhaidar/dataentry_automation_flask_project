@@ -1098,6 +1098,21 @@ aside {
 
 * {box-sizing: border-box}
 
+.viewanalytics-btn{
+    
+  background: url("../analytics.png") no-repeat left;
+  width:auto;
+  background-size: 25px;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  float:right;
+  opacity: 0.9;
+}
+
+
 .exportreport-btn{
   
   background: url("../pdfreport.png") no-repeat left;

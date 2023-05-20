@@ -154,9 +154,13 @@
             
             
         </div>
-
+        <div class="flex-row"></div>
+        <button type="button" onclick="" class="viewanalytics-btn"></button>
+        </div>
         <div class="flex-row">
                 
+
+            
             {%set form_id=777%}
             <form method="POST" action="" id="{{form_id}}">
             
@@ -166,11 +170,15 @@
                 "CSRF Token" %}{{ field.label }}{%else%}{%endif%} {% if field.flags.required %}*{%
                 endif %}
             {{ field(form=form_id) }}
+
+            
         
-        
+                    
         
             {% endfor %}
+            
             </form>
+            
         </div>
         <br>
             <div class="flex-row float-right">
