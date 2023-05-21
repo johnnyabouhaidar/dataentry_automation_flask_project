@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -2094,7 +2094,7 @@ def setup():
 
 
     if "setup" in current_user.access  or current_user.access=="all":        
-        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,formretro,form3,form4],table=[paymenttypesitems,facturationtypesitems,retrocessiontypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersretrocessiontypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","retrocessiontype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","retrocessiontypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Paiement Types","Facturation Types","Retrocession Types","Dentisterie Types","Frais Materiel Types"],user_role=current_user.role)
+        return render_template('setup.html',settingsForms=[settingsForm,staticitemsForm],titlescards=["Mois Avant","Paramètres Constants"],forms=[form1,form2,formretro,form3,form4],table=[paymenttypesitems,facturationtypesitems,retrocessiontypesitems,dentisterietypesitems,fraismaterielitems],headers=[headerspaymenttypes,headersfacturationtypes,headersretrocessiontypes,headersdentisterietypes,headersfraismaterieltypes],dbtable=["paymenttype","facturationtype","retrocessiontype","dentisterietype","fraismaterieltype"],dbtableid=["paiementstypeid","facturationtypeid","retrocessiontypeid","dentisterietypeid","fraismaterieltypeid"],titles=["Type de Paiement","Type de Facturation","Type de Retrocession","Type de Dentisterie","Type de Frais Materiel"],user_role=current_user.role)
     else:
         return render_template('NOT_AUTHORIZED.html')
 

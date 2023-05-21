@@ -33,18 +33,16 @@
             {%endif%}
             <li><a href="{{url_for('doctor')}}"><span class="iconMenu"><img src="./../static/medecine.svg" alt="Medecine" width="20" height="20" /></span><span class="white">Paramètre du Médecin</span></a></li>
               <hr />
-            <li><a href="{{url_for('payment')}}"><span class="iconMenu"><img src="./../static/donnees-paiment.svg" alt="Paiement" width="20" height="20" /></span><span class="white">Données de Paiement</span></a></li>
-            <li><a href="{{url_for('facturation')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Facturation" width="20" height="20" /></span><span class="white">Données Facturation</span></a></li>
-            <li><a href="{{url_for('retrocession')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Retrocession" width="20" height="20" /></span><span class="white">Données Retrocession</span></a></li>
-            <li><a href="{{url_for('fraismateriel')}}"><span class="iconMenu"><img src="./../static/frais.svg" alt="Frais Matériele" width="20" height="20" /></span><span class="white">Données des Frais Materièl</span></a></li>
-            <li><a href="{{url_for('dentisterie')}}"><span class="iconMenu"><img src="./../static/donnees-dentaire.svg" alt="Donnees Dentaire" width="20" height="20" /></span><span class="white">Données des Dentaires</span></a></li>
+            <li><a href="{{url_for('payment')}}"><span class="iconMenu"><img src="./../static/donnees-paiment.svg" alt="Paiement" width="20" height="20" /></span><span class="white">Paiements</span></a></li>
+            <li><a href="{{url_for('facturation')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Facturation" width="20" height="20" /></span><span class="white">Facturation</span></a></li>
+            <li><a href="{{url_for('retrocession')}}"><span class="iconMenu"><img src="./../static/facturation.svg" alt="Retrocession" width="20" height="20" /></span><span class="white">Retrocession</span></a></li>
+            <li><a href="{{url_for('fraismateriel')}}"><span class="iconMenu"><img src="./../static/frais.svg" alt="Frais Matériele" width="20" height="20" /></span><span class="white">Frais Materièl Medical</span></a></li>
+            <li><a href="{{url_for('dentisterie')}}"><span class="iconMenu"><img src="./../static/donnees-dentaire.svg" alt="Donnees Dentaire" width="20" height="20" /></span><span class="white">Dentisterie</span></a></li>
             <hr />
-            <li><a href="{{url_for('encaissement')}}"><span class="iconMenu"><img src="./../static/encaissement.svg" alt="Encaissements Avance" width="20" height="20" /></span><span class="white">Encaissements Avance</span></a></li>
-            <li><a href="{{url_for('doctorpayment')}}"><span class="iconMenu"><img src="./../static/paiment-med.svg" alt="Paiement Médecin" width="20" height="20" /></span><span class="white">Frais d'installation</span></a></li>
+            <li><a href="{{url_for('encaissement')}}"><span class="iconMenu"><img src="./../static/encaissement.svg" alt="Encaissements Avance" width="20" height="20" /></span><span class="white">Encaissements-Avance</span></a></li>
+            <li><a href="{{url_for('doctorpayment')}}"><span class="iconMenu"><img src="./../static/paiment-med.svg" alt="Paiement Médecin" width="20" height="20" /></span><span class="white">Materièl/Mobilier</span></a></li>
             <hr />
             <li class="rapportTab"><a href="{{url_for('reporting')}}">Génération de Rapports</a></li>
-              <li class="rapportTab"><a href="{{url_for('dashboard')}}">Retour au tableau de bord</a></li>
-             <br />
             <!-- <hr /> -->
             <!-- <li><a href="{{url_for('logout')}}"><span class="white">Déconnecter</span></a></li> -->
         </ul>
@@ -79,6 +77,18 @@
             {%endfor%}
         </div>
     </div>
+    <div id="analyticsModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span id="analyticsclose" class="close">&times;</span>
+            {% for form in forms %}
+            <div class="margin-top"></div>
+            <div>
+                Fonctionnalité à venir
+            </div>
+            {%endfor%}
+        </div>
+    </div>    
 
     <!-- <a href="{{url_for('dashboard')}}">🠐 BACK</a> -->
 
@@ -122,6 +132,7 @@
 
                 {%endfor%}
             </div> -->
+            <button id="analyticsBtn" type="button" onclick="" class="viewanalytics-btn"></button>
             <div class="margin-top"></div>
             <div class="">
                 
@@ -154,14 +165,14 @@
             
             
         </div>
-        <div class="flex-row"></div>
-        <button type="button" onclick="" class="viewanalytics-btn"></button>
-        </div>
+        
+       
         <div class="flex-row">
                 
-
+           
             
             {%set form_id=777%}
+
             <form method="POST" action="" id="{{form_id}}">
             
             {% for field in export_form %}
@@ -179,10 +190,14 @@
             
             </form>
             
+            
+            
         </div>
+        
         <br>
+        
             <div class="flex-row float-right">
-
+                
                 <div class="add-icon-view">
                     <img id="myBtn" class="cursor-pointer" src="./../static/add-icon.png" alt="Dialog" width="30"
                         height="30" />
@@ -276,27 +291,41 @@
     <script>
         // Get the modal
         var modal = document.getElementById("myModal");
+        var analyticsModal = document.getElementById("analyticsModal");
 
         // Get the button that opens the modal
         var btn = document.getElementById("myBtn");
+        var analyticsbtn=document.getElementById("analyticsBtn");
 
         // Get the <span> element that closes the modal
         var span = document.getElementsByClassName("close")[0];
+        var analyticsspanclose = document.getElementById("analyticsclose");
+
 
         // When the user clicks the button, open the modal 
         btn.onclick = function () {
             modal.style.display = "block";
+        }
+        analyticsbtn.onclick = function () {
+            analyticsModal.style.display = "block";
         }
 
         // When the user clicks on <span> (x), close the modal
         span.onclick = function () {
             modal.style.display = "none";
         }
+        analyticsspanclose.onclick = function () {
+            analyticsModal.style.display = "none";
+        }
 
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = function (event) {
             if (event.target == modal) {
                 modal.style.display = "none";
+                
+            }
+            if (event.target == analyticsModal){
+                analyticsModal.style.display = "none";
             }
         }
    </script>
