@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -1039,7 +1039,7 @@ def doctor():
         #boolean = False
         #if form.isActive.data=='True':
             #boolean = True
-        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=form.isActive.data,percentageShare=form.percentageShare.data,conditionsfinanciers=form.conditionsfinanciers.data)
+        new_doctor =Doctor(doctorname=form.doctorname.data,doctorspeciality=form.doctorspeciality.data,isActive=form.isActive.data,percentageShare=form.percentageShare.data,conditionsfinanciers="None")
         try:
             db.session.add(new_doctor)
             db.session.commit()
@@ -1223,7 +1223,8 @@ def load_doctor(tbl,id):
             qry.isActive = form.isActive.data
             qry.doctorspeciality=form.doctorspeciality.data
             qry.percentageShare=form.percentageShare.data
-            qry.conditionsfinanciers=form.conditionsfinanciers.data
+            qry.conditionsfinanciers="None"
+            #qry.conditionsfinanciers=form.conditionsfinanciers.data
             #print(subform.surfacecentremedical.value)
 
             qry.pourcentagesalaire=form.pourcentagesalaire.data

@@ -47,9 +47,9 @@ class AddDoctorForm(FlaskForm):
     doctorname=StringField(label="Docteur Nom ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
     doctorspeciality=StringField(label="Docteur Spécialité ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
     #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
-    percentageShare=FloatField(label="Part en pourcentage ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+    percentageShare=FloatField(label="pourcentage d'activité ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
     isActive = BooleanField('Active?')
-    conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
+    #conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
     submit =SubmitField("Soumettre")
 
@@ -57,9 +57,9 @@ class AddDoctorConstantsForm(FlaskForm):
     doctorname=StringField(label="Docteur Nom ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Name"})
     doctorspeciality=StringField(label="Docteur Spécialité ",validators=[InputRequired()],render_kw={"placeholder":"Doctor Speciality"})
     #isActive=StringField(label="Is Active ",validators=[InputRequired()],render_kw={"placeholder":"Active"})
-    percentageShare=FloatField(label="Part en pourcentage ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
+    percentageShare=FloatField(label="pourcentage d'activité ",validators=[InputRequired()],render_kw={"placeholder":"Percentage Share"})
     isActive = BooleanField('Active?')
-    conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
+    #conditionsfinanciers=StringField('Conditions Financieres',widget=TextArea())
 
     pourcentagesalaire=FloatField(label="Pourcentage Salaire")
     pourcentagechargessociales=FloatField(label="Pourcentage Charges Sociales")
