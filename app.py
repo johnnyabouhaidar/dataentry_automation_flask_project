@@ -2101,6 +2101,36 @@ def setup():
 
 
 
+@app.route('/paymentnames/<paymenttype>')
+def paymentnames(paymenttype):
+    paymenttype_dec= urllib.parse.unquote(paymenttype.replace("*","%"))
+    paymentnames = Payment.query.filter_by(paiementsType=paymenttype_dec).all()
+    doctornames = Doctor.query.all()
+    
+    Arry=[]
+    for payment in paymentnames:
+        
+        if not any(obj['name'] == payment.paiementsNom for obj in Arry):
+            
+            paymentObj={}
+            paymentObj['id']=payment.paiementsId
+            paymentObj['name']=payment.paiementsNom
+            Arry.append(paymentObj)
+    '''
+    for doctor in doctornames:
+            if not any(obj['name'] == doctor.doctorname for obj in Arry):
+                docObj={}
+                docObj['id']=doctor.doctorid
+                docObj['name']=doctor.doctorname
+                Arry.append(docObj)
+                '''
+                
+            
+
+    return jsonify({'paymentnames':Arry})
+
+
+
 @app.route('/logout',methods=['GET','POST'])
 @login_required
 def logout():
