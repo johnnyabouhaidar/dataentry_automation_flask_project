@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -2101,33 +2101,21 @@ def setup():
 
 
 
-@app.route('/paymentnames/<paymenttype>')
-def paymentnames(paymenttype):
-    paymenttype_dec= urllib.parse.unquote(paymenttype.replace("*","%"))
-    paymentnames = Payment.query.filter_by(paiementsType=paymenttype_dec).all()
-    doctornames = Doctor.query.all()
-    
+@app.route('/test4dashboard/')
+def test4dashboard():
+    #paymenttype_dec= urllib.parse.unquote(paymenttype.replace("*","%"))
+    #paymentnames = Payment.query.filter_by(paiementsType=paymenttype_dec).all()
+    #doctornames = Doctor.query.all()
+    print(request.args)
     Arry=[]
-    for payment in paymentnames:
-        
-        if not any(obj['name'] == payment.paiementsNom for obj in Arry):
-            
-            paymentObj={}
-            paymentObj['id']=payment.paiementsId
-            paymentObj['name']=payment.paiementsNom
-            Arry.append(paymentObj)
-    '''
-    for doctor in doctornames:
-            if not any(obj['name'] == doctor.doctorname for obj in Arry):
-                docObj={}
-                docObj['id']=doctor.doctorid
-                docObj['name']=doctor.doctorname
-                Arry.append(docObj)
-                '''
-                
-            
 
-    return jsonify({'paymentnames':Arry})
+    try:
+        title='testdata'+request.args["year"]
+        returned_static_data={title:{'type1':3456.43,'type2':3245.34,'type3':2345.34}}
+    except:
+        return jsonify({"Error":"Please specify a year"})
+
+    return jsonify(returned_static_data)
 
 
 
