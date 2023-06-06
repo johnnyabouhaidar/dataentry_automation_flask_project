@@ -2102,6 +2102,7 @@ def setup():
 
 
 @app.route('/test4dashboard/')
+@login_required
 def test4dashboard():
     #paymenttype_dec= urllib.parse.unquote(paymenttype.replace("*","%"))
     #paymentnames = Payment.query.filter_by(paiementsType=paymenttype_dec).all()
