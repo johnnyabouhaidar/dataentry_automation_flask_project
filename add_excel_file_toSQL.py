@@ -1,7 +1,7 @@
 from DB_layer import *
 import pandas as pd
 
-excel_file_path=r"C:\Users\Johnny\Downloads\retro_new.xlsx"
+excel_file_path=r"C:\Users\Johnny\Downloads\Simplified Data - Payments - 2023 NEW.xlsx"
 
 df=pd.read_excel(excel_file_path)
 '''
@@ -20,7 +20,7 @@ for idx,row in enumerate(df.iterrows()):
         mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'",""),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],df.iloc[idx]["Comment"],df.iloc[idx]["Type"])
 
 '''
-'''
+
 mult_str="""INSERT INTO payment ( paiementsNom
       ,paiementsType
       ,somme
@@ -34,8 +34,8 @@ for idx,row in enumerate(df.iterrows()):
         mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'",""),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],"",df.iloc[idx]["Type"])
     else:
         mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'",""),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],df.iloc[idx]["Comment"],df.iloc[idx]["Type"])
-'''
 
+'''
 mult_str="""INSERT INTO retrocession ( retrocessionNom
       ,retrocessionType
       ,somme
@@ -51,7 +51,7 @@ for idx,row in enumerate(df.iterrows()):
     else:
         mult_str=mult_str+"('{0}','{1}',{2},'{3}','{4}','{5}'),".format(df.iloc[idx]["Nom"].replace("'",""),df.iloc[idx]["Type"],df.iloc[idx]["Somme"],str(df.iloc[idx]["Date"]).split(" ")[0],df.iloc[idx]["Comment"].replace("'",""),"Valide")
         
-
+'''
 '''
 mult_str="""INSERT INTO facturation ( facturationNom
       ,facturationType
