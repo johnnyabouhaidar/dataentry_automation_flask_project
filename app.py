@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -2099,23 +2099,108 @@ def setup():
     else:
         return render_template('NOT_AUTHORIZED.html')
 
+def get_day_index(start_date, end_date):
+    start = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-def getpnlforyear(year):
-    pnl_year={}
-    for month in range(1,13):
-        print(month)
-    encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and Month(encaissementDate)=10 and YEAR(encaissementDate)={0}  group by banque""".format(year))
-    paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and YEAR(date)={0} group by paiementsType """.format(year))
+    day_index = []
+    current_date = start
 
-    print({"enc":enctotal,"pay":paysum})
+    while current_date <= end:
+        day_index.append(current_date.timetuple().tm_yday)
+        current_date += timedelta(days=1)
 
-getpnlforyear(2023)
+    return day_index
+
+# Example usage
+#start_date = "2020-06-01"
+#end_date = "2023-06-01"
+#day_index = get_day_index(start_date, end_date)
+
+#print(f"The day index between {start_date} and {end_date} is: {day_index}")
+
+
+def get_years_in_range(start_date, end_date):
+    start = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+    years = []
+    current_date = start
+
+    while current_date <= end:
+        year = current_date.year
+        if year not in years:
+            years.append(year)
+        current_date += timedelta(days=1)
+
+    return years
+
+# Example usage
+#start_date = "2020-06-01"
+#end_date = "2023-06-01"
+#years = get_years_in_range(start_date, end_date)
+
+#print(f"The years in the range {start_date} to {end_date} are: {years}")
+
+def split_date_range_on_new_year(start_date, end_date):
+    start = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+    sub_ranges = []
+    current_start = start
+
+    while current_start.year < end.year:
+        current_end = datetime.datetime(current_start.year, 12, 31)
+        sub_ranges.append((current_start.strftime("%Y-%m-%d"), current_end.strftime("%Y-%m-%d")))
+
+        current_start = datetime.datetime(current_start.year + 1, 1, 1)
+
+    sub_ranges.append((current_start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")))
+
+    return sub_ranges
+
+
+
+
+def getpnlforyear(startdate,enddate):
+    years=[]
+    
+    sub_ranges = split_date_range_on_new_year(startdate, enddate)
+
+    for strt, endd in sub_ranges:
+        #print(strt,endd)
+        year = (datetime.datetime.strptime(strt,'%Y-%m-%d').year)
+        pnl_year={}
+        dayindexes = get_day_index(strt,endd)
+        for day in range(dayindexes[0],dayindexes[-1]+1):
+            encls,enctotal = get_ls_for_dashboard("""select banque, SUM(montant) AS somme from encaissement where Valide='valide' and YEAR(encaissementDate)={0} and DATEPART(DAYOFYEAR,encaissementDate)={1}  group by banque""".format(year,day))
+            paymentls,paysum = get_ls_for_dashboard("""Select paiementstype as PaiementType, SUM(somme)  as somme from payment where Valide='valide' and YEAR(date)={0} and DATEPART(DAYOFYEAR,date)={1} group by paiementsType """.format(year,day))
+            retrols,retrosum = get_ls_for_dashboard("""select retrocession.retrocessiontype as RetrocessionType, Sum(somme) as somme from retrocession  inner join retrocessiontype on retrocession.retrocessionType=retrocessiontype.retrocessionType where Valide='valide'  and YEAR(date)={0} and DATEPART(DAYOFYEAR,date) = {1} and retrocessiontype.pnl_included=1  group by retrocession.retrocessionType""".format(year,day))
+            if enctotal<0.001:
+                enctotal=0.0
+            if paysum<0.001:
+                paysum=0.0
+            if retrosum<0.001:
+                retrosum=0.0
+            #print(enctotal,paysum,retrosum)
+            day_pnl = enctotal-(paysum+retrosum)
+
+            #print(month_pnl)
+            pnl_year[day]=day_pnl
+        years.append({year:pnl_year})
+    return(years)
+    
+
+
+
 
 
 @app.route('/getpnlhistory')
 @login_required
 def getpnlhistory():
-    pass
+    startyear=request.args["startyear"]
+    endyear=request.args["endyear"]
+    return jsonify(getpnlforyear(startyear,endyear))
 
 
 
