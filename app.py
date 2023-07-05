@@ -2191,7 +2191,10 @@ def getpnlforyear(startdate,enddate):
     return(years)
     
 
-
+@app.route('/getpaymentdata')
+#@login_required
+def getpaymentdata():
+    return jsonify({"Status":"OK"})
 
 
 
