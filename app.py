@@ -2190,10 +2190,15 @@ def getpnlforyear(startdate,enddate):
         years.append({year:pnl_year})
     return(years)
     
+def getpaymentasjson(startdate,enddate):
+    pass
+
 
 @app.route('/getpaymentdata')
 #@login_required
 def getpaymentdata():
+    startdate=request.args["startdate"]
+    enddate=request.args["enddate"]
     return jsonify({"Status":"OK"})
 
 
@@ -2201,9 +2206,9 @@ def getpaymentdata():
 @app.route('/getpnlhistory')
 @login_required
 def getpnlhistory():
-    startyear=request.args["startyear"]
-    endyear=request.args["endyear"]
-    return jsonify(getpnlforyear(startyear,endyear))
+    startdate=request.args["startdate"]
+    enddate=request.args["enddate"]
+    return jsonify(getpnlforyear(startdate,enddate))
 
 
 
