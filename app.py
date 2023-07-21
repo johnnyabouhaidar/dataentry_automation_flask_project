@@ -2211,6 +2211,35 @@ def getpnlhistory():
     return jsonify(getpnlforyear(startdate,enddate))
 
 
+def convert_list_to_json(inputlist):
+    returnedjson = []
+    for item in inputlist:
+        #print(item)
+        returnedjson.append(item)
+    #print(returnedjson)
+    return returnedjson
+
+paymentforreportlist=db.engine.execute("""SELECT paiementsType AS PaiementType, 
+SUM (CASE WHEN Month(date)=1 THEN somme END) AS Janvier,
+SUM (CASE WHEN Month(date)=2 THEN somme END) AS Février,
+SUM (CASE WHEN Month(date)=3 THEN somme END) AS Mars,
+SUM (CASE WHEN Month(date)=4 THEN somme END) AS Avril,
+SUM (CASE WHEN Month(date)=5 THEN somme END) AS Mai,
+SUM (CASE WHEN Month(date)=6 THEN somme END) AS Juin,
+SUM (CASE WHEN Month(date)=7 THEN somme END) AS Juillet,
+SUM (CASE WHEN Month(date)=8 THEN somme END) AS Aout,
+SUM (CASE WHEN Month(date)=9 THEN somme END) AS Septembre,
+SUM (CASE WHEN Month(date)=10 THEN somme END) AS Octobre,
+SUM (CASE WHEN Month(date)=11 THEN somme END) AS Novembre,
+SUM (CASE WHEN Month(date)=12 THEN somme END) AS Décembre,
+SUM (somme) AS TOTAL
+
+FROM payment
+WHERE YEAR(date)= {0}
+and Valide='valide'
+GROUP BY paiementsType""".format(2022))
+#convert_list_to_json(paymentforreportlist)
+
 
 @app.route('/test4dashboard/')
 @login_required
@@ -2220,14 +2249,43 @@ def test4dashboard():
     #doctornames = Doctor.query.all()
     print(request.args)
     Arry=[]
+    paymentforreportlist=db.engine.execute("""SELECT paiementsType AS PaiementType, 
+SUM (CASE WHEN Month(date)=1 THEN somme END) AS Janvier,
+SUM (CASE WHEN Month(date)=2 THEN somme END) AS Février,
+SUM (CASE WHEN Month(date)=3 THEN somme END) AS Mars,
+SUM (CASE WHEN Month(date)=4 THEN somme END) AS Avril,
+SUM (CASE WHEN Month(date)=5 THEN somme END) AS Mai,
+SUM (CASE WHEN Month(date)=6 THEN somme END) AS Juin,
+SUM (CASE WHEN Month(date)=7 THEN somme END) AS Juillet,
+SUM (CASE WHEN Month(date)=8 THEN somme END) AS Aout,
+SUM (CASE WHEN Month(date)=9 THEN somme END) AS Septembre,
+SUM (CASE WHEN Month(date)=10 THEN somme END) AS Octobre,
+SUM (CASE WHEN Month(date)=11 THEN somme END) AS Novembre,
+SUM (CASE WHEN Month(date)=12 THEN somme END) AS Décembre,
+SUM (somme) AS TOTAL
+
+FROM payment
+WHERE YEAR(date)= {0}
+and Valide='valide'
+GROUP BY paiementsType""".format(2022))
+    paymentforreportjson=convert_list_to_json(paymentforreportlist)
+    #paymentforreportdf.set_index('PaiementType',inplace=True)
 
     try:
-        title='testdata'+request.args["year"]
-        returned_static_data={title:{'type1':3456.43,'type2':3245.34,'type3':2345.34}}
+        #title='testdata'+request.args["year"]
+        returned_static_data=[{"id":1,"name":"johnnyabouhaidar","email":"mail@mail.com"},
+                              {"id":2,"name":"johnnyabouhaidar2","email":"mail2@mail.com"},
+                              {"id":3,"name":"johnnyabouhaidar3","email":"mail3@mail.com"}]
     except:
         return jsonify({"Error":"Please specify a year"})
 
-    return jsonify(returned_static_data)
+    return jsonify(paymentforreportjson)
+
+@app.route('/testingpage')
+@login_required
+def testingpage():
+    return render_template('testingpage.html')
+
 
 
 
