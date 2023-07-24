@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -2214,8 +2214,12 @@ def getpnlhistory():
 def convert_list_to_json(inputlist):
     returnedjson = []
     for item in inputlist:
+        line = {}
+        for idx,value in enumerate(item):
+            line[idx]=value
         #print(item)
-        returnedjson.append(item)
+        #print(json.dumps(item))
+        returnedjson.append(line)
     #print(returnedjson)
     return returnedjson
 
@@ -2269,6 +2273,7 @@ WHERE YEAR(date)= {0}
 and Valide='valide'
 GROUP BY paiementsType""".format(2022))
     paymentforreportjson=convert_list_to_json(paymentforreportlist)
+    print(paymentforreportjson)
     #paymentforreportdf.set_index('PaiementType',inplace=True)
 
     try:
