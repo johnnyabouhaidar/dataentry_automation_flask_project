@@ -11,9 +11,19 @@
     <table id="data-table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
+                <th>pay</th>  
+                <th>jan</th>
+                <th>feb</th>
+                <th>mar</th>
+                <th>apr</th>
+                <th>may</th>
+                <th>jun</th>
+                <th>jul</th>
+                <th>aug</th>
+                <th>sep</th>
+                <th>oct</th>
+                <th>nov</th>
+                <th>dec</th>
                 <!-- Add more table headers if needed -->
             </tr>
         </thead>
@@ -45,12 +55,10 @@ function populateTable(data) {
   // Loop through the data and create table rows
   data.forEach((item) => {
     const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${item.id}</td>
-      <td>${item.name}</td>
-      <td>${item.email}</td>
-      <!-- Add more table cells here if needed -->
-    `;
+    for (let i = 0; i < 13; i++) {
+  row.innerHTML+=`<td>${item[i]}</td>`;
+}
+   
     tableBody.appendChild(row);
   });
 }
