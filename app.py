@@ -32,8 +32,8 @@ bcrypt = Bcrypt(app)
 #app.config['SQLALCHEMY_DATABASE_URI']='mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=sql+server?trusted_connection=yes'
 
 
-app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
-#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+#app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://flask1:flaskPass@localhost\SQLEXPRESS/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
+app.config['SQLALCHEMY_DATABASE_URI']=f"mssql+pyodbc://johnny:pass123456@localhost\SQLEXPRESS02/Flask_DataEntry_DB?driver=ODBC+Driver+17+for+SQL+Server"
 
 db.init_app(app)
 app.config['SECRET_KEY']='thisisasecretkeyjohnny'
@@ -2223,26 +2223,7 @@ def convert_list_to_json(inputlist):
     #print(returnedjson)
     return returnedjson
 
-paymentforreportlist=db.engine.execute("""SELECT paiementsType AS PaiementType, 
-SUM (CASE WHEN Month(date)=1 THEN somme END) AS Janvier,
-SUM (CASE WHEN Month(date)=2 THEN somme END) AS Février,
-SUM (CASE WHEN Month(date)=3 THEN somme END) AS Mars,
-SUM (CASE WHEN Month(date)=4 THEN somme END) AS Avril,
-SUM (CASE WHEN Month(date)=5 THEN somme END) AS Mai,
-SUM (CASE WHEN Month(date)=6 THEN somme END) AS Juin,
-SUM (CASE WHEN Month(date)=7 THEN somme END) AS Juillet,
-SUM (CASE WHEN Month(date)=8 THEN somme END) AS Aout,
-SUM (CASE WHEN Month(date)=9 THEN somme END) AS Septembre,
-SUM (CASE WHEN Month(date)=10 THEN somme END) AS Octobre,
-SUM (CASE WHEN Month(date)=11 THEN somme END) AS Novembre,
-SUM (CASE WHEN Month(date)=12 THEN somme END) AS Décembre,
-SUM (somme) AS TOTAL
 
-FROM payment
-WHERE YEAR(date)= {0}
-and Valide='valide'
-GROUP BY paiementsType""".format(2022))
-#convert_list_to_json(paymentforreportlist)
 
 
 @app.route('/test4dashboard/')
