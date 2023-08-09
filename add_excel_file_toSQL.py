@@ -1,7 +1,7 @@
 from DB_layer import *
 import pandas as pd
 
-excel_file_path=r"C:\Users\Johnny\Downloads\Simplified Data - Payments - 2023 NEW.xlsx"
+excel_file_path=r"Simplified Data - Payments - 2023 Carte EC.xlsx"
 
 df=pd.read_excel(excel_file_path)
 '''
@@ -87,7 +87,7 @@ for idx,row in enumerate(df.iterrows()):
 mult_str = mult_str[:-1] + ";"
 print(mult_str)
 
-insert_into_table(mult_str)
+#insert_into_table(mult_str)
 
 
 
