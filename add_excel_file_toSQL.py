@@ -1,7 +1,7 @@
 from DB_layer import *
 import pandas as pd
 
-excel_file_path=r"Simplified Data - Payments - 2023 Carte EC.xlsx"
+excel_file_path=r"Détail TB frais avec carte EC 2022.xlsx"
 
 df=pd.read_excel(excel_file_path)
 '''
@@ -31,9 +31,9 @@ for idx,row in enumerate(df.iterrows()):
     #print(df.iloc[idx]["Amount"])
     #print(df.iloc[idx]["Comment"])
     if str(df.iloc[idx]["Comment"])=='nan':
-        mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'",""),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],"",df.iloc[idx]["Type"])
+        mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'","").strip(),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],"",df.iloc[idx]["Type"].strip())
     else:
-        mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'",""),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],df.iloc[idx]["Comment"],df.iloc[idx]["Type"])
+        mult_str=mult_str+"('{0}','{4}',{1},'{2}','{3}'),".format(df.iloc[idx]["Recipient"].replace("'","").strip(),df.iloc[idx]["Amount"],str(df.iloc[idx]["Date"]).split(" ")[0],df.iloc[idx]["Comment"].strip(),df.iloc[idx]["Type"].strip())
 
 '''
 mult_str="""INSERT INTO retrocession ( retrocessionNom
